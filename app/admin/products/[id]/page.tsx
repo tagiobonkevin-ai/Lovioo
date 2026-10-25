@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "@/components/Providers";
+import { isAdminRole, useAdminRole } from "@/components/admin/AdminShell";
 import { adminDb, useAdminQuery } from "@/components/admin/useAdmin";
 import { ErrorNote, Field, PageHeader, Panel, Skeleton, Toggle, adminInput } from "@/components/admin/ui";
 import { RetailerBadge } from "@/components/product/RetailerBadge";
@@ -63,6 +64,8 @@ const list = (s: string, sep: RegExp) => s.split(sep).map((x) => x.trim()).filte
 
 export default function ProductEditor({ params }: { params: { id: string } }) {
   const isNew = params.id === "new";
+  // Editors draft; only admins publish, unpublish or delete (also enforced by the database).
+  const canPublish = isAdminRole(useAdminRole());
   const router = useRouter();
   const [draft, setDraft] = useState<Draft>({ ...EMPTY, category_id: CATEGORIES[0]?.id ?? "" });
   const [offers, setOffers] = useState<OfferDraft[]>([]);
@@ -169,7 +172,7 @@ export default function ProductEditor({ params }: { params: { id: string } }) {
             View live <ExternalLink className="h-4 w-4" />
           </Link>
         )}
-        {!isNew && (
+        {!isNew && canPublish && (
           <button onClick={remove} className="btn border border-coral/30 bg-white text-coral hover:bg-coral/5">
             <Trash2 className="h-4 w-4" /> Delete
           </button>
@@ -321,9 +324,14 @@ export default function ProductEditor({ params }: { params: { id: string } }) {
         <div className="space-y-6">
           <Panel title="Visibility">
             <div className="space-y-3 text-sm">
+              {!canPublish && (
+                <p className="rounded-2xl bg-lavender p-3 text-xs text-midnight/70">
+                  {draft.published ? "Live on the shopper site. Your edits show up within a minute." : "Draft: an admin will review and publish it."}
+                </p>
+              )}
               {(
                 [
-                  ["published", "Published on the shopper site"],
+                  ...(canPublish ? ([["published", "Published on the shopper site"]] as const) : []),
                   ["trending", "Mark as trending 🔥"],
                   ["is_new", "Show NEW badge"],
                   ["price_tracked", "Track prices (off = \"See prices\" pick)"],

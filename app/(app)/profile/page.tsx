@@ -18,12 +18,12 @@ export default function ProfilePage() {
   const router = useRouter();
   const { user, prefs, saved, alerts, swipes, streak, setPrefs, signOut } = useLovioo();
   const [notify, setNotify] = useState({ drops: true, restock: true, digest: false });
-  const [isAdmin, setIsAdmin] = useState(false);
+  const [isStaff, setIsStaff] = useState(false);
 
   useEffect(() => {
     const sb = getSupabase();
     if (!sb || !user?.id) return;
-    sb.rpc("is_admin").then(({ data }) => setIsAdmin(!!data));
+    sb.rpc("current_app_role").then(({ data }) => setIsStaff(!!data && data !== "customer"));
   }, [user?.id]);
 
   if (!hydrated) return <div className="h-64 animate-pulse rounded-3xl bg-white/60" />;
@@ -120,7 +120,7 @@ export default function ProfilePage() {
 
       <div className="card divide-y divide-line/70">
         {[
-          ...(isAdmin ? [{ icon: BarChart3, label: "Open Lovioo Business (admin)", href: "/admin" }] : []),
+          ...(isStaff ? [{ icon: BarChart3, label: "Open Lovioo Business", href: "/admin" }] : []),
           { icon: Sparkles, label: "Redo onboarding", href: "/onboarding" },
           { icon: Shield, label: "Privacy policy", href: "/privacy" },
           { icon: HelpCircle, label: "Terms of use", href: "/terms" },

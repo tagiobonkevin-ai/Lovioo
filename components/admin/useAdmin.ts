@@ -37,7 +37,7 @@ export function useAdminQuery<T>(run: (sb: Supabase) => PromiseLike<Result<T>>, 
 export async function saveWith(p: PromiseLike<{ error: { message: string } | null }>, success: string) {
   const { error } = await p;
   if (error) {
-    toast({ title: "Couldn't save", body: error.message, kind: "ok" });
+    toast({ title: "Couldn't save", body: error.message, kind: "error" });
     return false;
   }
   toast({ title: success, kind: "ok" });

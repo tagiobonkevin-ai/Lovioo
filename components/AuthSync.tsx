@@ -17,7 +17,7 @@ export function AuthSync() {
     let activeUserId: string | null = null;
     const onError = (msg: string) => {
       console.error("Lovioo sync:", msg);
-      toast({ title: "Couldn't sync with your account", body: msg, kind: "ok" });
+      toast({ title: "Couldn't sync with your account", body: msg, kind: "error" });
     };
 
     const { data: sub } = sb.auth.onAuthStateChange((_event, session) => {
