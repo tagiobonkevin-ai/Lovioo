@@ -10,7 +10,7 @@ import { ProductCard } from "@/components/product/ProductCard";
 import { ProductImage } from "@/components/product/ProductImage";
 import { useHydrated } from "@/components/Providers";
 import { PRODUCTS } from "@/lib/data/products";
-import { RETAILERS } from "@/lib/data/retailers";
+import { retailerById } from "@/lib/data/retailers";
 import { getInsight } from "@/lib/insights";
 import { scoreProducts } from "@/lib/recommend";
 import { useLovioo } from "@/lib/store";
@@ -118,7 +118,7 @@ function DealCarousel({ products }: { products: typeof PRODUCTS }) {
             <span className="chip border-none bg-white/80 text-pink">Top deal just for you</span>
             <h2 className="mt-3 text-2xl font-extrabold leading-tight sm:text-3xl">{p.name}</h2>
             <p className="mt-2 text-sm text-midnight/70">
-              {peso(ins.bestOffer.price)} on {RETAILERS[ins.bestOffer.retailer].name} · {ins.headline}
+              {peso(ins.bestOffer.price)} on {retailerById(ins.bestOffer.retailer).name} · {ins.headline}
             </p>
             <div className="mt-5 flex items-center gap-3">
               <Link href={`/product/${p.slug}`} className="btn-primary">

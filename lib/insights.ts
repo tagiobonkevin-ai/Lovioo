@@ -1,3 +1,4 @@
+import { onCatalogChange } from "@/lib/data/catalog";
 import { bestOffer, lowestPrice } from "@/lib/data/products";
 import type { Insight, PricePoint, Product, RetailerId } from "@/lib/types";
 import { hashString, peso, roundPrice, seeded } from "@/lib/utils";
@@ -7,8 +8,10 @@ const TODAY = Date.UTC(2026, 9, 25);
 const DAY = 86_400_000;
 
 const historyCache = new Map<string, PricePoint[]>();
+const insightCache = new WeakMap<Product, Insight>();
+onCatalogChange(() => historyCache.clear());
 
-/** 90 days of the lowest price across retailers, ending at today's real lowest price. */
+/** Demo mode: 90 days of illustrative lowest prices, ending at today's real lowest price. Supabase mode reads real history instead. */
 export function priceHistory(p: Product, days = 90): PricePoint[] {
   const key = `${p.id}:${days}`;
   const cached = historyCache.get(key);
@@ -52,11 +55,23 @@ export function retailerHistory(p: Product, days = 30) {
 }
 
 export function getInsight(p: Product): Insight {
-  const hist = priceHistory(p);
-  const prices = hist.map((h) => h.price);
-  const low = Math.min(...prices);
-  const high = Math.max(...prices);
-  const avg = prices.reduce((a, b) => a + b, 0) / prices.length;
+  const cached = insightCache.get(p);
+  if (cached) return cached;
+  const insight = computeInsight(p);
+  insightCache.set(p, insight);
+  return insight;
+}
+
+function computeInsight(p: Product): Insight {
+  let low: number, high: number, avg: number;
+  if (p.stats) {
+    ({ low90: low, high90: high, avg90: avg } = p.stats);
+  } else {
+    const prices = priceHistory(p).map((h) => h.price);
+    low = Math.min(...prices);
+    high = Math.max(...prices);
+    avg = prices.reduce((a, b) => a + b, 0) / prices.length;
+  }
   const best = bestOffer(p);
   const now = best.price;
 

@@ -3,7 +3,7 @@
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { ProductImage } from "@/components/product/ProductImage";
-import { RETAILERS } from "@/lib/data/retailers";
+import { retailerById } from "@/lib/data/retailers";
 import { getInsight } from "@/lib/insights";
 import type { Product } from "@/lib/types";
 import { peso } from "@/lib/utils";
@@ -44,7 +44,7 @@ export function MatchModal({ product, onClose }: { product: Product; onClose: ()
             </motion.div>
             <p className="mt-3 font-bold">{product.name}</p>
             <p className="mt-1 text-sm text-midnight/60">
-              {peso(i.bestOffer.price)} on {RETAILERS[i.bestOffer.retailer].name} · deal score <b className="text-emerald-600">{i.dealScore}</b>
+              {peso(i.bestOffer.price)} on {retailerById(i.bestOffer.retailer).name} · deal score <b className="text-emerald-600">{i.dealScore}</b>
             </p>
             <div className="mt-5 grid gap-2">
               <Link href={`/product/${product.slug}`} className="btn-gradient w-full">

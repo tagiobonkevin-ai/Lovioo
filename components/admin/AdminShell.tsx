@@ -1,0 +1,168 @@
+"use client";
+
+import type { Session } from "@supabase/supabase-js";
+import { BarChart3, ExternalLink, FolderTree, LayoutDashboard, LogOut, Menu, Package, Settings, Store, Tag, Users, X } from "lucide-react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
+import { Logo } from "@/components/brand/Logo";
+import { getSupabase, isSupabaseConfigured } from "@/lib/supabase/client";
+import { cn } from "@/lib/utils";
+
+const NAV = [
+  { href: "/admin", label: "Overview", icon: LayoutDashboard },
+  { href: "/admin/products", label: "Products", icon: Package },
+  { href: "/admin/retailers", label: "Retailer sources", icon: Store },
+  { href: "/admin/deals", label: "Deals & alerts", icon: Tag },
+  { href: "/admin/categories", label: "Categories", icon: FolderTree },
+  { href: "/admin/users", label: "Shoppers", icon: Users },
+  { href: "/admin/settings", label: "Admins", icon: Settings },
+];
+
+type Access = { state: "loading" } | { state: "signed-out" } | { state: "denied"; email: string } | { state: "ok"; email: string } | { state: "error"; message: string };
+
+export function AdminShell({ children }: { children: React.ReactNode }) {
+  const pathname = usePathname();
+  const [access, setAccess] = useState<Access>({ state: "loading" });
+  const [menu, setMenu] = useState(false);
+
+  useEffect(() => setMenu(false), [pathname]);
+
+  useEffect(() => {
+    const sb = getSupabase();
+    if (!sb) return;
+    const check = async (session: Session | null) => {
+      if (!session) return setAccess({ state: "signed-out" });
+      const { data, error } = await sb.rpc("is_admin");
+      if (error) return setAccess({ state: "error", message: error.message });
+      const email = session.user.email ?? "";
+      setAccess(data ? { state: "ok", email } : { state: "denied", email });
+    };
+    sb.auth.getSession().then(({ data }) => check(data.session));
+    const { data: sub } = sb.auth.onAuthStateChange((_e, session) => {
+      setTimeout(() => check(session), 0);
+    });
+    return () => sub.subscription.unsubscribe();
+  }, []);
+
+  if (!isSupabaseConfigured) {
+    return (
+      <Gate title="Connect Supabase to use the admin" emoji="🔌">
+        Set <code className="rounded bg-lavender px-1.5">NEXT_PUBLIC_SUPABASE_URL</code> and{" "}
+        <code className="rounded bg-lavender px-1.5">NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY</code>, then restart the app. The shopper site keeps working on demo data without them.
+      </Gate>
+    );
+  }
+  if (access.state === "loading") return <div className="grid min-h-screen place-items-center bg-cream text-sm text-midnight/50">Checking access…</div>;
+  if (access.state === "signed-out")
+    return (
+      <Gate title="Sign in to Lovioo Business" emoji="🔐" action={{ href: "/auth?mode=signin&next=/admin", label: "Sign in" }}>
+        Use an account whose email is on the admin list.
+      </Gate>
+    );
+  if (access.state === "denied")
+    return (
+      <Gate title="This account isn't an admin" emoji="🙅" action={{ href: "/discover", label: "Back to Lovioo" }}>
+        You&apos;re signed in as <b>{access.email}</b>. An existing admin can add you under Admins. New accounts also need a confirmed email address.
+      </Gate>
+    );
+  if (access.state === "error") return <Gate title="Couldn't check admin access" emoji="⚠️">{access.message}</Gate>;
+
+  const nav = (
+    <nav className="space-y-1">
+      {NAV.map(({ href, label, icon: Icon }) => {
+        const active = href === "/admin" ? pathname === href : pathname.startsWith(href);
+        return (
+          <Link
+            key={href}
+            href={href}
+            className={cn("flex items-center gap-3 rounded-2xl px-4 py-2.5 text-sm font-medium transition", active ? "bg-pink text-white shadow-pop" : "text-white/70 hover:bg-white/5 hover:text-white")}
+          >
+            <Icon className="h-4 w-4" /> {label}
+          </Link>
+        );
+      })}
+    </nav>
+  );
+
+  const footer = (
+    <div className="space-y-1 border-t border-white/10 pt-4 text-sm">
+      <Link href="/discover" className="flex items-center gap-3 rounded-2xl px-4 py-2 text-white/60 hover:text-white">
+        <ExternalLink className="h-4 w-4" /> View shopper site
+      </Link>
+      <button
+        onClick={async () => {
+          await getSupabase()?.auth.signOut();
+        }}
+        className="flex w-full items-center gap-3 rounded-2xl px-4 py-2 text-white/60 hover:text-white"
+      >
+        <LogOut className="h-4 w-4" /> Sign out
+      </button>
+      <p className="truncate px-4 pt-2 text-[11px] text-white/40">{access.email}</p>
+    </div>
+  );
+
+  return (
+    <div className="min-h-screen bg-[#F6F3F7]">
+      <aside className="fixed inset-y-0 left-0 z-30 hidden w-64 flex-col gap-8 bg-midnight p-5 lg:flex">
+        <BusinessLogo />
+        <div className="flex-1">{nav}</div>
+        {footer}
+      </aside>
+
+      <header className="sticky top-0 z-30 flex items-center justify-between bg-midnight px-4 py-3 lg:hidden">
+        <BusinessLogo />
+        <button onClick={() => setMenu(true)} className="grid h-10 w-10 place-items-center rounded-full text-white" aria-label="Open menu">
+          <Menu className="h-5 w-5" />
+        </button>
+      </header>
+      {menu && (
+        <div className="fixed inset-0 z-50 lg:hidden">
+          <div className="absolute inset-0 bg-midnight/40" onClick={() => setMenu(false)} />
+          <div className="absolute inset-y-0 left-0 flex w-72 flex-col gap-6 bg-midnight p-5">
+            <div className="flex items-center justify-between">
+              <BusinessLogo />
+              <button onClick={() => setMenu(false)} className="text-white" aria-label="Close menu">
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+            <div className="flex-1">{nav}</div>
+            {footer}
+          </div>
+        </div>
+      )}
+
+      <main className="px-4 py-6 lg:ml-64 lg:px-8 lg:py-8">{children}</main>
+    </div>
+  );
+}
+
+function BusinessLogo() {
+  return (
+    <Link href="/admin" className="flex items-center gap-2">
+      <Logo light />
+      <span className="rounded-full bg-white/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-white/80">
+        <BarChart3 className="mr-1 inline h-3 w-3" />
+        Business
+      </span>
+    </Link>
+  );
+}
+
+function Gate({ title, emoji, children, action }: { title: string; emoji: string; children: React.ReactNode; action?: { href: string; label: string } }) {
+  return (
+    <div className="grid min-h-screen place-items-center bg-brand-soft p-6">
+      <div className="card max-w-md p-8 text-center">
+        <Logo tagline />
+        <p className="mt-6 text-5xl">{emoji}</p>
+        <h1 className="mt-3 text-xl font-extrabold">{title}</h1>
+        <p className="mt-2 text-sm text-midnight/70">{children}</p>
+        {action && (
+          <Link href={action.href} className="btn-primary mt-6">
+            {action.label}
+          </Link>
+        )}
+      </div>
+    </div>
+  );
+}

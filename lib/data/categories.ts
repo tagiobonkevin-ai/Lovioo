@@ -16,7 +16,8 @@ export const CATEGORIES: Category[] = [
   { id: "toys", name: "Toys & Hobbies", emoji: "🧸", tint: "#F1E8FF" },
 ];
 
-export const categoryById = (id: CategoryId) => CATEGORIES.find((c) => c.id === id)!;
+export const categoryById = (id: CategoryId): Category =>
+  CATEGORIES.find((c) => c.id === id) ?? { id, name: id, emoji: "✨", tint: "#FFE9E2" };
 
 export const VIBES: { id: Vibe; label: string; emoji: string }[] = [
   { id: "cozy", label: "Cozy", emoji: "🕯️" },

@@ -8,7 +8,7 @@ import { useState } from "react";
 import { Logo } from "@/components/brand/Logo";
 import { RetailerBadge } from "@/components/product/RetailerBadge";
 import { BUDGETS, CATEGORIES } from "@/lib/data/categories";
-import { ALL_RETAILERS, RETAILERS } from "@/lib/data/retailers";
+import { ALL_RETAILERS, retailerById } from "@/lib/data/retailers";
 import { useLovioo } from "@/lib/store";
 import type { CategoryId, Preferences, RetailerId } from "@/lib/types";
 import { cn } from "@/lib/utils";
@@ -107,7 +107,7 @@ export default function Onboarding() {
                         className={cn("relative flex flex-col items-center gap-2 rounded-2xl border-2 p-4 text-xs font-semibold transition", on ? "border-pink bg-pink/5" : "border-line bg-white")}
                       >
                         <RetailerBadge id={r} size="md" />
-                        {RETAILERS[r].name}
+                        {retailerById(r).name}
                         {on && (
                           <span className="absolute right-2 top-2 grid h-5 w-5 place-items-center rounded-full bg-pink text-white">
                             <Check className="h-3 w-3" />

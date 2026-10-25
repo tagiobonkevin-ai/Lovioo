@@ -161,4 +161,4 @@ export const discountPct = (p: Product) => {
   return Math.round((1 - o.price / o.originalPrice) * 100);
 };
 
-export const BRANDS = Array.from(new Set(PRODUCTS.map((p) => p.brand))).sort();
+export const BRANDS: string[] = Array.from(new Set(PRODUCTS.map((p) => p.brand))).sort();

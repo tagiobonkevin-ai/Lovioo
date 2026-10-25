@@ -1,19 +1,7 @@
-export type CategoryId =
-  | "electronics"
-  | "fashion"
-  | "beauty"
-  | "home"
-  | "sports"
-  | "toys";
+// Known ids get autocomplete; admins can add more in Supabase, so any string is allowed.
+export type CategoryId = "electronics" | "fashion" | "beauty" | "home" | "sports" | "toys" | (string & {});
 
-export type RetailerId =
-  | "shopee"
-  | "lazada"
-  | "tiktok"
-  | "amazon"
-  | "ebay"
-  | "aliexpress"
-  | "shein";
+export type RetailerId = "shopee" | "lazada" | "tiktok" | "amazon" | "ebay" | "aliexpress" | "shein" | (string & {});
 
 export type Vibe = "cozy" | "glowup" | "gamer" | "sporty" | "street" | "workfromhome";
 
@@ -44,6 +32,14 @@ export interface Product {
   isNew?: boolean;
   trending?: boolean;
   offers: Offer[];
+  /** 90-day stats on the lowest daily price, from Supabase. Absent in demo mode. */
+  stats?: PriceStats;
+}
+
+export interface PriceStats {
+  low90: number;
+  avg90: number;
+  high90: number;
 }
 
 export interface PricePoint {

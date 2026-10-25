@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useState } from "react";
 import { Logo } from "@/components/brand/Logo";
 import { useLovioo } from "@/lib/store";
+import { getSupabase, isSupabaseConfigured } from "@/lib/supabase/client";
 import { cn } from "@/lib/utils";
 
 const PERKS = ["Discover better deals", "Compare across stores", "Save your favourites", "Get personalised picks"];
@@ -30,21 +31,54 @@ function AuthForm() {
   const [password, setPassword] = useState("");
   const [show, setShow] = useState(false);
   const [error, setError] = useState("");
+  const [notice, setNotice] = useState("");
+  const [busy, setBusy] = useState(false);
   const signIn = useLovioo((s) => s.signIn);
+  const next = params.get("next") || "/discover";
 
-  const finish = (n: string, e: string) => {
+  /** Demo mode only: no backend, the "account" lives in this browser. */
+  const finishDemo = (n: string, e: string) => {
     signIn({ name: n, email: e });
     const { onboarded } = useLovioo.getState();
-    router.push(mode === "signup" && !onboarded ? "/onboarding" : params.get("next") || "/discover");
+    router.push(mode === "signup" && !onboarded ? "/onboarding" : next);
   };
 
-  const submit = (ev: React.FormEvent) => {
+  const submit = async (ev: React.FormEvent) => {
     ev.preventDefault();
     if (mode === "signup" && !name.trim()) return setError("Tell us your name.");
     if (!/^\S+@\S+\.\S+$/.test(email)) return setError("Enter a valid email address.");
     if (password.length < 6) return setError("Password needs at least 6 characters.");
     setError("");
-    finish(name.trim() || email.split("@")[0].replace(/^\w/, (c) => c.toUpperCase()), email);
+    setNotice("");
+    const sb = getSupabase();
+    if (!sb) return finishDemo(name.trim() || email.split("@")[0].replace(/^\w/, (c) => c.toUpperCase()), email);
+
+    setBusy(true);
+    try {
+      if (mode === "signup") {
+        const { data, error } = await sb.auth.signUp({
+          email,
+          password,
+          options: { data: { full_name: name.trim() }, emailRedirectTo: `${window.location.origin}/onboarding` },
+        });
+        if (error) setError(error.message);
+        else if (!data.session) setNotice(`We sent a confirmation link to ${email}. Open it to finish creating your account.`);
+        else router.push("/onboarding");
+      } else {
+        const { error } = await sb.auth.signInWithPassword({ email, password });
+        if (error) setError(error.message);
+        else router.push(next);
+      }
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const google = async () => {
+    const sb = getSupabase();
+    if (!sb) return finishDemo("Marie Santos", "marie@example.com");
+    const { error } = await sb.auth.signInWithOAuth({ provider: "google", options: { redirectTo: `${window.location.origin}${next}` } });
+    if (error) setError(`Google sign-in isn't available yet: ${error.message}`);
   };
 
   return (
@@ -117,13 +151,16 @@ function AuthForm() {
               </span>
             </label>
             {error && <p className="text-sm font-medium text-coral">{error}</p>}
-            <button className="btn-primary w-full !py-3">{mode === "signup" ? "Create account" : "Sign in"}</button>
+            {notice && <p className="rounded-2xl bg-emerald-50 p-3 text-sm font-medium text-emerald-700">{notice}</p>}
+            <button className="btn-primary w-full !py-3" disabled={busy}>
+              {busy ? "One moment…" : mode === "signup" ? "Create account" : "Sign in"}
+            </button>
           </form>
 
           <div className="my-6 flex items-center gap-3 text-xs text-midnight/40">
             <span className="h-px flex-1 bg-line" /> or continue with <span className="h-px flex-1 bg-line" />
           </div>
-          <button onClick={() => finish("Marie Santos", "marie@example.com")} className="btn-ghost w-full !py-3">
+          <button onClick={google} className="btn-ghost w-full !py-3">
             <GoogleIcon /> Continue with Google
           </button>
           <p className="mt-6 text-center text-sm text-midnight/60">
@@ -132,7 +169,7 @@ function AuthForm() {
               {mode === "signup" ? "Sign in" : "Sign up"}
             </button>
           </p>
-          <p className="mt-4 text-center text-[11px] text-midnight/40">Demo: accounts are stored only in this browser.</p>
+          {!isSupabaseConfigured && <p className="mt-4 text-center text-[11px] text-midnight/40">Demo: accounts are stored only in this browser.</p>}
         </div>
       </div>
     </div>

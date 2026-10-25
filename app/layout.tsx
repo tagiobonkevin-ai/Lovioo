@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Poppins } from "next/font/google";
 import { Providers } from "@/components/Providers";
+import { loadCatalog } from "@/lib/data/load-catalog";
 import "./globals.css";
 
 const poppins = Poppins({
@@ -19,11 +20,15 @@ export const viewport: Viewport = {
   themeColor: "#FF2D9A",
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+// Re-read the catalog from Supabase at most once a minute, so admin edits show up quickly.
+export const revalidate = 60;
+
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const catalog = await loadCatalog();
   return (
     <html lang="en" className={poppins.variable}>
       <body className="font-sans">
-        <Providers>{children}</Providers>
+        <Providers catalog={catalog.source === "supabase" ? catalog : null}>{children}</Providers>
       </body>
     </html>
   );

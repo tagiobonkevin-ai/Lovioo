@@ -9,7 +9,7 @@ import { ProductImage } from "@/components/product/ProductImage";
 import { RetailerBadge } from "@/components/product/RetailerBadge";
 import { categoryById } from "@/lib/data/categories";
 import { productById } from "@/lib/data/products";
-import { RETAILERS } from "@/lib/data/retailers";
+import { retailerById } from "@/lib/data/retailers";
 import { getInsight } from "@/lib/insights";
 import { useLovioo } from "@/lib/store";
 import type { Product } from "@/lib/types";
@@ -54,7 +54,7 @@ function CompareInner() {
       ),
     },
     { label: "Category", render: (p) => `${categoryById(p.category).name} · ${p.subcategory}` },
-    { label: "Stores", render: (p) => p.offers.map((o) => RETAILERS[o.retailer].name).join(", ") },
+    { label: "Stores", render: (p) => p.offers.map((o) => retailerById(o.retailer).name).join(", ") },
   ];
 
   const remove = (id: string) => {

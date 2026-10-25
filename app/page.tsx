@@ -5,8 +5,9 @@ import { HeroDeck } from "@/components/landing/HeroDeck";
 import { CategoryBubbles } from "@/components/product/CategoryBubbles";
 import { ProductCard } from "@/components/product/ProductCard";
 import { RetailerBadge } from "@/components/product/RetailerBadge";
+import { loadCatalog } from "@/lib/data/load-catalog";
 import { PRODUCTS } from "@/lib/data/products";
-import { ALL_RETAILERS, RETAILERS } from "@/lib/data/retailers";
+import { ALL_RETAILERS, retailerById } from "@/lib/data/retailers";
 
 const FEATURES = [
   { icon: Search, title: "Discover", body: "Products you'll love, tuned to your taste with every swipe.", tint: "bg-pink/10 text-pink" },
@@ -15,7 +16,8 @@ const FEATURES = [
   { icon: Heart, title: "Save & Alerts", body: "Heart anything and get pinged on price drops and restocks.", tint: "bg-sunset/15 text-[#E08A00]" },
 ];
 
-export default function Landing() {
+export default async function Landing() {
+  await loadCatalog();
   const trending = PRODUCTS.filter((p) => p.trending).slice(0, 4);
   return (
     <div className="min-h-screen overflow-x-hidden bg-cream">
@@ -121,7 +123,7 @@ export default function Landing() {
               {ALL_RETAILERS.map((r) => (
                 <div key={r} className="flex flex-col items-center gap-2 rounded-2xl bg-white/5 p-4 ring-1 ring-white/10">
                   <RetailerBadge id={r} size="md" />
-                  <span className="text-xs font-medium text-white/80">{RETAILERS[r].name}</span>
+                  <span className="text-xs font-medium text-white/80">{retailerById(r).name}</span>
                 </div>
               ))}
               <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-white/20 p-4 text-xs text-white/50">

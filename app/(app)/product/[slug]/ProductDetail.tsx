@@ -2,7 +2,7 @@
 
 import { Bell, BellRing, Check, GitCompareArrows, Heart, Share2, Star } from "lucide-react";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { DiscountBadge } from "@/components/product/DealScore";
 import { InsightCard } from "@/components/product/InsightCard";
 import { OfferTable } from "@/components/product/OfferTable";
@@ -12,10 +12,12 @@ import { ProductImage } from "@/components/product/ProductImage";
 import { toast, useHydrated } from "@/components/Providers";
 import { categoryById } from "@/lib/data/categories";
 import { bestOffer, discountPct, productBySlug } from "@/lib/data/products";
-import { RETAILERS } from "@/lib/data/retailers";
+import { retailerById } from "@/lib/data/retailers";
 import { getInsight } from "@/lib/insights";
 import { similarProducts } from "@/lib/recommend";
 import { useLovioo } from "@/lib/store";
+import { getSupabase } from "@/lib/supabase/client";
+import { trackEvent } from "@/lib/sync";
 import { cn, compact, peso } from "@/lib/utils";
 
 const TABS = ["Compare offers", "Price history", "Details"] as const;
@@ -32,6 +34,8 @@ export function ProductDetail({ slug }: { slug: string }) {
   const pct = discountPct(product);
   const cat = categoryById(product.category);
   const hasAlert = hydrated && !!alert;
+
+  useEffect(() => trackEvent(getSupabase(), product.id, "view"), [product.id]);
 
   const share = async () => {
     const url = window.location.href;
@@ -95,7 +99,7 @@ export function ProductDetail({ slug }: { slug: string }) {
             <DiscountBadge pct={pct} className="mb-1.5" />
           </div>
           <p className="mt-1 text-sm text-midnight/60">
-            Lowest price on <b>{RETAILERS[best.retailer].name}</b> · compared across {product.offers.length} stores
+            Lowest price on <b>{retailerById(best.retailer).name}</b> · compared across {product.offers.length} stores
           </p>
 
           <div className="mt-6 flex flex-wrap gap-2">

@@ -7,13 +7,15 @@ import { getInsight } from "@/lib/insights";
 import type { PriceAlert, Preferences } from "@/lib/types";
 
 export interface User {
+  /** Supabase user id; absent for demo-mode accounts. */
+  id?: string;
   name: string;
   email: string;
 }
 
 export type SwipeAction = "love" | "nope" | "super";
 
-interface SwipeRecord {
+export interface SwipeRecord {
   productId: string;
   action: SwipeAction;
   at: number;
@@ -45,6 +47,8 @@ interface LoviooState {
   resetSwipes: () => void;
   toggleCompare: (id: string) => void;
   clearCompare: () => void;
+  /** Replaces the signed-in user's personal data (used when loading it from Supabase). */
+  loadUserData: (d: Pick<LoviooState, "saved" | "alerts" | "swipes" | "prefs" | "onboarded" | "streak" | "streakDay">) => void;
 }
 
 const todayKey = () => new Date().toISOString().slice(0, 10);
@@ -64,7 +68,8 @@ export const useLovioo = create<LoviooState>()(
       dailyGoal: 20,
 
       signIn: (user) => set({ user }),
-      signOut: () => set({ user: null }),
+      // Signing out clears personal data so the next person on this browser starts fresh.
+      signOut: () => set({ user: null, saved: [], alerts: [], swipes: [], streak: 0, streakDay: null, onboarded: false }),
       setPrefs: (p) => set({ prefs: { ...get().prefs, ...p } }),
       completeOnboarding: () => set({ onboarded: true }),
 
@@ -113,6 +118,7 @@ export const useLovioo = create<LoviooState>()(
         else set({ compare: [...c, id].slice(-3) });
       },
       clearCompare: () => set({ compare: [] }),
+      loadUserData: (d) => set(d),
     }),
     {
       name: "lovioo-store",

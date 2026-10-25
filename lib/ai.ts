@@ -1,6 +1,6 @@
 import { CATEGORIES } from "@/lib/data/categories";
 import { BRANDS, PRODUCTS, lowestPrice } from "@/lib/data/products";
-import { RETAILERS } from "@/lib/data/retailers";
+import { ALL_RETAILERS, retailerById } from "@/lib/data/retailers";
 import { getInsight } from "@/lib/insights";
 import type { CategoryId, Product, RetailerId } from "@/lib/types";
 import { peso } from "@/lib/utils";
@@ -37,8 +37,8 @@ export function askLovioo(input: string, name = "there"): AiReply {
     CATEGORY_WORDS[c].some((w) => q.includes(w)),
   );
   const brand = BRANDS.find((b) => q.includes(b.toLowerCase()));
-  const retailer = (Object.keys(RETAILERS) as RetailerId[]).find(
-    (r) => q.includes(RETAILERS[r].name.toLowerCase()) || (r === "tiktok" && q.includes("tiktok")),
+  const retailer = ALL_RETAILERS.find(
+    (r) => q.includes(retailerById(r).name.toLowerCase()) || (r === "tiktok" && q.includes("tiktok")),
   );
   const wantsTrending = /trend|viral|hot|popular/.test(q);
   const wantsDeals = /deal|sale|discount|cheap|best price|promo/.test(q);
@@ -92,7 +92,7 @@ export function askLovioo(input: string, name = "there"): AiReply {
   const catLabel = cats.length ? CATEGORIES.find((c) => c.id === cats[0])!.name.toLowerCase() : "picks";
   const parts = [
     wantsTrending ? `Here's what's trending right now 🔥` : wantsGift ? `Gift-worthy finds 🎁` : `Found ${pool.length} ${catLabel}${budget ? ` under ${peso(budget)}` : ""} for you ✨`,
-    `My top pick is **${top.name}** — ${peso(ti.bestOffer.price)} on ${RETAILERS[ti.bestOffer.retailer].name}, deal score ${ti.dealScore}/100. ${ti.headline}.`,
+    `My top pick is **${top.name}** — ${peso(ti.bestOffer.price)} on ${retailerById(ti.bestOffer.retailer).name}, deal score ${ti.dealScore}/100. ${ti.headline}.`,
   ];
   if (wantsDeals && ti.savings > 0) parts.push(`That's ${peso(ti.savings)} off the list price.`);
 
