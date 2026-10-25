@@ -1,0 +1,18 @@
+import Link from "next/link";
+import { Logo } from "@/components/brand/Logo";
+
+export default function NotFound() {
+  return (
+    <div className="grid min-h-screen place-items-center bg-brand-soft p-6 text-center">
+      <div>
+        <Logo tagline />
+        <p className="mt-10 text-7xl">💔</p>
+        <h1 className="mt-4 text-3xl font-extrabold">We couldn&apos;t find that one</h1>
+        <p className="mt-2 text-midnight/60">It may have sold out of the internet. Let&apos;s find you something new to love.</p>
+        <Link href="/swipe" className="btn-gradient mt-6">
+          Start swiping
+        </Link>
+      </div>
+    </div>
+  );
+}

@@ -1,0 +1,55 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+}
+
+body {
+  @apply bg-cream text-midnight antialiased;
+}
+
+@layer components {
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold transition active:scale-[0.97] disabled:opacity-50;
+  }
+  .btn-primary {
+    @apply btn bg-pink text-white shadow-pop hover:brightness-105;
+  }
+  .btn-gradient {
+    @apply btn bg-brand text-white shadow-pop hover:brightness-105;
+  }
+  .btn-dark {
+    @apply btn bg-midnight text-white hover:bg-midnight/90;
+  }
+  .btn-ghost {
+    @apply btn border border-line bg-white text-midnight hover:border-pink/40 hover:text-pink;
+  }
+  .chip {
+    @apply inline-flex items-center gap-1.5 rounded-full border border-line bg-white px-3.5 py-1.5 text-xs font-medium text-midnight/80 transition hover:border-pink/40;
+  }
+  .chip-active {
+    @apply border-pink bg-pink/10 text-pink;
+  }
+  .card {
+    @apply rounded-3xl border border-white/60 bg-white shadow-soft;
+  }
+  .input {
+    @apply w-full rounded-2xl border border-line bg-white px-4 py-3 text-sm outline-none transition placeholder:text-midnight/40 focus:border-pink focus:ring-4 focus:ring-pink/10;
+  }
+  .text-gradient {
+    @apply bg-brand bg-clip-text text-transparent;
+  }
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  scrollbar-width: none;
+}
+
+input[type="range"] {
+  accent-color: #ff2d9a;
+}
