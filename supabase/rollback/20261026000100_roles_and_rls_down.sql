@@ -16,34 +16,30 @@ drop function if exists public.set_user_role(uuid, public.app_role);
 drop table if exists public.role_changes;
 
 -- Legacy allow-list policy
-drop policy if exists "admins legacy read" on public.admins;
-create policy "admins manage admins" on public.admins
-  for all to authenticated using ((select public.is_admin())) with check ((select public.is_admin()));
+alter policy "admins legacy super admin" on public.admins rename to "admins manage admins";
+alter policy "admins manage admins" on public.admins
+  using ((select public.is_admin())) with check ((select public.is_admin()));
 
 -- Catalog policies
 drop trigger if exists products_guard_publish on public.products;
 drop function if exists public.guard_product_publish();
 
-drop policy if exists "products read" on public.products;
-drop policy if exists "products editor insert" on public.products;
-drop policy if exists "products editor update" on public.products;
-create policy "products read" on public.products for select to anon, authenticated
-  using (published or (select public.is_admin()));
-create policy "products admin insert" on public.products for insert to authenticated with check ((select public.is_admin()));
-create policy "products admin update" on public.products for update to authenticated using ((select public.is_admin())) with check ((select public.is_admin()));
+alter policy "products read" on public.products using (published or (select public.is_admin()));
+alter policy "products editor insert" on public.products rename to "products admin insert";
+alter policy "products admin insert" on public.products with check ((select public.is_admin()));
+alter policy "products editor update" on public.products rename to "products admin update";
+alter policy "products admin update" on public.products using ((select public.is_admin())) with check ((select public.is_admin()));
 
-drop policy if exists "offers read" on public.offers;
-drop policy if exists "offers editor insert" on public.offers;
-drop policy if exists "offers editor update" on public.offers;
-drop policy if exists "offers editor delete" on public.offers;
-create policy "offers read" on public.offers for select to anon, authenticated
+alter policy "offers read" on public.offers
   using (exists (select 1 from public.products p where p.id = product_id and (p.published or (select public.is_admin()))));
-create policy "offers admin insert" on public.offers for insert to authenticated with check ((select public.is_admin()));
-create policy "offers admin update" on public.offers for update to authenticated using ((select public.is_admin())) with check ((select public.is_admin()));
-create policy "offers admin delete" on public.offers for delete to authenticated using ((select public.is_admin()));
+alter policy "offers editor insert" on public.offers rename to "offers admin insert";
+alter policy "offers admin insert" on public.offers with check ((select public.is_admin()));
+alter policy "offers editor update" on public.offers rename to "offers admin update";
+alter policy "offers admin update" on public.offers using ((select public.is_admin())) with check ((select public.is_admin()));
+alter policy "offers editor delete" on public.offers rename to "offers admin delete";
+alter policy "offers admin delete" on public.offers using ((select public.is_admin()));
 
-drop policy if exists "history read" on public.price_history;
-create policy "history read" on public.price_history for select to anon, authenticated
+alter policy "history read" on public.price_history
   using (exists (select 1 from public.products p where p.id = product_id and (p.published or (select public.is_admin()))));
 
 -- Original is_admin(): confirmed email on the allow-list.

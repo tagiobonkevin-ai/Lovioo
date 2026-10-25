@@ -1,5 +1,6 @@
 -- Phase 1: roles (customer, editor, admin, super_admin), role-aware RLS and audited role changes.
--- Non-destructive: the legacy public.admins table is kept (read-only). Rollback: supabase/rollback/20261026000100_roles_and_rls_down.sql
+-- Non-destructive: existing policies are altered in place (no drops); the legacy public.admins table is kept
+-- (super admins only). Rollback: supabase/rollback/20261026000100_roles_and_rls_down.sql
 
 create type public.app_role as enum ('customer', 'editor', 'admin', 'super_admin');
 
@@ -76,14 +77,13 @@ grant execute on function public.is_editor() to anon, authenticated;
 grant execute on function public.is_super_admin() to anon, authenticated;
 
 -- Catalog: editors draft products and offers; only admins publish, unpublish or delete.
-drop policy "products read" on public.products;
-drop policy "products admin insert" on public.products;
-drop policy "products admin update" on public.products;
-create policy "products read" on public.products for select to anon, authenticated
+alter policy "products read" on public.products
   using (published or (select public.is_editor()));
-create policy "products editor insert" on public.products for insert to authenticated
+alter policy "products admin insert" on public.products rename to "products editor insert";
+alter policy "products editor insert" on public.products
   with check ((select public.is_editor()));
-create policy "products editor update" on public.products for update to authenticated
+alter policy "products admin update" on public.products rename to "products editor update";
+alter policy "products editor update" on public.products
   using ((select public.is_editor())) with check ((select public.is_editor()));
 -- "products admin delete" stays as is.
 
@@ -109,28 +109,26 @@ revoke execute on function public.guard_product_publish() from public, anon, aut
 create trigger products_guard_publish before insert or update on public.products
   for each row execute function public.guard_product_publish();
 
-drop policy "offers read" on public.offers;
-drop policy "offers admin insert" on public.offers;
-drop policy "offers admin update" on public.offers;
-drop policy "offers admin delete" on public.offers;
-create policy "offers read" on public.offers for select to anon, authenticated
+alter policy "offers read" on public.offers
   using (exists (select 1 from public.products p where p.id = product_id and (p.published or (select public.is_editor()))));
-create policy "offers editor insert" on public.offers for insert to authenticated
+alter policy "offers admin insert" on public.offers rename to "offers editor insert";
+alter policy "offers editor insert" on public.offers
   with check ((select public.is_editor()));
-create policy "offers editor update" on public.offers for update to authenticated
+alter policy "offers admin update" on public.offers rename to "offers editor update";
+alter policy "offers editor update" on public.offers
   using ((select public.is_editor())) with check ((select public.is_editor()));
-create policy "offers editor delete" on public.offers for delete to authenticated
+alter policy "offers admin delete" on public.offers rename to "offers editor delete";
+alter policy "offers editor delete" on public.offers
   using ((select public.is_editor()));
 
-drop policy "history read" on public.price_history;
-create policy "history read" on public.price_history for select to anon, authenticated
+alter policy "history read" on public.price_history
   using (exists (select 1 from public.products p where p.id = product_id and (p.published or (select public.is_editor()))));
 -- price_history writes stay admin-only; offer price changes are recorded by the record_offer_price trigger.
 
--- Legacy allow-list: readable by super admins, no longer writable from the app.
-drop policy "admins manage admins" on public.admins;
-create policy "admins legacy read" on public.admins for select to authenticated
-  using ((select public.is_super_admin()));
+-- Legacy allow-list: no longer used for access; only super admins can see or change it.
+alter policy "admins manage admins" on public.admins rename to "admins legacy super admin";
+alter policy "admins legacy super admin" on public.admins
+  using ((select public.is_super_admin())) with check ((select public.is_super_admin()));
 
 -- Role changes: audit trail, written only by set_user_role().
 create table public.role_changes (
