@@ -1,29 +1,47 @@
 "use client";
 
 import type { Session } from "@supabase/supabase-js";
-import { BarChart3, ExternalLink, FolderTree, LayoutDashboard, LogOut, Menu, MessageCircleHeart, Package, Settings, Store, Tag, Users, X } from "lucide-react";
+import { BadgeCheck, BarChart3, ExternalLink, FolderTree, LayoutDashboard, LogOut, Menu, MessageCircleHeart, Package, ReceiptText, Settings, Store, Tag, Users, X } from "lucide-react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import { createContext, useContext, useEffect, useState } from "react";
 import { Logo } from "@/components/brand/Logo";
 import { getSupabase, isSupabaseConfigured } from "@/lib/supabase/client";
+import type { AppRole } from "@/lib/supabase/database.types";
 import { cn } from "@/lib/utils";
 
-const NAV = [
+/** Who sees each page. The database enforces the same rules; this only shapes the UI. */
+const NAV: { href: string; label: string; icon: React.ElementType; editor?: boolean }[] = [
   { href: "/admin", label: "Overview", icon: LayoutDashboard },
-  { href: "/admin/products", label: "Products", icon: Package },
+  { href: "/admin/products", label: "Products", icon: Package, editor: true },
+  { href: "/admin/prices", label: "Price list", icon: ReceiptText, editor: true },
+  { href: "/admin/brands", label: "Brands & partners", icon: BadgeCheck },
   { href: "/admin/retailers", label: "Retailer sources", icon: Store },
   { href: "/admin/deals", label: "Deals & alerts", icon: Tag },
   { href: "/admin/categories", label: "Categories", icon: FolderTree },
   { href: "/admin/users", label: "Shoppers", icon: Users },
   { href: "/admin/feedback", label: "Feedback", icon: MessageCircleHeart },
-  { href: "/admin/settings", label: "Admins", icon: Settings },
+  { href: "/admin/settings", label: "Team & roles", icon: Settings },
 ];
 
-type Access = { state: "loading" } | { state: "signed-out" } | { state: "denied"; email: string } | { state: "ok"; email: string } | { state: "error"; message: string };
+export const ROLE_LABELS: Record<AppRole, string> = { customer: "Customer", editor: "Editor", admin: "Admin", super_admin: "Super admin" };
+
+type StaffRole = Exclude<AppRole, "customer">;
+type Access =
+  | { state: "loading" }
+  | { state: "signed-out" }
+  | { state: "denied"; email: string }
+  | { state: "ok"; email: string; role: StaffRole }
+  | { state: "error"; message: string };
+
+const RoleContext = createContext<StaffRole>("editor");
+/** The signed-in staff member's role, for hiding actions they can't take. */
+export const useAdminRole = () => useContext(RoleContext);
+export const isAdminRole = (r: AppRole) => r === "admin" || r === "super_admin";
 
 export function AdminShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const router = useRouter();
   const [access, setAccess] = useState<Access>({ state: "loading" });
   const [menu, setMenu] = useState(false);
 
@@ -34,10 +52,10 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
     if (!sb) return;
     const check = async (session: Session | null) => {
       if (!session) return setAccess({ state: "signed-out" });
-      const { data, error } = await sb.rpc("is_admin");
+      const { data: role, error } = await sb.rpc("current_app_role");
       if (error) return setAccess({ state: "error", message: error.message });
       const email = session.user.email ?? "";
-      setAccess(data ? { state: "ok", email } : { state: "denied", email });
+      setAccess(role && role !== "customer" ? { state: "ok", email, role } : { state: "denied", email });
     };
     sb.auth.getSession().then(({ data }) => check(data.session));
     const { data: sub } = sb.auth.onAuthStateChange((_e, session) => {
@@ -45,6 +63,15 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
     });
     return () => sub.subscription.unsubscribe();
   }, []);
+
+  const role = access.state === "ok" ? access.role : null;
+  const allowed = (href: string) => role !== null && (isAdminRole(role) || !!NAV.find((n) => n.href === href)?.editor);
+  const pageAllowed = role !== null && (isAdminRole(role) || NAV.some((n) => n.editor && pathname.startsWith(n.href)));
+
+  // Editors only have the product catalog; send them there from any other admin page.
+  useEffect(() => {
+    if (role && !pageAllowed) router.replace("/admin/products");
+  }, [role, pageAllowed, router]);
 
   if (!isSupabaseConfigured) {
     return (
@@ -64,14 +91,15 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
   if (access.state === "denied")
     return (
       <Gate title="This account isn't an admin" emoji="🙅" action={{ href: "/discover", label: "Back to Lovioo" }}>
-        You&apos;re signed in as <b>{access.email}</b>. An existing admin can add you under Admins. New accounts also need a confirmed email address.
+        You&apos;re signed in as <b>{access.email}</b>. A super admin can give you access under Team &amp; roles. New accounts also need a confirmed email address.
       </Gate>
     );
   if (access.state === "error") return <Gate title="Couldn't check admin access" emoji="⚠️">{access.message}</Gate>;
+  if (!pageAllowed) return <div className="grid min-h-screen place-items-center bg-cream text-sm text-midnight/50">Opening products…</div>;
 
   const nav = (
     <nav className="space-y-1">
-      {NAV.map(({ href, label, icon: Icon }) => {
+      {NAV.filter((n) => allowed(n.href)).map(({ href, label, icon: Icon }) => {
         const active = href === "/admin" ? pathname === href : pathname.startsWith(href);
         return (
           <Link
@@ -99,7 +127,9 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
       >
         <LogOut className="h-4 w-4" /> Sign out
       </button>
-      <p className="truncate px-4 pt-2 text-[11px] text-white/40">{access.email}</p>
+      <p className="truncate px-4 pt-2 text-[11px] text-white/40">
+        {access.email} · {ROLE_LABELS[access.role]}
+      </p>
     </div>
   );
 
@@ -133,7 +163,9 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
         </div>
       )}
 
-      <main className="px-4 py-6 lg:ml-64 lg:px-8 lg:py-8">{children}</main>
+      <main className="px-4 py-6 lg:ml-64 lg:px-8 lg:py-8">
+        <RoleContext.Provider value={access.role}>{children}</RoleContext.Provider>
+      </main>
     </div>
   );
 }

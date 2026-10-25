@@ -1,18 +1,20 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { CheckCircle2, Heart } from "lucide-react";
+import { AlertTriangle, CheckCircle2, Heart } from "lucide-react";
 import { useEffect, useState } from "react";
 import { create } from "zustand";
 import { applyCatalog, type Catalog } from "@/lib/data/catalog";
 import { useLovioo } from "@/lib/store";
+import { cn } from "@/lib/utils";
 import { AuthSync } from "./AuthSync";
+import { InstallPrompt } from "./InstallPrompt";
 
 interface Toast {
   id: number;
   title: string;
   body?: string;
-  kind?: "heart" | "ok";
+  kind?: "heart" | "ok" | "error";
 }
 
 export const useToasts = create<{ toasts: Toast[]; push: (t: Omit<Toast, "id">) => void }>((set, get) => ({
@@ -46,6 +48,7 @@ export function Providers({ children, catalog }: { children: React.ReactNode; ca
     <>
       {children}
       <AuthSync />
+      <InstallPrompt />
       <ToastViewport />
     </>
   );
@@ -67,8 +70,8 @@ function ToastViewport() {
             exit={{ opacity: 0, y: 10, scale: 0.95 }}
             className="pointer-events-auto flex items-center gap-3 rounded-2xl bg-midnight px-4 py-3 text-white shadow-soft"
           >
-            <span className="grid h-8 w-8 place-items-center rounded-full bg-brand">
-              {t.kind === "ok" ? <CheckCircle2 className="h-4 w-4" /> : <Heart className="h-4 w-4 fill-white" />}
+            <span className={cn("grid h-8 w-8 place-items-center rounded-full", t.kind === "error" ? "bg-coral" : "bg-brand")}>
+              {t.kind === "error" ? <AlertTriangle className="h-4 w-4" /> : t.kind === "ok" ? <CheckCircle2 className="h-4 w-4" /> : <Heart className="h-4 w-4 fill-white" />}
             </span>
             <span>
               <span className="block text-sm font-semibold">{t.title}</span>

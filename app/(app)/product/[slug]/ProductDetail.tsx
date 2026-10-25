@@ -10,9 +10,10 @@ import { PriceHistoryChart } from "@/components/product/PriceHistoryChart";
 import { ProductCard } from "@/components/product/ProductCard";
 import { ProductImage } from "@/components/product/ProductImage";
 import { toast, useHydrated } from "@/components/Providers";
+import { brandOf } from "@/lib/data/brands";
 import { categoryById } from "@/lib/data/categories";
 import { bestOffer, discountPct, isPriced, productBySlug } from "@/lib/data/products";
-import { retailerById } from "@/lib/data/retailers";
+import { offerHref, retailerById } from "@/lib/data/retailers";
 import { getInsight } from "@/lib/insights";
 import { similarProducts } from "@/lib/recommend";
 import { useLovioo } from "@/lib/store";
@@ -53,7 +54,7 @@ export function ProductDetail({ slug }: { slug: string }) {
   };
 
   return (
-    <div className="space-y-10">
+    <div className="space-y-10 pb-16 md:pb-0">
       <nav className="text-xs text-midnight/50">
         <Link href="/discover" className="hover:text-pink">Home</Link> <span className="mx-1.5">›</span>
         <Link href={`/search?category=${cat.id}`} className="hover:text-pink">{cat.name}</Link> <span className="mx-1.5">›</span>
@@ -76,7 +77,13 @@ export function ProductDetail({ slug }: { slug: string }) {
         </div>
 
         <div>
-          <p className="text-sm font-medium text-midnight/50">{product.brand}</p>
+          {brandOf(product) ? (
+            <Link href={`/brand/${brandOf(product)!.id}`} className="text-sm font-semibold text-pink hover:underline">
+              {product.brand} · see all {product.brand} products →
+            </Link>
+          ) : (
+            <p className="text-sm font-medium text-midnight/50">{product.brand}</p>
+          )}
           <h1 className="mt-1 text-3xl font-extrabold leading-tight tracking-tight">{product.name}</h1>
           {product.reviewCount > 0 && (
             <div className="mt-2 flex items-center gap-2 text-sm">
@@ -155,7 +162,7 @@ export function ProductDetail({ slug }: { slug: string }) {
         </div>
       </div>
 
-      <section className="card p-5 sm:p-6">
+      <section id="offers" className="card scroll-mt-20 p-5 sm:p-6">
         <div className="no-scrollbar flex gap-6 overflow-x-auto border-b border-line">
           {tabs.map((t) => (
             <button key={t} onClick={() => setTab(t)} className={cn("-mb-px shrink-0 border-b-2 pb-3 text-sm font-semibold transition", tab === t ? "border-pink text-pink" : "border-transparent text-midnight/50")}>
@@ -189,6 +196,8 @@ export function ProductDetail({ slug }: { slug: string }) {
         </div>
       </section>
 
+      <StickyBuyBar product={product} priced={priced} onCompare={() => setTab("Compare offers")} />
+
       <section>
         <h2 className="text-xl font-extrabold">You might also love</h2>
         <div className="mt-4 grid grid-cols-2 gap-4 lg:grid-cols-4">
@@ -206,4 +215,39 @@ function lastChecked(offers: { updatedAt?: string }[]) {
   if (!times.length) return "";
   const d = new Date(Math.max(...times));
   return `Prices last checked ${d.toLocaleDateString("en-PH", { month: "short", day: "numeric", year: "numeric", timeZone: "Asia/Manila" })}. `;
+}
+
+/** Phone-only bar above the tab bar: the best price and a one-tap way to the store. */
+function StickyBuyBar({ product, priced, onCompare }: { product: ReturnType<typeof productBySlug> & {}; priced: boolean; onCompare: () => void }) {
+  const best = bestOffer(product);
+  const link = offerHref(best.retailer, best.url, product.name);
+  return (
+    <div className="fixed inset-x-3 bottom-[calc(4.75rem+env(safe-area-inset-bottom))] z-30 flex items-center gap-3 rounded-2xl bg-midnight/95 p-2.5 pl-4 text-white shadow-soft backdrop-blur md:hidden">
+      <span className="min-w-0 flex-1">
+        <span className="block text-[11px] text-white/60">{priced ? `Best price on ${retailerById(best.retailer).name}` : `${product.offers.length} stores`}</span>
+        <span className="block truncate text-base font-extrabold">{priced ? peso(best.price) : "See live prices"}</span>
+      </span>
+      {priced ? (
+        <a
+          href={link.href}
+          target="_blank"
+          rel="noopener noreferrer sponsored"
+          onClick={() => trackEvent(getSupabase(), product.id, "click_out", best.retailer)}
+          className="btn-gradient !px-4 !py-2.5"
+        >
+          Shop now
+        </a>
+      ) : (
+        <button
+          onClick={() => {
+            onCompare();
+            document.getElementById("offers")?.scrollIntoView({ behavior: "smooth", block: "start" });
+          }}
+          className="btn-gradient !px-4 !py-2.5"
+        >
+          Where to buy
+        </button>
+      )}
+    </div>
+  );
 }

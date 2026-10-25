@@ -29,6 +29,11 @@ export function SwipeDeck() {
   const hydrated = useHydrated();
   const { prefs, swipes, streak, dailyGoal, recordSwipe, undoSwipe, resetSwipes } = useLovioo();
   const [vibe, setVibe] = useState<VibeFilter>(null);
+  // Deep links like /swipe?vibe=cozy (from the home screen vibe chips).
+  useEffect(() => {
+    const v = new URLSearchParams(window.location.search).get("vibe");
+    if (v === "under1k" || VIBES.some((x) => x.id === v)) setVibe(v as VibeFilter);
+  }, []);
   const [queue, setQueue] = useState<Product[]>([]);
   const [flipped, setFlipped] = useState(false);
   const [match, setMatch] = useState<Product | null>(null);

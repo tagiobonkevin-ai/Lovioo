@@ -21,6 +21,8 @@ export interface Product {
   slug: string;
   name: string;
   brand: string;
+  /** Brand page id (brands table); falls back to the brand name's slug. */
+  brandId?: string;
   category: CategoryId;
   subcategory: string;
   emoji: string;

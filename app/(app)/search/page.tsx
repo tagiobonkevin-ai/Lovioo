@@ -63,7 +63,7 @@ function SearchInner() {
     platforms: [],
     band: null,
     min: "",
-    max: "",
+    max: params.get("max") ?? "",
     rating: 0,
     onSale: false,
   });

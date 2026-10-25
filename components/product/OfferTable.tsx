@@ -17,55 +17,58 @@ export function OfferTable({ product }: { product: Product }) {
   const bestTotal = offers[0].price + offers[0].shipping;
 
   return (
-    <div className="overflow-hidden rounded-3xl border border-line bg-white">
-      <div className="hidden grid-cols-[1.4fr_1fr_1fr_1fr_auto] gap-4 border-b border-line bg-blush/50 px-5 py-3 text-xs font-semibold uppercase tracking-wider text-midnight/50 sm:grid">
-        <span>Retailer</span>
-        <span>Price</span>
-        <span>Shipping</span>
-        <span>Availability</span>
-        <span className="w-32 text-right">Action</span>
+    <div>
+      <div className="mb-3 flex items-end justify-between gap-2">
+        <p className="text-sm font-bold">
+          Price list <span className="font-medium text-midnight/50">· {offers.length} store{offers.length > 1 ? "s" : ""}</span>
+        </p>
+        <p className="text-[11px] text-midnight/50">Sorted by total with shipping</p>
       </div>
-      <ul>
+      <ul className="space-y-2.5">
         {offers.map((o) => {
           const total = o.price + o.shipping;
           const best = total === bestTotal;
           const link = offerHref(o.retailer, o.url, product.name);
+          const off = o.originalPrice > o.price ? Math.round((1 - o.price / o.originalPrice) * 100) : 0;
           return (
             <li
               key={o.retailer}
-              className={cn(
-                "grid grid-cols-[1fr_auto] items-center gap-x-4 gap-y-2 border-b border-line/70 px-5 py-4 last:border-0 sm:grid-cols-[1.4fr_1fr_1fr_1fr_auto]",
-                best && "bg-emerald-50/50",
-              )}
+              className={cn("relative overflow-hidden rounded-2xl border bg-white p-4 transition", best ? "border-emerald-300 shadow-[0_8px_24px_-12px_rgba(16,185,129,0.5)]" : "border-line")}
             >
-              <span className="flex items-center gap-2">
-                <RetailerBadge id={o.retailer} size="sm" withName />
-                {best && <span className="rounded-full bg-emerald-500 px-2 py-0.5 text-[10px] font-bold text-white">BEST</span>}
-              </span>
-              <span className="text-right sm:text-left">
-                <span className="block font-bold">{peso(o.price)}</span>
-                {o.originalPrice > o.price && <span className="text-xs text-midnight/40 line-through">{peso(o.originalPrice)}</span>}
-              </span>
-              <span className="flex items-center gap-1 text-xs text-midnight/60 sm:text-sm">
-                <Truck className="h-3.5 w-3.5" /> {o.shipping ? peso(o.shipping) : "Free shipping"}
-              </span>
-              <span className={cn("text-right text-xs font-medium sm:text-left sm:text-sm", o.inStock ? "text-emerald-600" : "text-coral")}>
-                {o.inStock ? "In stock" : "Out of stock"}
-              </span>
-              <a
-                href={link.href}
-                target="_blank"
-                rel="noopener noreferrer sponsored"
-                onClick={() => trackEvent(getSupabase(), product.id, "click_out", o.retailer)}
-                className={cn("col-span-2 inline-flex w-full items-center justify-center gap-1.5 rounded-full px-4 py-2 text-sm font-semibold sm:col-span-1 sm:w-32", o.inStock ? "bg-pink text-white" : "bg-line text-midnight/50")}
-              >
-                {link.isSearch ? "Search store" : "isAffiliate" in link ? `Shop on ${retailerById(o.retailer).name}` : "View at retailer"} <ExternalLink className="h-3.5 w-3.5" />
-              </a>
+              {best && <span className="absolute right-0 top-0 rounded-bl-2xl bg-emerald-500 px-3 py-1 text-[10px] font-bold uppercase tracking-wide text-white">Best price</span>}
+              <div className="flex flex-wrap items-center gap-x-4 gap-y-3">
+                <span className="flex min-w-[9rem] flex-1 items-center gap-2">
+                  <RetailerBadge id={o.retailer} size="sm" withName />
+                </span>
+                <span className="min-w-[7rem]">
+                  <span className="flex items-baseline gap-2">
+                    <span className="text-lg font-extrabold">{peso(o.price)}</span>
+                    {off > 0 && <span className="text-xs text-midnight/40 line-through">{peso(o.originalPrice)}</span>}
+                    {off > 0 && <span className="rounded-full bg-emerald-50 px-1.5 py-0.5 text-[10px] font-bold text-emerald-600">-{off}%</span>}
+                  </span>
+                  <span className="flex items-center gap-1 text-xs text-midnight/60">
+                    <Truck className="h-3.5 w-3.5" /> {o.shipping ? `+ ${peso(o.shipping)} shipping` : "Free shipping"}
+                    <span className={cn("ml-1 font-medium", o.inStock ? "text-emerald-600" : "text-coral")}>· {o.inStock ? "In stock" : "Out of stock"}</span>
+                  </span>
+                </span>
+                <a
+                  href={link.href}
+                  target="_blank"
+                  rel="noopener noreferrer sponsored"
+                  onClick={() => trackEvent(getSupabase(), product.id, "click_out", o.retailer)}
+                  className={cn(
+                    "inline-flex w-full items-center justify-center gap-1.5 rounded-full px-5 py-2.5 text-sm font-semibold transition active:scale-[0.97] sm:w-auto",
+                    o.inStock ? (best ? "bg-brand text-white shadow-pop" : "bg-pink text-white") : "bg-line text-midnight/50",
+                  )}
+                >
+                  {link.isSearch ? "Search store" : "isAffiliate" in link ? `Shop on ${retailerById(o.retailer).name}` : "View at retailer"} <ExternalLink className="h-3.5 w-3.5" />
+                </a>
+              </div>
             </li>
           );
         })}
       </ul>
-      <p className="border-t border-line/70 px-5 py-3 text-[11px] text-midnight/45">{DISCLOSURE}</p>
+      <p className="mt-3 text-[11px] text-midnight/45">{DISCLOSURE}</p>
     </div>
   );
 }

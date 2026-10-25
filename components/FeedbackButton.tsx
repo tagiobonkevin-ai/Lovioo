@@ -52,7 +52,7 @@ export function FeedbackButton({ className }: { className?: string }) {
         onClick={() => setOpen(true)}
         className={cn(
           // On phones the swipe page needs the space above the tab bar for its action buttons.
-          pathname === "/swipe" ? "hidden md:inline-flex" : "inline-flex",
+          pathname === "/swipe" || pathname.startsWith("/product/") ? "hidden md:inline-flex" : "inline-flex",
           "fixed bottom-24 left-4 z-40 items-center gap-1.5 rounded-full bg-white px-3.5 py-2 text-xs font-semibold text-midnight shadow-soft ring-1 ring-line transition hover:scale-105 md:bottom-6 md:left-6 md:px-4 md:py-2.5 md:text-sm",
           className,
         )}

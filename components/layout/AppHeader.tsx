@@ -12,6 +12,7 @@ import { cn } from "@/lib/utils";
 const NAV = [
   { href: "/discover", label: "Discover" },
   { href: "/swipe", label: "Swipe", badge: "💘" },
+  { href: "/brands", label: "Brands" },
   { href: "/search", label: "Categories" },
   { href: "/search?sort=discount", label: "Deals" },
   { href: "/ai", label: "Lovioo AI" },

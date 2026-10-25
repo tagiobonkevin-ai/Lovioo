@@ -13,6 +13,21 @@ export type Database = {
         Update: { added_at?: string; email?: string };
         Relationships: [];
       };
+      brands: {
+        Row: {
+          color: string; cover_url: string; created_at: string; description: string; featured: boolean; id: string; logo_url: string; name: string;
+          published: boolean; retailer_id: string | null; sort: number; store_url: string | null; tagline: string; updated_at: string;
+        };
+        Insert: {
+          color?: string; cover_url?: string; created_at?: string; description?: string; featured?: boolean; id: string; logo_url?: string; name: string;
+          published?: boolean; retailer_id?: string | null; sort?: number; store_url?: string | null; tagline?: string; updated_at?: string;
+        };
+        Update: {
+          color?: string; cover_url?: string; created_at?: string; description?: string; featured?: boolean; id?: string; logo_url?: string; name?: string;
+          published?: boolean; retailer_id?: string | null; sort?: number; store_url?: string | null; tagline?: string; updated_at?: string;
+        };
+        Relationships: [];
+      };
       categories: {
         Row: { emoji: string; id: string; name: string; sort: number; tint: string };
         Insert: { emoji?: string; id: string; name: string; sort?: number; tint?: string };
@@ -60,17 +75,17 @@ export type Database = {
       };
       products: {
         Row: {
-          brand: string; category_id: string; created_at: string; description: string; emoji: string; highlights: string[]; id: string; image: string;
+          brand: string; brand_id: string | null; category_id: string; created_at: string; description: string; emoji: string; highlights: string[]; id: string; image: string;
           is_new: boolean; name: string; price_tracked: boolean; published: boolean; rating: number; review_count: number; slug: string; sort: number; subcategory: string;
           tags: string[]; trending: boolean; updated_at: string; vibes: string[];
         };
         Insert: {
-          brand: string; category_id: string; created_at?: string; description?: string; emoji?: string; highlights?: string[]; id?: string; image?: string;
+          brand: string; brand_id?: string | null; category_id: string; created_at?: string; description?: string; emoji?: string; highlights?: string[]; id?: string; image?: string;
           is_new?: boolean; name: string; price_tracked?: boolean; published?: boolean; rating?: number; review_count?: number; slug: string; sort?: number; subcategory?: string;
           tags?: string[]; trending?: boolean; updated_at?: string; vibes?: string[];
         };
         Update: {
-          brand?: string; category_id?: string; created_at?: string; description?: string; emoji?: string; highlights?: string[]; id?: string; image?: string;
+          brand?: string; brand_id?: string | null; category_id?: string; created_at?: string; description?: string; emoji?: string; highlights?: string[]; id?: string; image?: string;
           is_new?: boolean; name?: string; price_tracked?: boolean; published?: boolean; rating?: number; review_count?: number; slug?: string; sort?: number; subcategory?: string;
           tags?: string[]; trending?: boolean; updated_at?: string; vibes?: string[];
         };
@@ -79,7 +94,7 @@ export type Database = {
       profiles: {
         Row: {
           budget: string | null; created_at: string; email: string | null; full_name: string; id: string; interests: string[]; onboarded: boolean;
-          platforms: string[]; streak: number; streak_day: string | null; updated_at: string;
+          platforms: string[]; role: Database["public"]["Enums"]["app_role"]; streak: number; streak_day: string | null; updated_at: string;
         };
         Insert: {
           budget?: string | null; created_at?: string; email?: string | null; full_name?: string; id: string; interests?: string[]; onboarded?: boolean;
@@ -89,6 +104,15 @@ export type Database = {
           budget?: string | null; created_at?: string; email?: string | null; full_name?: string; id?: string; interests?: string[]; onboarded?: boolean;
           platforms?: string[]; streak?: number; streak_day?: string | null; updated_at?: string;
         };
+        Relationships: [];
+      };
+      role_changes: {
+        Row: {
+          changed_by: string | null; changed_by_email: string | null; created_at: string; id: number; new_role: Database["public"]["Enums"]["app_role"];
+          old_role: Database["public"]["Enums"]["app_role"] | null; user_email: string; user_id: string | null;
+        };
+        Insert: never;
+        Update: never;
         Relationships: [];
       };
       retailers: {
@@ -118,9 +142,19 @@ export type Database = {
     };
     Functions: {
       admin_overview: { Args: { days?: number }; Returns: Json };
+      current_app_role: { Args: never; Returns: Database["public"]["Enums"]["app_role"] | null };
       is_admin: { Args: never; Returns: boolean };
+      is_editor: { Args: never; Returns: boolean };
+      is_super_admin: { Args: never; Returns: boolean };
+      list_team: {
+        Args: never;
+        Returns: { created_at: string; email: string; email_confirmed: boolean; full_name: string; id: string; role: Database["public"]["Enums"]["app_role"] }[];
+      };
+      set_user_role: { Args: { target: string; new_role: Database["public"]["Enums"]["app_role"] }; Returns: undefined };
     };
-    Enums: { [_ in never]: never };
+    Enums: { app_role: "customer" | "editor" | "admin" | "super_admin" };
     CompositeTypes: { [_ in never]: never };
   };
 };
+
+export type AppRole = Database["public"]["Enums"]["app_role"];

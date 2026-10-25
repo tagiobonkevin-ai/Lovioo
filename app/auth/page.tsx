@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useState } from "react";
 import { Logo } from "@/components/brand/Logo";
+import { safeNext } from "@/lib/safe-redirect";
 import { useLovioo } from "@/lib/store";
 import { getSupabase, isSupabaseConfigured } from "@/lib/supabase/client";
 import { cn } from "@/lib/utils";
@@ -34,7 +35,7 @@ function AuthForm() {
   const [notice, setNotice] = useState("");
   const [busy, setBusy] = useState(false);
   const signIn = useLovioo((s) => s.signIn);
-  const next = params.get("next") || "/discover";
+  const next = safeNext(params.get("next"));
 
   /** Demo mode only: no backend, the "account" lives in this browser. */
   const finishDemo = (n: string, e: string) => {

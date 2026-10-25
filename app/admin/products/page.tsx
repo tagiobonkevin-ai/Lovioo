@@ -3,6 +3,7 @@
 import { Plus, Search } from "lucide-react";
 import Link from "next/link";
 import { useMemo, useState } from "react";
+import { isAdminRole, useAdminRole } from "@/components/admin/AdminShell";
 import { adminDb, saveWith, useAdminQuery } from "@/components/admin/useAdmin";
 import { ErrorNote, PageHeader, Panel, Skeleton, Toggle, adminInput } from "@/components/admin/ui";
 import { RetailerBadge } from "@/components/product/RetailerBadge";
@@ -34,6 +35,7 @@ export default function AdminProducts() {
     [data, q, cat, status],
   );
 
+  const canPublish = isAdminRole(useAdminRole());
   const togglePublished = async (id: string, published: boolean) => {
     const ok = await saveWith(adminDb().from("products").update({ published }).eq("id", id), published ? "Published" : "Hidden from shoppers");
     if (ok) setData((d) => d?.map((p) => (p.id === id ? { ...p, published } : p)) ?? null);
@@ -119,7 +121,13 @@ export default function AdminProducts() {
                       </td>
                       <td className="py-2.5">
                         <span className="flex justify-center">
-                          <Toggle on={p.published} onChange={() => togglePublished(p.id, !p.published)} label={`Publish ${p.name}`} />
+                          {canPublish ? (
+                            <Toggle on={p.published} onChange={() => togglePublished(p.id, !p.published)} label={`Publish ${p.name}`} />
+                          ) : (
+                            <span className={cn("rounded-full px-2 py-0.5 text-[11px] font-semibold", p.published ? "bg-emerald-50 text-emerald-600" : "bg-line text-midnight/60")}>
+                              {p.published ? "Live" : "Draft"}
+                            </span>
+                          )}
                         </span>
                       </td>
                     </tr>
