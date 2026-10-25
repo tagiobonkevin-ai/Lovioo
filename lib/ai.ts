@@ -1,3 +1,4 @@
+import { AI_STRINGS, verdictText, type AiLang } from "@/lib/ai-i18n";
 import { CATEGORIES } from "@/lib/data/categories";
 import { BRANDS, PRODUCTS, lowestPrice } from "@/lib/data/products";
 import { ALL_RETAILERS, retailerById } from "@/lib/data/retailers";
@@ -11,46 +12,102 @@ export interface AiReply {
   followUps: string[];
 }
 
+// English, Tagalog and Bisaya words are all understood whatever reply language is picked, so Taglish works too.
 const CATEGORY_WORDS: Record<CategoryId, string[]> = {
-  electronics: ["electronic", "gadget", "tech", "headphone", "earbud", "speaker", "phone", "watch", "camera", "gaming", "console", "keyboard", "mouse", "tablet"],
-  fashion: ["fashion", "sneaker", "shoe", "kicks", "bag", "dress", "hoodie", "jeans", "outfit", "clothes", "sunglasses"],
-  beauty: ["beauty", "skincare", "skin", "makeup", "serum", "sunscreen", "glow", "fragrance", "perfume", "hair"],
-  home: ["home", "living", "decor", "furniture", "chair", "lamp", "kitchen", "coffee", "candle", "plant", "bedding", "vacuum"],
-  sports: ["sport", "fitness", "gym", "run", "yoga", "badminton", "outdoor", "camping", "workout"],
-  toys: ["toy", "lego", "plush", "collectible", "game", "puzzle", "drone", "hobby", "labubu"],
+  electronics: [
+    "electronic", "gadget", "tech", "headphone", "earbud", "earphone", "speaker", "phone", "cellphone", "selpon", "telepono", "watch", "relo", "camera",
+    "gaming", "console", "keyboard", "mouse", "tablet", "powerbank", "power bank", "charger", "cable",
+  ],
+  fashion: [
+    "fashion", "sneaker", "shoe", "kicks", "bag", "dress", "hoodie", "jeans", "outfit", "clothes", "sunglasses", "shirt", "pants", "sandal",
+    "sapatos", "tsinelas", "sinelas", "damit", "sinina", "bestida", "pantalon", "palda",
+  ],
+  beauty: [
+    "beauty", "skincare", "skin", "makeup", "serum", "sunscreen", "glow", "fragrance", "perfume", "hair", "lip", "lotion", "pimple",
+    "pabango", "pampaganda", "pampagwapa", "kolorete", "buhok", "tagihawat",
+  ],
+  home: [
+    "home", "living", "decor", "furniture", "chair", "lamp", "kitchen", "coffee", "candle", "plant", "bedding", "vacuum", "storage", "curtain",
+    "bahay", "balay", "kusina", "unan", "kurtina", "kama", "panglinis", "panlimpyo",
+  ],
+  sports: ["sport", "fitness", "gym", "run", "running", "yoga", "badminton", "outdoor", "camping", "workout", "pickleball", "paddle", "ehersisyo", "takbo", "dagan"],
+  toys: ["toy", "lego", "plush", "collectible", "game", "puzzle", "drone", "hobby", "labubu", "laruan", "dulaan", "laro", "dula"],
+  family: [
+    "family", "baby", "diaper", "pet", "dog", "cat", "kid",
+    "pamilya", "sanggol", "lampin", "anak", "alaga", "binuhi", "aso", "pusa", "iro", "iring", "lolo", "lola",
+  ],
 };
 
-const GIFT_WORDS = ["gift", "regalo", "birthday", "present", "christmas", "anniversary"];
+/** Tagalog/Bisaya item words mapped to the English words product names and tags use. */
+const ITEM_WORDS = new Map<string, string[]>(Object.entries({
+  sapatos: ["sneaker", "shoe", "sandal", "footwear"],
+  tsinelas: ["sandal", "slide", "slipper"],
+  sinelas: ["sandal", "slide", "slipper"],
+  damit: ["dress", "shirt", "tee", "hoodie", "clothing"],
+  sinina: ["dress", "shirt", "tee", "hoodie", "clothing"],
+  bestida: ["dress"],
+  pantalon: ["jeans", "pants", "trousers"],
+  pabango: ["fragrance", "perfume", "parfum"],
+  cellphone: ["phone"],
+  selpon: ["phone"],
+  telepono: ["phone"],
+  relo: ["watch"],
+  laruan: ["toy", "plush", "collectible", "lego"],
+  dulaan: ["toy", "plush", "collectible", "lego"],
+  unan: ["bedding", "pillow"],
+  kurtina: ["curtain"],
+  kusina: ["kitchen"],
+  lampin: ["diaper"],
+  aso: ["dog", "pet"],
+  iro: ["dog", "pet"],
+  pusa: ["cat", "pet"],
+  iring: ["cat", "pet"],
+  buhok: ["hair"],
+  tagihawat: ["pimple", "acne"],
+}));
+
+const GIFT_WORDS = ["gift", "regalo", "birthday", "present", "christmas", "anniversary", "pasalubong", "pangregalo", "iregalo"];
+
+// Whole words plus plurals and the Tagalog "-ng" linker ("pabangong"), so "bag" doesn't match "bagong".
+const hasWord = (q: string, w: string) => new RegExp(`\\b${w}(?:s|es|ng)?\\b`).test(q);
 
 function parseBudget(q: string): number | null {
-  const m = q.match(/(?:under|below|less than|<|max|budget(?: of)?)\s*(?:php|₱|p)?\s*([\d,.]+)\s*(k)?/i);
+  const m = q.match(
+    /(?:under|below|less than|<|max|budget(?: of| ko| nako)?|ubos sa|mas mura sa|kulang sa|hanggang|di lalagpas sa|dili molapas sa)\s*(?:php|₱|p)?\s*([\d,.]+)\s*(k)?/i,
+  );
   if (!m) return null;
   let n = parseFloat(m[1].replace(/,/g, ""));
   if (m[2]) n *= 1000;
   return Number.isFinite(n) ? n : null;
 }
 
-export function askLovioo(input: string, name = "there"): AiReply {
+/** Category name the way the AI says it, e.g. "gamit sa bahay". */
+function categoryLabel(c: CategoryId, lang: AiLang) {
+  return AI_STRINGS[lang].categories[c] ?? (CATEGORIES.find((x) => x.id === c)?.name ?? c).toLowerCase();
+}
+
+/** "Should I buy now or wait?" in any of the three languages. */
+export const isBuyOrWait = (q: string) => /buy now or wait|should i buy|buy or wait|bilhin (ko )?na ba|hintayin|paliton na ba|hulaton/i.test(q);
+
+export function askLovioo(input: string, name = "there", lang: AiLang = "en"): AiReply {
+  const s = AI_STRINGS[lang];
   const q = input.toLowerCase();
   const budget = parseBudget(q);
-  const cats = (Object.keys(CATEGORY_WORDS) as CategoryId[]).filter((c) =>
-    CATEGORY_WORDS[c].some((w) => q.includes(w)),
-  );
+  const cats = (Object.keys(CATEGORY_WORDS) as CategoryId[]).filter((c) => CATEGORY_WORDS[c].some((w) => hasWord(q, w)));
   const brand = BRANDS.find((b) => q.includes(b.toLowerCase()));
   const retailer = ALL_RETAILERS.find(
-    (r) => q.includes(retailerById(r).name.toLowerCase()) || (r === "tiktok" && q.includes("tiktok")),
+    (r: RetailerId) => q.includes(retailerById(r).name.toLowerCase()) || (r === "tiktok" && q.includes("tiktok")),
   );
-  const wantsTrending = /trend|viral|hot|popular/.test(q);
-  const wantsDeals = /deal|sale|discount|cheap|best price|promo/.test(q);
+  const wantsTrending = /trend|viral|hot|popular|\buso\b|sikat|patok/.test(q);
+  const wantsDeals = /deal|sale|discount|cheap|best price|promo|\bmura|barato|diskwento|tipid/.test(q);
   const wantsGift = GIFT_WORDS.some((w) => q.includes(w));
-  const keywords = q.split(/\W+/).filter((w) => w.length > 3);
+  const keywords = q
+    .split(/\W+/)
+    .flatMap((w) => ITEM_WORDS.get(w) ?? ITEM_WORDS.get(w.replace(/ng$/, "")) ?? (w.length > 3 ? [w] : []));
 
-  if (/^(hi|hello|hey|yo|kumusta)\b/.test(q.trim()) && q.trim().split(/\s+/).length <= 3) {
-    return {
-      text: `Hey ${name}! 💖 Tell me what you're shopping for — a category, a budget, a vibe — and I'll dig up the best deals across Shopee, Lazada, TikTok Shop and more.`,
-      products: [],
-      followUps: ["Best deals on sneakers", "Skincare under ₱1,000", "Gift ideas under ₱2,000"],
-    };
+  const greeting = /^(hi|hello|hey|yo|uy|kumusta|kamusta|musta|maayong (buntag|hapon|gabii)|magandang (umaga|hapon|gabi))\b/.test(q.trim());
+  if (greeting && q.trim().split(/\s+/).length <= 4) {
+    return { text: s.greeting(name), products: [], followUps: s.greetingChips };
   }
 
   let pool = PRODUCTS.filter((p) => {
@@ -63,12 +120,14 @@ export function askLovioo(input: string, name = "there"): AiReply {
   });
 
   // Narrow by keyword overlap when the category is broad (e.g. "sneakers" within fashion).
+  // Matches word starts, so "phone" finds "Phones" but not "headphones".
   const kwMatches = pool.filter((p) =>
-    keywords.some((k) =>
-      [p.name, p.subcategory, ...p.tags].some((f) => f.toLowerCase().includes(k.replace(/s$/, ""))),
-    ),
+    keywords.some((k) => {
+      const re = new RegExp(`\\b${k.replace(/s$/, "")}`);
+      return [p.name, p.subcategory, ...p.tags].some((f) => re.test(f.toLowerCase()));
+    }),
   );
-  if (kwMatches.length >= 2) pool = kwMatches;
+  if (kwMatches.length >= 1) pool = kwMatches;
 
   pool = pool
     .map((p) => ({ p, i: getInsight(p) }))
@@ -80,45 +139,42 @@ export function askLovioo(input: string, name = "there"): AiReply {
 
   const picks = pool.slice(0, 4);
   if (!picks.length) {
-    return {
-      text: `Hmm, I couldn't find a match${budget ? ` under ${peso(budget)}` : ""}. Want me to widen the search or try another category?`,
-      products: [],
-      followUps: ["Show trending deals", "Home essentials", "Gift ideas under ₱2,000"],
-    };
+    return { text: s.noMatch(budget ? peso(budget) : null), products: [], followUps: s.noMatchChips };
   }
 
   const top = picks[0];
   const ti = getInsight(top);
-  const catLabel = cats.length ? CATEGORIES.find((c) => c.id === cats[0])!.name.toLowerCase() : "picks";
+  const catLabel = cats.length ? categoryLabel(cats[0], lang) : s.picks;
   const parts = [
-    wantsTrending ? `Here's what's trending right now 🔥` : wantsGift ? `Gift-worthy finds 🎁` : `Found ${pool.length} ${catLabel}${budget ? ` under ${peso(budget)}` : ""} for you ✨`,
+    wantsTrending ? s.trending : wantsGift ? s.gifts : s.found(pool.length, catLabel, budget ? peso(budget) : null),
     ti.priced
-      ? `My top pick is **${top.name}** — ${peso(ti.bestOffer.price)} on ${retailerById(ti.bestOffer.retailer).name}, deal score ${ti.dealScore}/100. ${ti.headline}.`
-      : `My top pick is **${top.name}**, a popular one. ${ti.headline} — tap it to compare sellers.`,
+      ? s.topPick(top.name, peso(ti.bestOffer.price), retailerById(ti.bestOffer.retailer).name, ti.dealScore, verdictText(ti, lang))
+      : s.topPickSeePrices(top.name, verdictText(ti, lang)),
   ];
-  if (wantsDeals && ti.savings > 0) parts.push(`That's ${peso(ti.savings)} off the list price.`);
+  if (wantsDeals && ti.savings > 0) parts.push(s.savings(peso(ti.savings)));
 
   return {
     text: parts.join(" "),
     products: picks,
     followUps: [
-      budget ? `Under ${peso(Math.round(budget / 2))} instead` : `${catLabel === "picks" ? "Skincare" : catLabel[0].toUpperCase() + catLabel.slice(1)} under ₱2,000`,
-      "Should I buy now or wait?",
-      "Trending on TikTok Shop",
+      budget ? s.cheaper(peso(Math.round(budget / 2))) : s.under2k(cats.length ? catLabel : "skincare"),
+      s.buyOrWait,
+      s.trendingTikTok,
     ],
   };
 }
 
-export function buyOrWait(products: Product[]): AiReply {
-  if (!products.length) return askLovioo("best deals");
+export function buyOrWait(products: Product[], lang: AiLang = "en"): AiReply {
+  const s = AI_STRINGS[lang];
+  if (!products.length) return askLovioo("best deals", undefined, lang);
   const lines = products.slice(0, 3).map((p) => {
     const i = getInsight(p);
-    const icon = i.verdict === "buy" ? "✅" : i.verdict === "good" ? "👌" : i.verdict === "new" ? "🆕" : "⏳";
-    return `${icon} ${p.name}: ${i.headline.toLowerCase()} (score ${i.dealScore}).`;
+    const icon = !i.priced ? "🛍️" : i.verdict === "buy" ? "✅" : i.verdict === "good" ? "👌" : i.verdict === "new" ? "🆕" : "⏳";
+    return i.priced ? `${icon} ${p.name}: ${verdictText(i, lang).toLowerCase()} (${s.score} ${i.dealScore}).` : `${icon} ${p.name}: ${verdictText(i, lang)}.`;
   });
   return {
-    text: `Here's my read on those:\n${lines.join("\n")}\nTip: heart anything marked ⏳ and turn on a price alert — I'll ping you when it drops.`,
+    text: `${s.readIntro}\n${lines.join("\n")}\n${s.readTip}`,
     products: [],
-    followUps: ["Best deals on sneakers", "Home essentials", "Gift ideas under ₱2,000"],
+    followUps: s.greetingChips,
   };
 }

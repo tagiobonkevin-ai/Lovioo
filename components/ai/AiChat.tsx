@@ -7,7 +7,8 @@ import { Fragment, useEffect, useRef, useState } from "react";
 import { ProductImage } from "@/components/product/ProductImage";
 import { RetailerBadge } from "@/components/product/RetailerBadge";
 import { useHydrated } from "@/components/Providers";
-import { askLovioo, buyOrWait, type AiReply } from "@/lib/ai";
+import { askLovioo, buyOrWait, isBuyOrWait, type AiReply } from "@/lib/ai";
+import { AI_LANGS, AI_STRINGS } from "@/lib/ai-i18n";
 import { productById } from "@/lib/data/products";
 import { getInsight } from "@/lib/insights";
 import { useLovioo } from "@/lib/store";
@@ -21,8 +22,6 @@ interface Msg {
   products?: Product[];
   followUps?: string[];
 }
-
-const STARTERS = ["Best deals on sneakers", "Skincare under ₱1,000", "Home essentials", "Trending on TikTok Shop", "Gift ideas under ₱2,000"];
 
 /** Renders **bold** segments from the scripted replies. */
 function RichText({ text }: { text: string }) {
@@ -60,6 +59,11 @@ export function AiChat({ compact = false }: { compact?: boolean }) {
   const hydrated = useHydrated();
   const user = useLovioo((s) => s.user);
   const saved = useLovioo((s) => s.saved);
+  const storedLang = useLovioo((s) => s.aiLang);
+  const setAiLang = useLovioo((s) => s.setAiLang);
+  // Persisted choice only after hydration, so server and first client render match.
+  const lang = hydrated ? storedLang : "en";
+  const t = AI_STRINGS[lang];
   const name = hydrated && user ? user.name.split(" ")[0] : "there";
   const [msgs, setMsgs] = useState<Msg[]>([]);
   const [input, setInput] = useState("");
@@ -72,19 +76,19 @@ export function AiChat({ compact = false }: { compact?: boolean }) {
   }, [msgs, typing]);
 
   const send = (text: string) => {
-    const t = text.trim();
-    if (!t || typing) return;
-    setMsgs((m) => [...m, { id: Date.now(), role: "user", text: t }]);
+    const q = text.trim();
+    if (!q || typing) return;
+    setMsgs((m) => [...m, { id: Date.now(), role: "user", text: q }]);
     setInput("");
     setTyping(true);
     window.setTimeout(() => {
       let reply: AiReply;
-      if (/buy now or wait|should i buy/i.test(t)) {
+      if (isBuyOrWait(q)) {
         const ctx = lastProducts.current.length
           ? lastProducts.current
           : (saved.map(productById).filter(Boolean) as Product[]);
-        reply = buyOrWait(ctx);
-      } else reply = askLovioo(t, name);
+        reply = buyOrWait(ctx, lang);
+      } else reply = askLovioo(q, name, lang);
       if (reply.products.length) lastProducts.current = reply.products;
       setMsgs((m) => [...m, { id: Date.now() + 1, role: "ai", ...reply }]);
       setTyping(false);
@@ -95,14 +99,29 @@ export function AiChat({ compact = false }: { compact?: boolean }) {
     <div className={cn("flex h-full flex-col", compact ? "" : "card overflow-hidden")}>
       <div ref={scroller} className="flex-1 space-y-4 overflow-y-auto p-4 sm:p-5">
         <div className="rounded-3xl bg-gradient-to-br from-grape/10 via-pink/10 to-sunset/10 p-4">
-          <p className="flex items-center gap-2 text-sm font-semibold text-grape">
-            <Sparkles className="h-4 w-4" /> Lovioo AI <span className="rounded-full bg-grape/10 px-2 py-0.5 text-[10px]">Beta</span>
-          </p>
-          <p className="mt-2 text-lg font-bold">Hi {name}! 👋</p>
-          <p className="text-sm text-midnight/70">What are you looking for today? I compare prices across stores and tell you when to buy.</p>
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <p className="flex items-center gap-2 text-sm font-semibold text-grape">
+              <Sparkles className="h-4 w-4" /> Lovioo AI <span className="rounded-full bg-grape/10 px-2 py-0.5 text-[10px]">Beta</span>
+            </p>
+            <div role="radiogroup" aria-label="Lovioo AI language" className="flex rounded-full bg-white/80 p-0.5 text-[11px] font-semibold shadow-sm">
+              {AI_LANGS.map((l) => (
+                <button
+                  key={l.id}
+                  role="radio"
+                  aria-checked={lang === l.id}
+                  onClick={() => setAiLang(l.id)}
+                  className={cn("rounded-full px-2.5 py-1 transition", lang === l.id ? "bg-grape text-white" : "text-midnight/60 hover:text-grape")}
+                >
+                  {l.label}
+                </button>
+              ))}
+            </div>
+          </div>
+          <p className="mt-2 text-lg font-bold">{t.hi(name)}</p>
+          <p className="text-sm text-midnight/70">{t.intro}</p>
           {msgs.length === 0 && (
             <div className="mt-3 flex flex-wrap gap-2">
-              {STARTERS.map((s) => (
+              {t.starters.map((s) => (
                 <button key={s} onClick={() => send(s)} className="rounded-full bg-white px-3.5 py-2 text-xs font-medium text-grape shadow-sm transition hover:-translate-y-0.5">
                   {s}
                 </button>
@@ -156,7 +175,7 @@ export function AiChat({ compact = false }: { compact?: boolean }) {
         }}
         className="flex items-center gap-2 border-t border-line/70 bg-white p-3"
       >
-        <input value={input} onChange={(e) => setInput(e.target.value)} placeholder="Ask Lovioo AI anything…" className="input !rounded-full !py-2.5" aria-label="Message Lovioo AI" />
+        <input value={input} onChange={(e) => setInput(e.target.value)} placeholder={t.placeholder} className="input !rounded-full !py-2.5" aria-label="Message Lovioo AI" />
         <button type="submit" className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-pink text-white shadow-pop disabled:opacity-40" disabled={!input.trim()} aria-label="Send">
           <ArrowRight className="h-5 w-5" />
         </button>
