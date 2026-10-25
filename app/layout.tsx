@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Poppins } from "next/font/google";
-import { Analytics } from "@vercel/analytics/react";
 import { Providers } from "@/components/Providers";
+import { ConsentedAnalytics } from "@/components/legal/ConsentSheet";
 import { SITE_URL } from "@/lib/site";
 import { loadCatalog } from "@/lib/data/load-catalog";
 import "./globals.css";
@@ -44,7 +44,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     <html lang="en" className={poppins.variable}>
       <body className="font-sans">
         <Providers catalog={catalog.source === "supabase" ? catalog : null}>{children}</Providers>
-        <Analytics />
+        <ConsentedAnalytics />
       </body>
     </html>
   );

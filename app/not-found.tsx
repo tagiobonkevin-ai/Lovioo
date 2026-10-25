@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Logo } from "@/components/brand/Logo";
+import { LegalLinks } from "@/components/legal/LegalLinks";
 
 export default function NotFound() {
   return (
@@ -12,6 +13,7 @@ export default function NotFound() {
         <Link href="/swipe" className="btn-gradient mt-6">
           Start swiping
         </Link>
+        <LegalLinks className="mt-10" />
       </div>
     </div>
   );

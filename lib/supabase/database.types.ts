@@ -95,6 +95,7 @@ export type Database = {
         Row: {
           budget: string | null; created_at: string; email: string | null; full_name: string; id: string; interests: string[]; onboarded: boolean;
           platforms: string[]; role: Database["public"]["Enums"]["app_role"]; streak: number; streak_day: string | null; updated_at: string;
+          terms_accepted_at: string | null; terms_version: string | null; privacy_ack_at: string | null; marketing_opt_in: boolean; analytics_opt_in: boolean;
         };
         Insert: {
           budget?: string | null; created_at?: string; email?: string | null; full_name?: string; id: string; interests?: string[]; onboarded?: boolean;
@@ -114,6 +115,15 @@ export type Database = {
         Insert: { changes: Json; note?: string; product_id: string; requested_by: string; status?: "pending" };
         Update: never;
         Relationships: [{ foreignKeyName: "product_change_requests_product_id_fkey"; columns: ["product_id"]; isOneToOne: false; referencedRelation: "products"; referencedColumns: ["id"] }];
+      };
+      consent_events: {
+        Row: {
+          created_at: string; granted: boolean; id: number; kind: "terms" | "privacy" | "marketing" | "analytics"; source: "signup" | "consent_sheet" | "settings";
+          user_id: string; version: string;
+        };
+        Insert: never;
+        Update: never;
+        Relationships: [];
       };
       role_changes: {
         Row: {
@@ -160,6 +170,10 @@ export type Database = {
       list_team: {
         Args: never;
         Returns: { created_at: string; email: string; email_confirmed: boolean; full_name: string; id: string; role: Database["public"]["Enums"]["app_role"] }[];
+      };
+      set_my_consents: {
+        Args: { terms?: boolean; privacy?: boolean; marketing?: boolean; analytics?: boolean; version?: string; source?: "consent_sheet" | "settings" };
+        Returns: undefined;
       };
       set_user_role: { Args: { target: string; new_role: Database["public"]["Enums"]["app_role"] }; Returns: undefined };
     };

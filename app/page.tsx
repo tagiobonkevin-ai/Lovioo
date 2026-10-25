@@ -3,6 +3,7 @@ import Link from "next/link";
 import { BrandCrush } from "@/components/brand/BrandCrush";
 import { Logo } from "@/components/brand/Logo";
 import { FeedbackButton } from "@/components/FeedbackButton";
+import { LegalLinks } from "@/components/legal/LegalLinks";
 import { HeroDeck } from "@/components/landing/HeroDeck";
 import { CategoryBubbles } from "@/components/product/CategoryBubbles";
 import { ProductCard } from "@/components/product/ProductCard";
@@ -143,10 +144,7 @@ export default async function Landing() {
       <footer className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-3 px-4 py-10 text-xs text-midnight/50 sm:flex-row lg:px-6">
         <Logo tagline />
         <p className="text-center sm:text-left">Beta · Prices and availability are set by each retailer and may change.</p>
-        <nav className="flex gap-4">
-          <Link href="/privacy" className="hover:text-pink">Privacy</Link>
-          <Link href="/terms" className="hover:text-pink">Terms</Link>
-        </nav>
+        <LegalLinks />
       </footer>
       <FeedbackButton />
     </div>

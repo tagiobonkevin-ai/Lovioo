@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { resetConsentSession, syncConsent } from "@/lib/consent";
 import { useLovioo } from "@/lib/store";
 import { getSupabase } from "@/lib/supabase/client";
 import { pullAndMerge, startWriteThrough } from "@/lib/sync";
@@ -25,6 +26,7 @@ export function AuthSync() {
       if (!u) {
         stopSync?.();
         activeUserId = null;
+        resetConsentSession();
         // Also clears a leftover demo-mode login or an expired session; guests (no user) keep their data.
         if (useLovioo.getState().user) useLovioo.getState().signOut();
         return;
@@ -39,6 +41,7 @@ export function AuthSync() {
         const res = await pullAndMerge(sb, u.id, onError);
         if (activeUserId !== u.id) return;
         if (res?.fullName) useLovioo.getState().signIn({ id: u.id, email: u.email ?? "", name: res.fullName });
+        if (res) await syncConsent(sb, res.consent);
         stopSync = startWriteThrough(sb, u.id, onError);
       }, 0);
     });

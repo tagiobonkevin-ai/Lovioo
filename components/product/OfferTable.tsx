@@ -1,6 +1,7 @@
 "use client";
 
 import { ExternalLink, Truck } from "lucide-react";
+import { AffiliateNote } from "@/components/legal/AffiliateNote";
 import { isPriced } from "@/lib/data/products";
 import { offerHref, retailerById, storeSearchHref } from "@/lib/data/retailers";
 import type { Product } from "@/lib/types";
@@ -9,7 +10,6 @@ import { trackEvent } from "@/lib/sync";
 import { cn, peso } from "@/lib/utils";
 import { RetailerBadge } from "./RetailerBadge";
 
-const DISCLOSURE = "Some store links are affiliate links: Lovioo may earn a small commission at no extra cost to you.";
 
 export function OfferTable({ product }: { product: Product }) {
   if (!isPriced(product)) return <StoreLinks product={product} />;
@@ -68,7 +68,7 @@ export function OfferTable({ product }: { product: Product }) {
           );
         })}
       </ul>
-      <p className="mt-3 text-[11px] text-midnight/45">{DISCLOSURE}</p>
+      <AffiliateNote className="mt-3" />
     </div>
   );
 }
@@ -113,7 +113,7 @@ function StoreLinks({ product }: { product: Product }) {
           );
         })}
       </ul>
-      <p className="border-t border-line/70 px-5 py-3 text-[11px] text-midnight/45">{DISCLOSURE}</p>
+      <AffiliateNote className="border-t border-line/70 px-5 py-3" />
     </div>
   );
 }

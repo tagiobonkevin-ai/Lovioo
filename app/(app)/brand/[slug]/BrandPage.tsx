@@ -4,6 +4,7 @@ import { ArrowLeft, BadgeCheck, ExternalLink, LayoutGrid, List } from "lucide-re
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { BrandAvatar } from "@/components/brand/BrandAvatar";
+import { AffiliateNote } from "@/components/legal/AffiliateNote";
 import { ProductCard } from "@/components/product/ProductCard";
 import { ProductImage } from "@/components/product/ProductImage";
 import { RetailerBadge } from "@/components/product/RetailerBadge";
@@ -60,6 +61,7 @@ export function BrandPage({ slug }: { slug: string }) {
               Visit {brand.retailer ? `${brand.name} on ${retailerById(brand.retailer).name}` : "official store"} <ExternalLink className="h-4 w-4" />
             </a>
           )}
+          {storeHref && <AffiliateNote compact light className="basis-full text-right" />}
         </div>
         {brand.description && <p className="relative mt-4 max-w-2xl text-sm text-white/85">{brand.description}</p>}
       </div>
