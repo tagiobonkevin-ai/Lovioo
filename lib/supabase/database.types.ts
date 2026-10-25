@@ -76,17 +76,17 @@ export type Database = {
       products: {
         Row: {
           brand: string; brand_id: string | null; category_id: string; created_at: string; description: string; emoji: string; highlights: string[]; id: string; image: string;
-          is_new: boolean; name: string; price_tracked: boolean; published: boolean; rating: number; review_count: number; slug: string; sort: number; subcategory: string;
+          is_new: boolean; name: string; price_tracked: boolean; published: boolean; rating: number; review_requested_at: string | null; review_requested_by: string | null; review_count: number; slug: string; sort: number; subcategory: string;
           tags: string[]; trending: boolean; updated_at: string; vibes: string[];
         };
         Insert: {
           brand: string; brand_id?: string | null; category_id: string; created_at?: string; description?: string; emoji?: string; highlights?: string[]; id?: string; image?: string;
-          is_new?: boolean; name: string; price_tracked?: boolean; published?: boolean; rating?: number; review_count?: number; slug: string; sort?: number; subcategory?: string;
+          is_new?: boolean; name: string; price_tracked?: boolean; published?: boolean; review_requested_at?: string | null; review_requested_by?: string | null; rating?: number; review_count?: number; slug: string; sort?: number; subcategory?: string;
           tags?: string[]; trending?: boolean; updated_at?: string; vibes?: string[];
         };
         Update: {
           brand?: string; brand_id?: string | null; category_id?: string; created_at?: string; description?: string; emoji?: string; highlights?: string[]; id?: string; image?: string;
-          is_new?: boolean; name?: string; price_tracked?: boolean; published?: boolean; rating?: number; review_count?: number; slug?: string; sort?: number; subcategory?: string;
+          is_new?: boolean; name?: string; price_tracked?: boolean; published?: boolean; review_requested_at?: string | null; review_requested_by?: string | null; rating?: number; review_count?: number; slug?: string; sort?: number; subcategory?: string;
           tags?: string[]; trending?: boolean; updated_at?: string; vibes?: string[];
         };
         Relationships: [{ foreignKeyName: "products_category_id_fkey"; columns: ["category_id"]; isOneToOne: false; referencedRelation: "categories"; referencedColumns: ["id"] }];
@@ -105,6 +105,15 @@ export type Database = {
           platforms?: string[]; streak?: number; streak_day?: string | null; updated_at?: string;
         };
         Relationships: [];
+      };
+      product_change_requests: {
+        Row: {
+          changes: Json; created_at: string; id: number; note: string; product_id: string; requested_by: string | null; requested_by_email: string | null;
+          review_note: string; reviewed_at: string | null; reviewed_by: string | null; reviewed_by_email: string | null; status: "pending" | "approved" | "rejected";
+        };
+        Insert: { changes: Json; note?: string; product_id: string; requested_by: string; status?: "pending" };
+        Update: never;
+        Relationships: [{ foreignKeyName: "product_change_requests_product_id_fkey"; columns: ["product_id"]; isOneToOne: false; referencedRelation: "products"; referencedColumns: ["id"] }];
       };
       role_changes: {
         Row: {
@@ -142,6 +151,8 @@ export type Database = {
     };
     Functions: {
       admin_overview: { Args: { days?: number }; Returns: Json };
+      approve_product_change: { Args: { request_id: number }; Returns: undefined };
+      reject_product_change: { Args: { request_id: number; note?: string }; Returns: undefined };
       current_app_role: { Args: never; Returns: Database["public"]["Enums"]["app_role"] | null };
       is_admin: { Args: never; Returns: boolean };
       is_editor: { Args: never; Returns: boolean };

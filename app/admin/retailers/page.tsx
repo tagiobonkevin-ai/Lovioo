@@ -4,6 +4,7 @@ import { Plus } from "lucide-react";
 import { useState } from "react";
 import { adminDb, saveWith, useAdminQuery } from "@/components/admin/useAdmin";
 import { ErrorNote, Field, PageHeader, Panel, Skeleton, Toggle, adminInput } from "@/components/admin/ui";
+import { linkError } from "@/lib/links";
 import type { Database } from "@/lib/supabase/database.types";
 import { cn } from "@/lib/utils";
 
@@ -17,22 +18,30 @@ export default function AdminRetailers() {
   const offerCount = (id: string) => counts.data?.filter((o) => o.retailer_id === id).length ?? 0;
   const patch = (id: string, p: Partial<Row>) => setData((rows) => rows?.map((r) => (r.id === id ? { ...r, ...p } : r)) ?? null);
 
-  const save = (r: Row) =>
-    saveWith(
+  const linkProblem = (r: Pick<Row, "homepage" | "affiliate_url">) => linkError("Homepage", r.homepage) ?? linkError("Affiliate link", r.affiliate_url);
+  const refuse = (message: string) => saveWith(Promise.resolve({ error: { message } }), "");
+
+  const save = (r: Row) => {
+    const bad = linkProblem(r);
+    if (bad) return refuse(bad);
+    return saveWith(
       adminDb()
         .from("retailers")
-        .update({ name: r.name, short: r.short, color: r.color, text_color: r.text_color, homepage: r.homepage, active: r.active, affiliate_url: r.affiliate_url?.trim() || null })
+        .update({ name: r.name, short: r.short, color: r.color, text_color: r.text_color, homepage: r.homepage?.trim() || null, active: r.active, affiliate_url: r.affiliate_url?.trim() || null })
         .eq("id", r.id),
       `${r.name} saved`,
     );
+  };
 
   const add = async () => {
     const id = draft.id.trim().toLowerCase();
     if (!/^[a-z0-9-]+$/.test(id) || !draft.name.trim()) return;
+    const bad = linkError("Homepage", draft.homepage);
+    if (bad) return refuse(bad);
     const ok = await saveWith(
       adminDb()
         .from("retailers")
-        .insert({ id, name: draft.name.trim(), short: draft.name.trim().slice(0, 2), color: draft.color, homepage: draft.homepage || null, sort: (data?.length ?? 0) + 1 }),
+        .insert({ id, name: draft.name.trim(), short: draft.name.trim().slice(0, 2), color: draft.color, homepage: draft.homepage.trim() || null, sort: (data?.length ?? 0) + 1 }),
       `${draft.name} added`,
     );
     if (ok) {
@@ -87,12 +96,13 @@ export default function AdminRetailers() {
                     <input type="color" className="h-10 w-full cursor-pointer rounded-xl border border-line bg-white" value={toHex(r.text_color)} onChange={(e) => patch(r.id, { text_color: e.target.value })} />
                   </Field>
                   <Field label="Homepage" className="col-span-2">
-                    <input className={adminInput} value={r.homepage ?? ""} onChange={(e) => patch(r.id, { homepage: e.target.value })} />
+                    <input className={cn(adminInput, linkError("", r.homepage) && "!border-coral")} value={r.homepage ?? ""} onChange={(e) => patch(r.id, { homepage: e.target.value })} placeholder="https://…" />
                   </Field>
                   <Field label="Affiliate link" hint="Used for this store's offers that don't have their own product link yet." className="col-span-2">
-                    <input className={adminInput} value={r.affiliate_url ?? ""} onChange={(e) => patch(r.id, { affiliate_url: e.target.value })} placeholder="https://…" />
+                    <input className={cn(adminInput, linkError("", r.affiliate_url) && "!border-coral")} value={r.affiliate_url ?? ""} onChange={(e) => patch(r.id, { affiliate_url: e.target.value })} placeholder="https://…" />
                   </Field>
                 </div>
+                {linkProblem(r) && <p className="mt-2 text-[11px] font-medium text-coral">{linkProblem(r)}</p>}
                 <button onClick={() => save(r)} className="btn-dark mt-4 w-full !py-2">
                   Save
                 </button>

@@ -1,7 +1,7 @@
 "use client";
 
 import type { Session } from "@supabase/supabase-js";
-import { BadgeCheck, BarChart3, ExternalLink, FolderTree, LayoutDashboard, LogOut, Menu, MessageCircleHeart, Package, ReceiptText, Settings, Store, Tag, Users, X } from "lucide-react";
+import { BadgeCheck, BarChart3, ClipboardCheck, ExternalLink, FolderTree, LayoutDashboard, LogOut, Menu, MessageCircleHeart, Package, ReceiptText, Settings, Store, Tag, Users, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { createContext, useContext, useEffect, useState } from "react";
@@ -14,6 +14,7 @@ import { cn } from "@/lib/utils";
 const NAV: { href: string; label: string; icon: React.ElementType; editor?: boolean }[] = [
   { href: "/admin", label: "Overview", icon: LayoutDashboard },
   { href: "/admin/products", label: "Products", icon: Package, editor: true },
+  { href: "/admin/review", label: "Review queue", icon: ClipboardCheck },
   { href: "/admin/prices", label: "Price list", icon: ReceiptText, editor: true },
   { href: "/admin/brands", label: "Brands & partners", icon: BadgeCheck },
   { href: "/admin/retailers", label: "Retailer sources", icon: Store },
@@ -65,6 +66,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
   }, []);
 
   const role = access.state === "ok" ? access.role : null;
+  const waiting = useReviewCount(role !== null && isAdminRole(role), pathname);
   const allowed = (href: string) => role !== null && (isAdminRole(role) || !!NAV.find((n) => n.href === href)?.editor);
   const pageAllowed = role !== null && (isAdminRole(role) || NAV.some((n) => n.editor && pathname.startsWith(n.href)));
 
@@ -101,6 +103,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
     <nav className="space-y-1">
       {NAV.filter((n) => allowed(n.href)).map(({ href, label, icon: Icon }) => {
         const active = href === "/admin" ? pathname === href : pathname.startsWith(href);
+        const badge = href === "/admin/review" ? waiting : 0;
         return (
           <Link
             key={href}
@@ -108,6 +111,11 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
             className={cn("flex items-center gap-3 rounded-2xl px-4 py-2.5 text-sm font-medium transition", active ? "bg-pink text-white shadow-pop" : "text-white/70 hover:bg-white/5 hover:text-white")}
           >
             <Icon className="h-4 w-4" /> {label}
+            {badge > 0 && (
+              <span className={cn("ml-auto rounded-full px-2 py-0.5 text-[11px] font-bold", active ? "bg-white text-pink" : "bg-pink text-white")} aria-label={`${badge} waiting`}>
+                {badge}
+              </span>
+            )}
           </Link>
         );
       })}
@@ -168,6 +176,26 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
       </main>
     </div>
   );
+}
+
+/** Drafts submitted for review plus pending change requests, refreshed on each admin page change. */
+function useReviewCount(enabled: boolean, pathname: string) {
+  const [count, setCount] = useState(0);
+  useEffect(() => {
+    const sb = getSupabase();
+    if (!enabled || !sb) return;
+    let live = true;
+    Promise.all([
+      sb.from("products").select("id", { count: "exact", head: true }).eq("published", false).not("review_requested_at", "is", null),
+      sb.from("product_change_requests").select("id", { count: "exact", head: true }).eq("status", "pending"),
+    ]).then(([drafts, changes]) => {
+      if (live) setCount((drafts.count ?? 0) + (changes.count ?? 0));
+    });
+    return () => {
+      live = false;
+    };
+  }, [enabled, pathname]);
+  return count;
 }
 
 function BusinessLogo() {

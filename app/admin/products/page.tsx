@@ -14,10 +14,17 @@ import { cn, peso } from "@/lib/utils";
 export default function AdminProducts() {
   const [q, setQ] = useState("");
   const [cat, setCat] = useState("");
-  const [status, setStatus] = useState<"all" | "published" | "hidden" | "needs-link" | "see-prices">("all");
+  const [status, setStatus] = useState<"all" | "published" | "hidden" | "review" | "needs-link" | "see-prices">("all");
   const { data, error, loading, setData } = useAdminQuery((sb) =>
-    sb.from("products").select("id, slug, name, brand, category_id, emoji, image, published, trending, is_new, price_tracked, updated_at, offers(retailer_id, price, in_stock, url)").order("sort").order("created_at"),
+    sb.from("products").select("id, slug, name, brand, category_id, emoji, image, published, trending, is_new, price_tracked, updated_at, review_requested_at, offers(retailer_id, price, in_stock, url)").order("sort").order("created_at"),
   );
+  // Submitted drafts, plus products with pending change requests (editors see their own, admins everyone's).
+  const requests = useAdminQuery((sb) => sb.from("product_change_requests").select("product_id").eq("status", "pending"));
+  const inReview = useMemo(() => {
+    const ids = new Set(requests.data?.map((r) => r.product_id));
+    for (const p of data ?? []) if (!p.published && p.review_requested_at) ids.add(p.id);
+    return ids;
+  }, [data, requests.data]);
 
   const rows = useMemo(
     () =>
@@ -26,13 +33,15 @@ export default function AdminProducts() {
           (!q || `${p.name} ${p.brand} ${p.slug}`.toLowerCase().includes(q.toLowerCase())) &&
           (!cat || p.category_id === cat) &&
           (status === "all" ||
-            (status === "needs-link"
-              ? p.offers.some((o) => isPlaceholderUrl(o.url))
-              : status === "see-prices"
-                ? !p.price_tracked
-                : (status === "published") === p.published)),
+            (status === "review"
+              ? inReview.has(p.id)
+              : status === "needs-link"
+                ? p.offers.some((o) => isPlaceholderUrl(o.url))
+                : status === "see-prices"
+                  ? !p.price_tracked
+                  : (status === "published") === p.published)),
       ),
-    [data, q, cat, status],
+    [data, q, cat, status, inReview],
   );
 
   const canPublish = isAdminRole(useAdminRole());
@@ -67,6 +76,7 @@ export default function AdminProducts() {
             <option value="all">All statuses</option>
             <option value="published">Published</option>
             <option value="hidden">Hidden</option>
+            <option value="review">Waiting for review{inReview.size ? ` (${inReview.size})` : ""}</option>
             <option value="needs-link">Needs real store links</option>
             <option value="see-prices">&quot;See prices&quot; picks</option>
           </select>
@@ -103,6 +113,7 @@ export default function AdminProducts() {
                               {p.trending && " · 🔥 trending"}
                               {p.offers.some((o) => isPlaceholderUrl(o.url)) && <span className="ml-1 rounded-full bg-sunset/20 px-1.5 py-0.5 text-[10px] font-semibold text-[#B86E00]">needs link</span>}
                               {p.is_new && " · new"}
+                              {inReview.has(p.id) && <span className="ml-1 rounded-full bg-lavender px-1.5 py-0.5 text-[10px] font-semibold text-grape">in review</span>}
                             </span>
                           </span>
                         </Link>
