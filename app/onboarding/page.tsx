@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Logo } from "@/components/brand/Logo";
+import { LegalLinks } from "@/components/legal/LegalLinks";
 import { RetailerBadge } from "@/components/product/RetailerBadge";
 import { BUDGETS, CATEGORIES } from "@/lib/data/categories";
 import { ALL_RETAILERS, retailerById } from "@/lib/data/retailers";
@@ -142,6 +143,7 @@ export default function Onboarding() {
             )}
           </div>
         </div>
+        <LegalLinks className="mt-6" />
       </div>
     </div>
   );

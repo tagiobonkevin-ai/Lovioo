@@ -4,6 +4,7 @@ import { animate, motion, useMotionValue, useTransform } from "framer-motion";
 import { ArrowUpRight, ExternalLink, Star, Truck } from "lucide-react";
 import Link from "next/link";
 import { forwardRef, useImperativeHandle, useRef } from "react";
+import { AffiliateNote } from "@/components/legal/AffiliateNote";
 import { DealScoreRing, DiscountBadge, scoreColor } from "@/components/product/DealScore";
 import { ProductImage } from "@/components/product/ProductImage";
 import { RetailerBadge, RetailerStack } from "@/components/product/RetailerBadge";
@@ -207,6 +208,11 @@ export const SwipeCard = forwardRef<SwipeCardHandle, Props>(function SwipeCard({
                     </li>
                   ))}
               </ul>
+            )}
+            {!insight.priced && (
+              <div onPointerDownCapture={(e) => e.stopPropagation()}>
+                <AffiliateNote compact className="mt-2" />
+              </div>
             )}
             <Link
               href={`/product/${product.slug}`}

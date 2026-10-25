@@ -4,6 +4,7 @@ import { BarChart3, Bell, ChevronRight, HelpCircle, LogOut, Shield, ShoppingBag,
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { PrivacyChoices } from "@/components/legal/PrivacyChoices";
 import { RetailerBadge } from "@/components/product/RetailerBadge";
 import { useHydrated } from "@/components/Providers";
 import { BUDGETS, CATEGORIES } from "@/lib/data/categories";
@@ -118,12 +119,14 @@ export default function ProfilePage() {
         ))}
       </Section>
 
+      <PrivacyChoices />
+
       <div className="card divide-y divide-line/70">
         {[
           ...(isStaff ? [{ icon: BarChart3, label: "Open Lovioo Business", href: "/admin" }] : []),
           { icon: Sparkles, label: "Redo onboarding", href: "/onboarding" },
-          { icon: Shield, label: "Privacy policy", href: "/privacy" },
-          { icon: HelpCircle, label: "Terms of use", href: "/terms" },
+          { icon: Shield, label: "Privacy Policy", href: "/privacy" },
+          { icon: HelpCircle, label: "Terms & Conditions", href: "/terms" },
         ].map((row) => (
           <Link key={row.label} href={row.href} className="flex items-center gap-3 p-4 text-sm font-medium hover:bg-blush/40">
             <row.icon className="h-5 w-5 text-pink" /> <span className="flex-1">{row.label}</span> <ChevronRight className="h-4 w-4 text-midnight/30" />

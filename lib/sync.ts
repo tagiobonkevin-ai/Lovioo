@@ -1,5 +1,6 @@
 "use client";
 
+import { canTrack } from "@/lib/consent";
 import { productById } from "@/lib/data/products";
 import { useLovioo, type SwipeRecord } from "@/lib/store";
 import type { Supabase } from "@/lib/supabase/client";
@@ -80,7 +81,7 @@ export async function pullAndMerge(sb: Supabase, userId: string, onError: (msg: 
   } finally {
     applyingRemote = false;
   }
-  return { fullName: p.full_name };
+  return { fullName: p.full_name, consent: p };
 }
 
 function profilePatch(s: Pick<State, "prefs" | "onboarded" | "streak" | "streakDay">) {
@@ -152,9 +153,9 @@ export function startWriteThrough(sb: Supabase, userId: string, onError: (msg: s
   };
 }
 
-/** Fire-and-forget analytics for the admin dashboard. */
+/** Fire-and-forget analytics for the admin dashboard; only once the visitor has allowed analytics. */
 export function trackEvent(sb: Supabase | null, productId: string, kind: "view" | "click_out", retailerId?: string) {
-  if (!sb) return;
+  if (!sb || !canTrack()) return;
   const userId = useLovioo.getState().user?.id ?? null;
   sb.from("product_events")
     .insert({ product_id: productId, kind, retailer_id: retailerId ?? null, user_id: userId })

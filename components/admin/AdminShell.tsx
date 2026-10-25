@@ -6,6 +6,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { createContext, useContext, useEffect, useState } from "react";
 import { Logo } from "@/components/brand/Logo";
+import { LegalLinks } from "@/components/legal/LegalLinks";
 import { getSupabase, isSupabaseConfigured } from "@/lib/supabase/client";
 import type { AppRole } from "@/lib/supabase/database.types";
 import { cn } from "@/lib/utils";
@@ -138,6 +139,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
       <p className="truncate px-4 pt-2 text-[11px] text-white/40">
         {access.email} · {ROLE_LABELS[access.role]}
       </p>
+      <LegalLinks light className="!justify-start px-3 pt-1" />
     </div>
   );
 

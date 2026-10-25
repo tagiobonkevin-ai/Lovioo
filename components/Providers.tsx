@@ -4,6 +4,9 @@ import { AnimatePresence, motion } from "framer-motion";
 import { AlertTriangle, CheckCircle2, Heart } from "lucide-react";
 import { useEffect, useState } from "react";
 import { create } from "zustand";
+import { ConsentBar, useConsentBarVisible } from "@/components/legal/ConsentBar";
+import { ConsentSheet } from "@/components/legal/ConsentSheet";
+import { hydrateConsent } from "@/lib/consent";
 import { applyCatalog, type Catalog } from "@/lib/data/catalog";
 import { useLovioo } from "@/lib/store";
 import { cn } from "@/lib/utils";
@@ -42,14 +45,27 @@ export function Providers({ children, catalog }: { children: React.ReactNode; ca
     const p = useLovioo.persist.rehydrate();
     if (p && "then" in p) p.then(done);
     else done();
+    hydrateConsent();
   }, []);
 
   return (
     <>
       {children}
       <AuthSync />
-      <InstallPrompt />
+      <BottomPrompts />
+      <ConsentSheet />
       <ToastViewport />
+    </>
+  );
+}
+
+/** The analytics question comes first; the install suggestion waits until it's answered. */
+function BottomPrompts() {
+  const consentBar = useConsentBarVisible();
+  return (
+    <>
+      <ConsentBar />
+      <InstallPrompt paused={consentBar} />
     </>
   );
 }

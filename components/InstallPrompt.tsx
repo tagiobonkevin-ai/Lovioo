@@ -23,7 +23,7 @@ const write = (v: { visits?: number; dismissed?: number }) => {
 };
 
 /** Registers the service worker and, on phones from the 2nd visit, suggests adding Lovioo to the home screen. */
-export function InstallPrompt() {
+export function InstallPrompt({ paused = false }: { paused?: boolean }) {
   const [deferred, setDeferred] = useState<InstallEvent | null>(null);
   const [show, setShow] = useState<"android" | "ios" | null>(null);
 
@@ -62,7 +62,7 @@ export function InstallPrompt() {
 
   return (
     <AnimatePresence>
-      {show && (
+      {show && !paused && (
         <motion.div
           initial={{ y: 120, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}

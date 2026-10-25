@@ -5,6 +5,10 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useState } from "react";
 import { Logo } from "@/components/brand/Logo";
+import { ConsentChecks, NO_CHOICES, requiredMissing, type ConsentChoices } from "@/components/legal/ConsentChecks";
+import { LegalLinks } from "@/components/legal/LegalLinks";
+import { useConsent } from "@/lib/consent";
+import { CONSENT_VERSION } from "@/lib/site";
 import { safeNext } from "@/lib/safe-redirect";
 import { useLovioo } from "@/lib/store";
 import { getSupabase, isSupabaseConfigured } from "@/lib/supabase/client";
@@ -34,7 +38,16 @@ function AuthForm() {
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
   const [busy, setBusy] = useState(false);
+  const [choices, setChoices] = useState<ConsentChoices>(NO_CHOICES);
+  const [triedConsent, setTriedConsent] = useState(false);
   const signIn = useLovioo((s) => s.signIn);
+  const missingConsent = mode === "signup" ? requiredMissing(choices) : null;
+
+  /** Sign-up choices: applied on this device now, and saved to the account once it exists (see syncConsent). */
+  const rememberChoices = () => {
+    useConsent.getState().setChoices({ analytics: choices.analytics, marketing: choices.marketing });
+    useConsent.getState().setPending({ marketing: choices.marketing, analytics: choices.analytics, version: CONSENT_VERSION });
+  };
   const next = safeNext(params.get("next"));
 
   /** Demo mode only: no backend, the "account" lives in this browser. */
@@ -46,11 +59,15 @@ function AuthForm() {
 
   const submit = async (ev: React.FormEvent) => {
     ev.preventDefault();
-    if (mode === "signup" && !name.trim()) return setError("Tell us your name.");
     if (!/^\S+@\S+\.\S+$/.test(email)) return setError("Enter a valid email address.");
     if (password.length < 6) return setError("Password needs at least 6 characters.");
+    if (missingConsent) {
+      setTriedConsent(true);
+      return setError(missingConsent);
+    }
     setError("");
     setNotice("");
+    if (mode === "signup") rememberChoices();
     const sb = getSupabase();
     if (!sb) return finishDemo(name.trim() || email.split("@")[0].replace(/^\w/, (c) => c.toUpperCase()), email);
 
@@ -60,7 +77,10 @@ function AuthForm() {
         const { data, error } = await sb.auth.signUp({
           email,
           password,
-          options: { data: { full_name: name.trim() }, emailRedirectTo: `${window.location.origin}/onboarding` },
+          options: {
+            data: { full_name: name.trim() || email.split("@")[0], consent: { ...choices, version: CONSENT_VERSION } },
+            emailRedirectTo: `${window.location.origin}/onboarding`,
+          },
         });
         if (error) setError(friendlyAuthError(error.message));
         else if (!data.session) setNotice(`We sent a confirmation link to ${email}. Open it to finish creating your account.`);
@@ -76,6 +96,11 @@ function AuthForm() {
   };
 
   const google = async () => {
+    if (missingConsent) {
+      setTriedConsent(true);
+      return setError(`${missingConsent} Then continue with Google.`);
+    }
+    if (mode === "signup") rememberChoices();
     const sb = getSupabase();
     if (!sb) return finishDemo("Marie Santos", "marie@example.com");
     const { error } = await sb.auth.signInWithOAuth({ provider: "google", options: { redirectTo: `${window.location.origin}${next}` } });
@@ -121,13 +146,15 @@ function AuthForm() {
             ))}
           </div>
 
-          <h2 className="mt-8 text-2xl font-extrabold">{mode === "signup" ? "Create your account" : "Welcome back"}</h2>
-          <p className="mt-1 text-sm text-midnight/60">{mode === "signup" ? "Start discovering products you'll love." : "Sign in to continue to Lovioo."}</p>
+          <h2 className="mt-8 text-center text-2xl font-extrabold">{mode === "signup" ? "Welcome to Lovioo 💗" : "Welcome back"}</h2>
+          <p className="mt-1 text-center text-sm text-midnight/60">{mode === "signup" ? "Discover products. Find deals. Shop smarter." : "Sign in to continue to Lovioo."}</p>
 
           <form onSubmit={submit} className="mt-6 space-y-4" noValidate>
             {mode === "signup" && (
               <label className="block">
-                <span className="mb-1.5 block text-sm font-medium">Full name</span>
+                <span className="mb-1.5 block text-sm font-medium">
+                  Your name <span className="font-normal text-midnight/40">(optional)</span>
+                </span>
                 <input className="input" value={name} onChange={(e) => setName(e.target.value)} placeholder="Your full name" autoComplete="name" />
               </label>
             )}
@@ -143,7 +170,7 @@ function AuthForm() {
                   type={show ? "text" : "password"}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder={mode === "signup" ? "Create a password" : "Your password"}
+                  placeholder={mode === "signup" ? "Create a secure password" : "Your password"}
                   autoComplete={mode === "signup" ? "new-password" : "current-password"}
                 />
                 <button type="button" onClick={() => setShow((s) => !s)} className="absolute right-3 top-1/2 -translate-y-1/2 text-midnight/40" aria-label={show ? "Hide password" : "Show password"}>
@@ -151,24 +178,35 @@ function AuthForm() {
                 </button>
               </span>
             </label>
-            {error && <p className="text-sm font-medium text-coral">{error}</p>}
-            {notice && <p className="rounded-2xl bg-emerald-50 p-3 text-sm font-medium text-emerald-700">{notice}</p>}
-            <button className="btn-primary w-full !py-3" disabled={busy}>
-              {busy ? "One moment…" : mode === "signup" ? "Create account" : "Sign in"}
-            </button>
             {mode === "signup" && (
-              <p className="text-center text-[11px] text-midnight/50">
-                By creating an account you agree to our{" "}
-                <Link href="/terms" className="font-semibold text-pink">Terms</Link> and{" "}
-                <Link href="/privacy" className="font-semibold text-pink">Privacy policy</Link>.
+              <>
+                <hr className="!my-5 border-line" />
+                <ConsentChecks
+                  value={choices}
+                  onChange={(c) => {
+                    setChoices(c);
+                    if (error && !requiredMissing(c)) setError("");
+                  }}
+                  showErrors={triedConsent}
+                />
+              </>
+            )}
+            {error && (
+              <p className="text-sm font-medium text-coral" role="alert">
+                {error}
               </p>
             )}
+            {notice && <p className="rounded-2xl bg-emerald-50 p-3 text-sm font-medium text-emerald-700">{notice}</p>}
+            <button className={cn("btn-primary w-full !py-3", missingConsent && "opacity-60 saturate-50")} disabled={busy} aria-disabled={!!missingConsent}>
+              {busy ? "One moment…" : mode === "signup" ? "Create account" : "Sign in"}
+            </button>
+            {missingConsent && !triedConsent && <p className="text-center text-[11px] text-midnight/45">Tick both required boxes to create your account.</p>}
           </form>
 
           <div className="my-6 flex items-center gap-3 text-xs text-midnight/40">
             <span className="h-px flex-1 bg-line" /> or continue with <span className="h-px flex-1 bg-line" />
           </div>
-          <button onClick={google} className="btn-ghost w-full !py-3">
+          <button onClick={google} className={cn("btn-ghost w-full !py-3", missingConsent && "opacity-60")} aria-disabled={!!missingConsent}>
             <GoogleIcon /> Continue with Google
           </button>
           <p className="mt-6 text-center text-sm text-midnight/60">
@@ -178,6 +216,7 @@ function AuthForm() {
             </button>
           </p>
           {!isSupabaseConfigured && <p className="mt-4 text-center text-[11px] text-midnight/40">Demo: accounts are stored only in this browser.</p>}
+          <LegalLinks className="mt-8" />
         </div>
       </div>
     </div>
