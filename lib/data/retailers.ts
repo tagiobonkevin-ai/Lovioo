@@ -7,6 +7,8 @@ export interface Retailer {
   color: string;
   text: string;
   homepage: string;
+  /** Inactive stores stay resolvable (old data, admin) but are hidden from shoppers. */
+  active?: boolean;
 }
 
 export const RETAILERS: Record<RetailerId, Retailer> = {
@@ -20,4 +22,8 @@ export const RETAILERS: Record<RetailerId, Retailer> = {
 };
 
 export const MAIN_RETAILERS: RetailerId[] = ["shopee", "lazada", "tiktok", "amazon"];
-export const ALL_RETAILERS = Object.keys(RETAILERS) as RetailerId[];
+/** Active stores, in display order. Replaced in place when the catalog loads from Supabase. */
+export const ALL_RETAILERS: RetailerId[] = Object.keys(RETAILERS);
+
+export const retailerById = (id: RetailerId): Retailer =>
+  RETAILERS[id] ?? { id, name: id, short: id.slice(0, 2).toUpperCase(), color: "#0F2742", text: "#fff", homepage: "" };

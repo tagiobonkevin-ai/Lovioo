@@ -1,14 +1,15 @@
 "use client";
 
-import { Bell, ChevronRight, HelpCircle, LogOut, Shield, ShoppingBag, Sparkles, Store } from "lucide-react";
+import { BarChart3, Bell, ChevronRight, HelpCircle, LogOut, Shield, ShoppingBag, Sparkles, Store } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { RetailerBadge } from "@/components/product/RetailerBadge";
 import { toast, useHydrated } from "@/components/Providers";
 import { BUDGETS, CATEGORIES } from "@/lib/data/categories";
-import { ALL_RETAILERS, RETAILERS } from "@/lib/data/retailers";
+import { ALL_RETAILERS, retailerById } from "@/lib/data/retailers";
 import { useLovioo } from "@/lib/store";
+import { getSupabase } from "@/lib/supabase/client";
 import type { CategoryId, RetailerId } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
@@ -17,6 +18,13 @@ export default function ProfilePage() {
   const router = useRouter();
   const { user, prefs, saved, alerts, swipes, streak, setPrefs, signOut } = useLovioo();
   const [notify, setNotify] = useState({ drops: true, restock: true, digest: false });
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  useEffect(() => {
+    const sb = getSupabase();
+    if (!sb || !user?.id) return;
+    sb.rpc("is_admin").then(({ data }) => setIsAdmin(!!data));
+  }, [user?.id]);
 
   if (!hydrated) return <div className="h-64 animate-pulse rounded-3xl bg-white/60" />;
   if (!user) {
@@ -81,7 +89,7 @@ export default function ProfilePage() {
         <div className="flex flex-wrap gap-2">
           {ALL_RETAILERS.map((r) => (
             <button key={r} onClick={() => togglePlatform(r)} className={cn("chip", prefs.platforms.includes(r) && "chip-active")}>
-              <RetailerBadge id={r} size="xs" /> {RETAILERS[r].name}
+              <RetailerBadge id={r} size="xs" /> {retailerById(r).name}
             </button>
           ))}
         </div>
@@ -112,8 +120,18 @@ export default function ProfilePage() {
 
       <div className="card divide-y divide-line/70">
         {[
+          ...(isAdmin ? [{ icon: BarChart3, label: "Open Lovioo Business (admin)", href: "/admin" }] : []),
           { icon: Sparkles, label: "Redo onboarding", href: "/onboarding" },
-          { icon: Shield, label: "Privacy & data", onClick: () => toast({ title: "Your data stays in this browser", body: "Demo mode — nothing is sent anywhere.", kind: "ok" }) },
+          {
+            icon: Shield,
+            label: "Privacy & data",
+            onClick: () =>
+              toast(
+                user.id
+                  ? { title: "Your data is tied to your account", body: "Only you (and Lovioo admins) can see it.", kind: "ok" }
+                  : { title: "Your data stays in this browser", body: "Demo mode — nothing is sent anywhere.", kind: "ok" },
+              ),
+          },
           { icon: HelpCircle, label: "Help & support", onClick: () => toast({ title: "We're here to help 💌", body: "help@lovioo.example", kind: "ok" }) },
         ].map((row) =>
           row.href ? (
@@ -127,7 +145,8 @@ export default function ProfilePage() {
           ),
         )}
         <button
-          onClick={() => {
+          onClick={async () => {
+            await getSupabase()?.auth.signOut();
             signOut();
             router.push("/");
           }}

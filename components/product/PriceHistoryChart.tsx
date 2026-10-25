@@ -2,10 +2,12 @@
 
 import { useMemo, useState } from "react";
 import { Area, AreaChart, CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
-import { RETAILERS } from "@/lib/data/retailers";
-import { getInsight, priceHistory, retailerHistory } from "@/lib/insights";
+import { retailerById } from "@/lib/data/retailers";
+import { getInsight } from "@/lib/insights";
+import { isSupabaseConfigured } from "@/lib/supabase/client";
 import type { Product } from "@/lib/types";
 import { cn, peso } from "@/lib/utils";
+import { usePriceHistory } from "./usePriceHistory";
 
 const RANGES = [
   { id: 30, label: "30D" },
@@ -18,9 +20,14 @@ export function PriceHistoryChart({ product }: { product: Product }) {
   const [range, setRange] = useState(90);
   const [mode, setMode] = useState<"lowest" | "stores">("lowest");
   const insight = getInsight(product);
-  const data = useMemo(() => priceHistory(product).slice(-range), [product, range]);
-  const storeData = useMemo(() => retailerHistory(product, range), [product, range]);
+  const history = usePriceHistory(product);
+  const data = useMemo(() => history.lowest.slice(-range), [history.lowest, range]);
+  const storeData = useMemo(() => history.byStore.slice(-range), [history.byStore, range]);
   const prices = data.map((d) => d.price);
+
+  if (history.status === "loading") return <div className="h-80 animate-pulse rounded-3xl bg-cream" aria-label="Loading price history" />;
+  if (history.status === "error") return <p className="rounded-2xl bg-coral/10 p-4 text-sm text-coral">Couldn&apos;t load price history: {history.error}</p>;
+  if (!prices.length) return <p className="rounded-2xl bg-cream p-4 text-sm text-midnight/60">No price history yet — it builds up as prices are tracked.</p>;
 
   return (
     <div>
@@ -68,9 +75,9 @@ export function PriceHistoryChart({ product }: { product: Product }) {
               <CartesianGrid stroke="#F1E6EC" vertical={false} />
               <XAxis dataKey="label" tick={{ fontSize: 11, fill: "#0F274280" }} tickLine={false} axisLine={false} minTickGap={40} />
               <YAxis tickFormatter={fmtAxis} tick={{ fontSize: 11, fill: "#0F274280" }} tickLine={false} axisLine={false} width={52} domain={["dataMin - 200", "dataMax + 200"]} />
-              <Tooltip formatter={(v: number, k: string) => [peso(v), RETAILERS[k as keyof typeof RETAILERS]?.name ?? k]} contentStyle={{ borderRadius: 16, border: "1px solid #E5E7EB", fontSize: 12 }} />
+              <Tooltip formatter={(v: number, k: string) => [peso(v), retailerById(k).name]} contentStyle={{ borderRadius: 16, border: "1px solid #E5E7EB", fontSize: 12 }} />
               {product.offers.map((o) => (
-                <Line key={o.retailer} type="monotone" dataKey={o.retailer} stroke={RETAILERS[o.retailer].color} strokeWidth={2} dot={false} />
+                <Line key={o.retailer} type="monotone" dataKey={o.retailer} stroke={retailerById(o.retailer).color} strokeWidth={2} dot={false} />
               ))}
             </LineChart>
           )}
@@ -80,12 +87,12 @@ export function PriceHistoryChart({ product }: { product: Product }) {
         <div className="mt-2 flex flex-wrap gap-3 text-xs">
           {product.offers.map((o) => (
             <span key={o.retailer} className="inline-flex items-center gap-1.5">
-              <span className="h-2 w-4 rounded-full" style={{ background: RETAILERS[o.retailer].color }} /> {RETAILERS[o.retailer].name}
+              <span className="h-2 w-4 rounded-full" style={{ background: retailerById(o.retailer).color }} /> {retailerById(o.retailer).name}
             </span>
           ))}
         </div>
       )}
-      <p className="mt-3 text-xs text-midnight/50">90-day low {peso(insight.lowest90)} · average {peso(insight.avg90)}. Illustrative history.</p>
+      <p className="mt-3 text-xs text-midnight/50">90-day low {peso(insight.lowest90)} · average {peso(insight.avg90)}. {isSupabaseConfigured ? "Updated whenever a store price changes." : "Illustrative demo history."}</p>
     </div>
   );
 }

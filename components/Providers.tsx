@@ -4,7 +4,9 @@ import { AnimatePresence, motion } from "framer-motion";
 import { CheckCircle2, Heart } from "lucide-react";
 import { useEffect, useState } from "react";
 import { create } from "zustand";
+import { applyCatalog, type Catalog } from "@/lib/data/catalog";
 import { useLovioo } from "@/lib/store";
+import { AuthSync } from "./AuthSync";
 
 interface Toast {
   id: number;
@@ -29,7 +31,10 @@ const useHydrationFlag = create<{ ready: boolean }>(() => ({ ready: false }));
 /** True once the persisted store has loaded from localStorage — gate user-specific UI on this. */
 export const useHydrated = () => useHydrationFlag((s) => s.ready);
 
-export function Providers({ children }: { children: React.ReactNode }) {
+export function Providers({ children, catalog }: { children: React.ReactNode; catalog: Catalog | null }) {
+  // Runs before any child renders, on the server (SSR) and in the browser, so both see the same catalog.
+  useState(() => catalog && applyCatalog(catalog));
+
   useEffect(() => {
     const done = () => useHydrationFlag.setState({ ready: true });
     const p = useLovioo.persist.rehydrate();
@@ -40,6 +45,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
   return (
     <>
       {children}
+      <AuthSync />
       <ToastViewport />
     </>
   );

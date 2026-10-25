@@ -1,9 +1,9 @@
-import { RETAILERS } from "@/lib/data/retailers";
+import { retailerById } from "@/lib/data/retailers";
 import type { RetailerId } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
 export function RetailerBadge({ id, size = "sm", withName = false, className }: { id: RetailerId; size?: "xs" | "sm" | "md"; withName?: boolean; className?: string }) {
-  const r = RETAILERS[id];
+  const r = retailerById(id);
   const dims = { xs: "h-4 w-4 text-[8px]", sm: "h-5 w-5 text-[10px]", md: "h-8 w-8 text-xs" }[size];
   return (
     <span className={cn("inline-flex items-center gap-2", className)} title={r.name}>

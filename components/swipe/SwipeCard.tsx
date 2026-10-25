@@ -8,7 +8,7 @@ import { DealScoreRing, DiscountBadge, scoreColor } from "@/components/product/D
 import { ProductImage } from "@/components/product/ProductImage";
 import { RetailerBadge } from "@/components/product/RetailerBadge";
 import { discountPct } from "@/lib/data/products";
-import { RETAILERS } from "@/lib/data/retailers";
+import { retailerById } from "@/lib/data/retailers";
 import { getInsight } from "@/lib/insights";
 import type { SwipeAction } from "@/lib/store";
 import type { Product } from "@/lib/types";
@@ -117,7 +117,7 @@ export const SwipeCard = forwardRef<SwipeCardHandle, Props>(function SwipeCard({
               </div>
               <div className="mt-2 flex flex-wrap items-center gap-3 text-xs text-white/80">
                 <span className="inline-flex items-center gap-1.5">
-                  <RetailerBadge id={insight.bestOffer.retailer} size="xs" /> Best on {RETAILERS[insight.bestOffer.retailer].name}
+                  <RetailerBadge id={insight.bestOffer.retailer} size="xs" /> Best on {retailerById(insight.bestOffer.retailer).name}
                 </span>
                 <span className="inline-flex items-center gap-1">
                   <Star className="h-3.5 w-3.5 fill-sunset text-sunset" /> {product.rating} ({compact(product.reviewCount)})

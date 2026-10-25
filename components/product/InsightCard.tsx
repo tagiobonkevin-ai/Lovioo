@@ -1,5 +1,5 @@
 import { Sparkles } from "lucide-react";
-import { RETAILERS } from "@/lib/data/retailers";
+import { retailerById } from "@/lib/data/retailers";
 import { getInsight } from "@/lib/insights";
 import type { Product } from "@/lib/types";
 import { peso } from "@/lib/utils";
@@ -20,7 +20,7 @@ export function InsightCard({ product }: { product: Product }) {
           </p>
           <p className="mt-1 text-sm text-midnight/70">{i.reason}</p>
           <p className="mt-2 text-xs text-midnight/60">
-            Best offer: <b>{RETAILERS[i.bestOffer.retailer].name}</b> at {peso(i.bestOffer.price)}
+            Best offer: <b>{retailerById(i.bestOffer.retailer).name}</b> at {peso(i.bestOffer.price)}
             {i.bestOffer.shipping ? ` + ${peso(i.bestOffer.shipping)} shipping` : " with free shipping"}.
           </p>
         </div>

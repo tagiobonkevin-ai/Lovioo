@@ -9,7 +9,7 @@ import { ProductCard } from "@/components/product/ProductCard";
 import { RetailerBadge } from "@/components/product/RetailerBadge";
 import { CATEGORIES, categoryById } from "@/lib/data/categories";
 import { BRANDS, PRODUCTS, discountPct, lowestPrice } from "@/lib/data/products";
-import { ALL_RETAILERS, RETAILERS } from "@/lib/data/retailers";
+import { ALL_RETAILERS, retailerById } from "@/lib/data/retailers";
 import { getInsight } from "@/lib/insights";
 import type { CategoryId, Product, RetailerId } from "@/lib/types";
 import { cn, peso } from "@/lib/utils";
@@ -137,7 +137,7 @@ function SearchInner() {
       </FilterGroup>
       <FilterGroup title="Store">
         {ALL_RETAILERS.map((r) => (
-          <Check key={r} label={RETAILERS[r].name} icon={<RetailerBadge id={r} size="xs" />} checked={f.platforms.includes(r)} onChange={() => toggle("platforms", r)} />
+          <Check key={r} label={retailerById(r).name} icon={<RetailerBadge id={r} size="xs" />} checked={f.platforms.includes(r)} onChange={() => toggle("platforms", r)} />
         ))}
       </FilterGroup>
       <FilterGroup title="Brand" defaultOpen={false}>

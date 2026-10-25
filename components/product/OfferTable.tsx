@@ -1,5 +1,9 @@
+"use client";
+
 import { ExternalLink, Truck } from "lucide-react";
 import type { Product } from "@/lib/types";
+import { getSupabase } from "@/lib/supabase/client";
+import { trackEvent } from "@/lib/sync";
 import { cn, peso } from "@/lib/utils";
 import { RetailerBadge } from "./RetailerBadge";
 
@@ -46,6 +50,7 @@ export function OfferTable({ product }: { product: Product }) {
                 href={o.url}
                 target="_blank"
                 rel="noopener noreferrer"
+                onClick={() => trackEvent(getSupabase(), product.id, "click_out", o.retailer)}
                 className={cn("col-span-2 inline-flex w-full items-center justify-center gap-1.5 rounded-full px-4 py-2 text-sm font-semibold sm:col-span-1 sm:w-32", o.inStock ? "bg-pink text-white" : "bg-line text-midnight/50")}
               >
                 View at retailer <ExternalLink className="h-3.5 w-3.5" />

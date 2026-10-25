@@ -9,9 +9,13 @@ import { RetailerBadge } from "@/components/product/RetailerBadge";
 import { PRODUCTS, bestOffer, discountPct } from "@/lib/data/products";
 import { peso } from "@/lib/utils";
 
-const PICKS = ["sony-wh-1000xm5-wireless-headphones", "nike-air-force-1-07", "laneige-water-sleeping-mask", "fujifilm-instax-mini-12", "pop-mart-labubu-blind-box", "nintendo-switch-oled"]
-  .map((s) => PRODUCTS.find((p) => p.slug === s)!)
-  .filter(Boolean);
+const FEATURED = ["sony-wh-1000xm5-wireless-headphones", "nike-air-force-1-07", "laneige-water-sleeping-mask", "fujifilm-instax-mini-12", "pop-mart-labubu-blind-box", "nintendo-switch-oled"];
+
+// Read at render time: the catalog may have been swapped in from Supabase after this module loaded.
+function heroPicks() {
+  const picks = FEATURED.map((s) => PRODUCTS.find((p) => p.slug === s)).filter((p): p is (typeof PRODUCTS)[number] => !!p);
+  return picks.length >= 3 ? picks : PRODUCTS.slice(0, 6);
+}
 
 /** Self-playing swipe demo for the landing hero. */
 export function HeroDeck() {
@@ -24,7 +28,9 @@ export function HeroDeck() {
     }, 2400);
     return () => clearInterval(t);
   }, []);
-  const cards = [0, 1, 2].map((k) => PICKS[(i + k) % PICKS.length]);
+  const [picks] = useState(heroPicks);
+  if (picks.length === 0) return null;
+  const cards = [0, 1, 2].map((k) => picks[(i + k) % picks.length]);
 
   return (
     <div className="relative mx-auto h-[440px] w-full max-w-sm sm:h-[500px]">
