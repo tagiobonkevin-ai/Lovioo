@@ -1,16 +1,18 @@
 "use client";
 
 import { animate, motion, useMotionValue, useTransform } from "framer-motion";
-import { ArrowUpRight, Star, Truck } from "lucide-react";
+import { ArrowUpRight, ExternalLink, Star, Truck } from "lucide-react";
 import Link from "next/link";
 import { forwardRef, useImperativeHandle, useRef } from "react";
 import { DealScoreRing, DiscountBadge, scoreColor } from "@/components/product/DealScore";
 import { ProductImage } from "@/components/product/ProductImage";
-import { RetailerBadge } from "@/components/product/RetailerBadge";
+import { RetailerBadge, RetailerStack } from "@/components/product/RetailerBadge";
 import { discountPct } from "@/lib/data/products";
-import { retailerById } from "@/lib/data/retailers";
+import { offerHref, retailerById } from "@/lib/data/retailers";
 import { getInsight } from "@/lib/insights";
 import type { SwipeAction } from "@/lib/store";
+import { getSupabase } from "@/lib/supabase/client";
+import { trackEvent } from "@/lib/sync";
 import type { Product } from "@/lib/types";
 import { cn, compact, peso } from "@/lib/utils";
 
@@ -38,6 +40,7 @@ export const SwipeCard = forwardRef<SwipeCardHandle, Props>(function SwipeCard({
   const active = depth === 0;
   const insight = getInsight(product);
   const pct = discountPct(product);
+  const tone = insight.priced ? scoreColor(insight.dealScore) : "#A855F7";
 
   const flown = useRef(false);
   const fly = (dir: SwipeAction) => {
@@ -92,9 +95,11 @@ export const SwipeCard = forwardRef<SwipeCardHandle, Props>(function SwipeCard({
               {product.trending && <span className="rounded-full bg-white/90 px-2.5 py-1 text-[11px] font-semibold text-coral">🔥 Trending</span>}
               {product.isNew && <span className="rounded-full bg-midnight/80 px-2.5 py-1 text-[11px] font-semibold text-white">NEW</span>}
             </div>
-            <div className="absolute right-4 top-4 rounded-full bg-white/90 p-1 shadow">
-              <DealScoreRing score={insight.dealScore} size={50} />
-            </div>
+            {insight.priced && (
+              <div className="absolute right-4 top-4 rounded-full bg-white/90 p-1 shadow">
+                <DealScoreRing score={insight.dealScore} size={50} />
+              </div>
+            )}
 
             {/* Stamps */}
             <motion.div style={{ opacity: loveOpacity }} className="pointer-events-none absolute left-6 top-16 -rotate-12 rounded-2xl border-4 border-emerald-400 px-4 py-1 text-4xl font-extrabold tracking-wider text-emerald-400">
@@ -110,20 +115,32 @@ export const SwipeCard = forwardRef<SwipeCardHandle, Props>(function SwipeCard({
             <div className="absolute inset-x-0 bottom-0 p-5 text-white">
               <p className="text-xs font-medium uppercase tracking-wider text-white/70">{product.brand}</p>
               <h3 className="mt-0.5 text-2xl font-bold leading-tight">{product.name}</h3>
-              <div className="mt-2 flex items-center gap-2">
-                <span className="text-2xl font-extrabold">{peso(insight.bestOffer.price)}</span>
-                {pct > 0 && <span className="text-sm text-white/60 line-through">{peso(insight.bestOffer.originalPrice)}</span>}
-                <DiscountBadge pct={pct} />
-              </div>
+              {insight.priced ? (
+                <div className="mt-2 flex items-center gap-2">
+                  <span className="text-2xl font-extrabold">{peso(insight.bestOffer.price)}</span>
+                  {pct > 0 && <span className="text-sm text-white/60 line-through">{peso(insight.bestOffer.originalPrice)}</span>}
+                  <DiscountBadge pct={pct} />
+                </div>
+              ) : (
+                <p className="mt-2 text-2xl font-extrabold">See prices</p>
+              )}
               <div className="mt-2 flex flex-wrap items-center gap-3 text-xs text-white/80">
-                <span className="inline-flex items-center gap-1.5">
-                  <RetailerBadge id={insight.bestOffer.retailer} size="xs" /> Best on {retailerById(insight.bestOffer.retailer).name}
-                </span>
-                <span className="inline-flex items-center gap-1">
-                  <Star className="h-3.5 w-3.5 fill-sunset text-sunset" /> {product.rating} ({compact(product.reviewCount)})
-                </span>
+                {insight.priced ? (
+                  <span className="inline-flex items-center gap-1.5">
+                    <RetailerBadge id={insight.bestOffer.retailer} size="xs" /> Best on {retailerById(insight.bestOffer.retailer).name}
+                  </span>
+                ) : (
+                  <span className="inline-flex items-center gap-1.5">
+                    <RetailerStack ids={product.offers.map((o) => o.retailer)} /> {insight.headline}
+                  </span>
+                )}
+                {product.reviewCount > 0 && (
+                  <span className="inline-flex items-center gap-1">
+                    <Star className="h-3.5 w-3.5 fill-sunset text-sunset" /> {product.rating} ({compact(product.reviewCount)})
+                  </span>
+                )}
               </div>
-              <p className="mt-3 text-[11px] text-white/60">Tap to see all {product.offers.length} offers ↻</p>
+              <p className="mt-3 text-[11px] text-white/60">{insight.priced ? `Tap to see all ${product.offers.length} offers ↻` : "Tap to see where to buy ↻"}</p>
             </div>
           </div>
 
@@ -139,28 +156,51 @@ export const SwipeCard = forwardRef<SwipeCardHandle, Props>(function SwipeCard({
                 <p className="line-clamp-2 font-bold leading-snug">{product.name}</p>
               </div>
             </div>
-            <div className="mt-4 rounded-2xl p-3.5" style={{ background: `${scoreColor(insight.dealScore)}14` }}>
-              <p className="text-sm font-bold" style={{ color: scoreColor(insight.dealScore) }}>
+            <div className="mt-4 rounded-2xl p-3.5" style={{ background: `${tone}14` }}>
+              <p className="text-sm font-bold" style={{ color: tone }}>
                 ✨ {insight.headline}
               </p>
               <p className="mt-1 text-xs text-midnight/70">{insight.reason}</p>
             </div>
-            <p className="mt-4 text-xs font-semibold uppercase tracking-wider text-midnight/50">Compare offers</p>
-            <ul className="mt-2 flex-1 space-y-2 overflow-y-auto">
-              {[...product.offers]
-                .sort((a, b) => a.price + a.shipping - (b.price + b.shipping))
-                .map((o, i) => (
-                  <li key={o.retailer} className={cn("flex items-center justify-between rounded-2xl border px-3 py-2.5", i === 0 ? "border-emerald-300 bg-emerald-50/60" : "border-line")}>
-                    <RetailerBadge id={o.retailer} withName size="sm" />
-                    <span className="text-right">
-                      <span className="block text-sm font-bold">{peso(o.price)}</span>
-                      <span className="flex items-center justify-end gap-1 text-[10px] text-midnight/50">
-                        <Truck className="h-3 w-3" /> {o.shipping ? peso(o.shipping) : "Free"} {!o.inStock && "· Sold out"}
+            <p className="mt-4 text-xs font-semibold uppercase tracking-wider text-midnight/50">{insight.priced ? "Compare offers" : "Where to buy"}</p>
+            {!insight.priced && (
+              <ul className="mt-2 flex-1 space-y-2 overflow-y-auto">
+                {product.offers.map((o) => (
+                  <li key={o.retailer}>
+                    <a
+                      href={offerHref(o.retailer, o.url, product.name).href}
+                      target="_blank"
+                      rel="noopener noreferrer sponsored"
+                      onPointerDownCapture={(e) => e.stopPropagation()}
+                      onClick={() => trackEvent(getSupabase(), product.id, "click_out", o.retailer)}
+                      className="flex items-center justify-between rounded-2xl border border-line px-3 py-2.5 hover:border-pink"
+                    >
+                      <RetailerBadge id={o.retailer} withName size="sm" />
+                      <span className="inline-flex items-center gap-1 text-xs font-semibold text-pink">
+                        Live prices <ExternalLink className="h-3 w-3" />
                       </span>
-                    </span>
+                    </a>
                   </li>
                 ))}
-            </ul>
+              </ul>
+            )}
+            {insight.priced && (
+              <ul className="mt-2 flex-1 space-y-2 overflow-y-auto">
+                {[...product.offers]
+                  .sort((a, b) => a.price + a.shipping - (b.price + b.shipping))
+                  .map((o, i) => (
+                    <li key={o.retailer} className={cn("flex items-center justify-between rounded-2xl border px-3 py-2.5", i === 0 ? "border-emerald-300 bg-emerald-50/60" : "border-line")}>
+                      <RetailerBadge id={o.retailer} withName size="sm" />
+                      <span className="text-right">
+                        <span className="block text-sm font-bold">{peso(o.price)}</span>
+                        <span className="flex items-center justify-end gap-1 text-[10px] text-midnight/50">
+                          <Truck className="h-3 w-3" /> {o.shipping ? peso(o.shipping) : "Free"} {!o.inStock && "· Sold out"}
+                        </span>
+                      </span>
+                    </li>
+                  ))}
+              </ul>
+            )}
             <Link
               href={`/product/${product.slug}`}
               onPointerDownCapture={(e) => e.stopPropagation()}

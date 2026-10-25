@@ -30,6 +30,7 @@ export default function AdminDeals() {
     () =>
       (catalog.data?.products ?? [])
         .map((p) => ({ p, i: getInsight(p) }))
+        .filter(({ i }) => i.priced)
         .sort((a, b) => b.i.dealScore - a.i.dealScore),
     [catalog.data],
   );

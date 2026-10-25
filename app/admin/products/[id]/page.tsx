@@ -34,6 +34,7 @@ interface Draft {
   is_new: boolean;
   trending: boolean;
   published: boolean;
+  price_tracked: boolean;
 }
 
 const EMPTY: Draft = {
@@ -53,6 +54,7 @@ const EMPTY: Draft = {
   is_new: true,
   trending: false,
   published: false,
+  price_tracked: true,
 };
 
 const slugify = (s: string) => s.toLowerCase().replace(/['"]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
@@ -88,7 +90,8 @@ export default function ProductEditor({ params }: { params: { id: string } }) {
     setProblem("");
     if (!draft.name.trim() || !draft.brand.trim()) return setProblem("Name and brand are required.");
     if (!/^[a-z0-9]+(-[a-z0-9]+)*$/.test(draft.slug)) return setProblem("The URL slug can only use lowercase letters, numbers and single dashes.");
-    if (offers.some((o) => o.price <= 0)) return setProblem("Every store offer needs a price above ₱0.");
+    if (draft.price_tracked && offers.some((o) => o.price <= 0))
+      return setProblem('Every store offer needs a price above ₱0 — or turn off "Track prices" to list it as a "See prices" pick.');
     if (draft.published && offers.length === 0) return setProblem("Add at least one store offer before publishing.");
 
     const sb = adminDb();
@@ -109,6 +112,7 @@ export default function ProductEditor({ params }: { params: { id: string } }) {
       is_new: draft.is_new,
       trending: draft.trending,
       published: draft.published,
+      price_tracked: draft.price_tracked,
     };
 
     setSaving(true);
@@ -125,7 +129,9 @@ export default function ProductEditor({ params }: { params: { id: string } }) {
 
       if (offers.length) {
         const original = (o: OfferDraft) => Math.max(o.original_price, o.price);
-        const { error } = await sb.from("offers").upsert(offers.map((o) => ({ ...o, original_price: original(o), product_id: id })));
+        // "See prices" picks store no price, so nothing lands in the price history.
+        const priced = (o: OfferDraft) => (draft.price_tracked ? { ...o, original_price: original(o) } : { ...o, price: 0, original_price: 0, shipping: 0 });
+        const { error } = await sb.from("offers").upsert(offers.map((o) => ({ ...priced(o), product_id: id })));
         if (error) return setProblem(`Product saved, but offers failed: ${error.message}`);
       }
       const keep = offers.map((o) => o.retailer_id);
@@ -264,19 +270,26 @@ export default function ProductEditor({ params }: { params: { id: string } }) {
                 {offers.map((o, i) => {
                   const update = (patch: Partial<OfferDraft>) => setOffers((all) => all.map((x, j) => (j === i ? { ...x, ...patch } : x)));
                   return (
-                    <div key={o.retailer_id} className="grid gap-3 rounded-2xl border border-line p-3 sm:grid-cols-[150px_1fr_1fr_1fr_auto] sm:items-end">
+                    <div
+                      key={o.retailer_id}
+                      className={cn("grid gap-3 rounded-2xl border border-line p-3 sm:items-end", draft.price_tracked ? "sm:grid-cols-[150px_1fr_1fr_1fr_auto]" : "sm:grid-cols-[1fr_auto]")}
+                    >
                       <div className="flex items-center gap-2 pb-2">
                         <RetailerBadge id={o.retailer_id} withName size="sm" />
                       </div>
-                      <Field label="Price ₱">
-                        <input type="number" min={0} className={adminInput} value={o.price} onChange={(e) => update({ price: Number(e.target.value) })} />
-                      </Field>
-                      <Field label="Was ₱">
-                        <input type="number" min={0} className={adminInput} value={o.original_price} onChange={(e) => update({ original_price: Number(e.target.value) })} />
-                      </Field>
-                      <Field label="Shipping ₱">
-                        <input type="number" min={0} className={adminInput} value={o.shipping} onChange={(e) => update({ shipping: Number(e.target.value) })} />
-                      </Field>
+                      {draft.price_tracked && (
+                        <>
+                          <Field label="Price ₱">
+                            <input type="number" min={0} className={adminInput} value={o.price} onChange={(e) => update({ price: Number(e.target.value) })} />
+                          </Field>
+                          <Field label="Was ₱">
+                            <input type="number" min={0} className={adminInput} value={o.original_price} onChange={(e) => update({ original_price: Number(e.target.value) })} />
+                          </Field>
+                          <Field label="Shipping ₱">
+                            <input type="number" min={0} className={adminInput} value={o.shipping} onChange={(e) => update({ shipping: Number(e.target.value) })} />
+                          </Field>
+                        </>
+                      )}
                       <div className="flex items-center gap-3 pb-1.5">
                         <span className="flex items-center gap-2 text-xs text-midnight/60">
                           <Toggle on={o.in_stock} onChange={() => update({ in_stock: !o.in_stock })} label="In stock" /> In stock
@@ -285,13 +298,21 @@ export default function ProductEditor({ params }: { params: { id: string } }) {
                           <Trash2 className="h-4 w-4" />
                         </button>
                       </div>
-                      <Field label="Product link at store" className="sm:col-span-5">
+                      <Field
+                        label="Product link at store"
+                        hint="Paste the product's affiliate link here to earn on this exact product. Left empty, the store's affiliate link is used."
+                        className={draft.price_tracked ? "sm:col-span-5" : "sm:col-span-2"}
+                      >
                         <input className={adminInput} value={o.url} onChange={(e) => update({ url: e.target.value })} placeholder="https://…" />
                       </Field>
                     </div>
                   );
                 })}
-                <p className="text-[11px] text-midnight/40">Each price change is recorded in the price history for today.</p>
+                <p className="text-[11px] text-midnight/40">
+                  {draft.price_tracked
+                    ? "Each price change is recorded in the price history for today."
+                    : 'Price tracking is off: shoppers see "See prices" and compare live listings on each store.'}
+                </p>
               </div>
             )}
           </Panel>
@@ -305,6 +326,7 @@ export default function ProductEditor({ params }: { params: { id: string } }) {
                   ["published", "Published on the shopper site"],
                   ["trending", "Mark as trending 🔥"],
                   ["is_new", "Show NEW badge"],
+                  ["price_tracked", "Track prices (off = \"See prices\" pick)"],
                 ] as const
               ).map(([k, label]) => (
                 <div key={k} className="flex items-center justify-between gap-3">
@@ -351,7 +373,7 @@ export default function ProductEditor({ params }: { params: { id: string } }) {
             </div>
           </Panel>
 
-          {offers.length > 0 && (
+          {offers.length > 0 && draft.price_tracked && (
             <Panel title="Summary">
               <p className="text-sm text-midnight/70">
                 Lowest price <b>{peso(Math.min(...offers.map((o) => o.price)))}</b> across {offers.length} store{offers.length > 1 ? "s" : ""}.

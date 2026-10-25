@@ -8,7 +8,7 @@ import { Suspense, useMemo, useState } from "react";
 import { ProductCard } from "@/components/product/ProductCard";
 import { RetailerBadge } from "@/components/product/RetailerBadge";
 import { CATEGORIES, categoryById } from "@/lib/data/categories";
-import { BRANDS, PRODUCTS, discountPct, lowestPrice } from "@/lib/data/products";
+import { BRANDS, PRODUCTS, discountPct, isPriced, lowestPrice } from "@/lib/data/products";
 import { ALL_RETAILERS, retailerById } from "@/lib/data/retailers";
 import { getInsight } from "@/lib/insights";
 import type { CategoryId, Product, RetailerId } from "@/lib/types";
@@ -74,6 +74,8 @@ function SearchInner() {
   const results = useMemo(() => {
     const min = f.min ? Number(f.min) : f.band !== null ? PRICE_BANDS[f.band].min : 0;
     const max = f.max ? Number(f.max) : f.band !== null ? PRICE_BANDS[f.band].max : Infinity;
+    // "See prices" picks have no price, so any price filter leaves them out.
+    const priceFilter = f.band !== null || !!f.min || !!f.max;
     const list = PRODUCTS.filter((p) => {
       const price = lowestPrice(p);
       return (
@@ -81,8 +83,7 @@ function SearchInner() {
         (!f.categories.length || f.categories.includes(p.category)) &&
         (!f.brands.length || f.brands.includes(p.brand)) &&
         (!f.platforms.length || p.offers.some((o) => f.platforms.includes(o.retailer))) &&
-        price >= min &&
-        price <= max &&
+        (!priceFilter || (isPriced(p) && price >= min && price <= max)) &&
         p.rating >= f.rating &&
         (!f.onSale || discountPct(p) >= 10)
       );
@@ -91,8 +92,8 @@ function SearchInner() {
       relevant: (a, b) => Number(!!b.trending) - Number(!!a.trending) || b.reviewCount - a.reviewCount,
       deal: (a, b) => getInsight(b).dealScore - getInsight(a).dealScore,
       discount: (a, b) => discountPct(b) - discountPct(a),
-      "price-asc": (a, b) => lowestPrice(a) - lowestPrice(b),
-      "price-desc": (a, b) => lowestPrice(b) - lowestPrice(a),
+      "price-asc": (a, b) => Number(isPriced(b)) - Number(isPriced(a)) || lowestPrice(a) - lowestPrice(b),
+      "price-desc": (a, b) => Number(isPriced(b)) - Number(isPriced(a)) || lowestPrice(b) - lowestPrice(a),
       rating: (a, b) => b.rating - a.rating,
       trending: (a, b) => Number(!!b.trending) - Number(!!a.trending) || getInsight(b).dealScore - getInsight(a).dealScore,
     };
@@ -235,9 +236,9 @@ function SearchInner() {
               </button>
             </div>
           )}
-          {results.length > 0 && (
+          {results.some(isPriced) && (
             <p className="mt-6 text-center text-xs text-midnight/40">
-              Lowest price shown {peso(Math.min(...results.map(lowestPrice)))} · prices are set by each retailer
+              Lowest price shown {peso(Math.min(...results.filter(isPriced).map(lowestPrice)))} · prices are set by each retailer
             </p>
           )}
         </div>

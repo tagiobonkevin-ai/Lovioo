@@ -2,7 +2,7 @@
 
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
-import { productById } from "@/lib/data/products";
+import { isPriced, productById } from "@/lib/data/products";
 import { getInsight } from "@/lib/insights";
 import type { PriceAlert, Preferences } from "@/lib/types";
 
@@ -83,7 +83,8 @@ export const useLovioo = create<LoviooState>()(
       },
       setAlert: (id, targetPrice) => {
         const p = productById(id);
-        if (!p) return;
+        // "See prices" picks have no price to watch.
+        if (!p || !isPriced(p)) return;
         const target = targetPrice ?? Math.round(getInsight(p).lowest90);
         const rest = get().alerts.filter((a) => a.productId !== id);
         set({ alerts: [{ productId: id, targetPrice: target, enabled: true, createdAt: Date.now() }, ...rest] });

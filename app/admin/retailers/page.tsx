@@ -19,7 +19,10 @@ export default function AdminRetailers() {
 
   const save = (r: Row) =>
     saveWith(
-      adminDb().from("retailers").update({ name: r.name, short: r.short, color: r.color, text_color: r.text_color, homepage: r.homepage, active: r.active }).eq("id", r.id),
+      adminDb()
+        .from("retailers")
+        .update({ name: r.name, short: r.short, color: r.color, text_color: r.text_color, homepage: r.homepage, active: r.active, affiliate_url: r.affiliate_url?.trim() || null })
+        .eq("id", r.id),
       `${r.name} saved`,
     );
 
@@ -85,6 +88,9 @@ export default function AdminRetailers() {
                   </Field>
                   <Field label="Homepage" className="col-span-2">
                     <input className={adminInput} value={r.homepage ?? ""} onChange={(e) => patch(r.id, { homepage: e.target.value })} />
+                  </Field>
+                  <Field label="Affiliate link" hint="Used for this store's offers that don't have their own product link yet." className="col-span-2">
+                    <input className={adminInput} value={r.affiliate_url ?? ""} onChange={(e) => patch(r.id, { affiliate_url: e.target.value })} placeholder="https://…" />
                   </Field>
                 </div>
                 <button onClick={() => save(r)} className="btn-dark mt-4 w-full !py-2">

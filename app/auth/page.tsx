@@ -61,12 +61,12 @@ function AuthForm() {
           password,
           options: { data: { full_name: name.trim() }, emailRedirectTo: `${window.location.origin}/onboarding` },
         });
-        if (error) setError(error.message);
+        if (error) setError(friendlyAuthError(error.message));
         else if (!data.session) setNotice(`We sent a confirmation link to ${email}. Open it to finish creating your account.`);
         else router.push("/onboarding");
       } else {
         const { error } = await sb.auth.signInWithPassword({ email, password });
-        if (error) setError(error.message);
+        if (error) setError(friendlyAuthError(error.message));
         else router.push(next);
       }
     } finally {
@@ -155,6 +155,13 @@ function AuthForm() {
             <button className="btn-primary w-full !py-3" disabled={busy}>
               {busy ? "One moment…" : mode === "signup" ? "Create account" : "Sign in"}
             </button>
+            {mode === "signup" && (
+              <p className="text-center text-[11px] text-midnight/50">
+                By creating an account you agree to our{" "}
+                <Link href="/terms" className="font-semibold text-pink">Terms</Link> and{" "}
+                <Link href="/privacy" className="font-semibold text-pink">Privacy policy</Link>.
+              </p>
+            )}
           </form>
 
           <div className="my-6 flex items-center gap-3 text-xs text-midnight/40">
@@ -182,4 +189,13 @@ export default function AuthPage() {
       <AuthForm />
     </Suspense>
   );
+}
+
+/** Turns Supabase auth errors testers are likely to hit into plain language. */
+function friendlyAuthError(message: string) {
+  if (/rate limit|too many/i.test(message)) return "Lots of people are signing up right now — please try again in a few minutes.";
+  if (/email not confirmed/i.test(message)) return "Please confirm your email first — check your inbox (and spam) for the link we sent.";
+  if (/invalid login credentials/i.test(message)) return "That email and password don't match. Try again or create an account.";
+  if (/already registered/i.test(message)) return "There's already an account with this email — sign in instead.";
+  return message;
 }

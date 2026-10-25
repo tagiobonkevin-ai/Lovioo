@@ -3,7 +3,7 @@
 import { GitCompareArrows, Star } from "lucide-react";
 import Link from "next/link";
 import { useHydrated } from "@/components/Providers";
-import { bestOffer, discountPct } from "@/lib/data/products";
+import { bestOffer, discountPct, isPriced } from "@/lib/data/products";
 import { useLovioo } from "@/lib/store";
 import type { Product } from "@/lib/types";
 import { cn, compact, peso } from "@/lib/utils";
@@ -35,13 +35,23 @@ export function ProductCard({ product, showCompare = true, className }: { produc
           {product.name}
         </Link>
         <span className="text-xs text-midnight/50">{product.subcategory}</span>
-        <div className="mt-1 flex items-center gap-1 text-[11px] text-midnight/60">
-          <Star className="h-3 w-3 fill-sunset text-sunset" />
-          {product.rating} <span className="text-midnight/40">({compact(product.reviewCount)})</span>
-        </div>
+        {product.reviewCount > 0 && (
+          <div className="mt-1 flex items-center gap-1 text-[11px] text-midnight/60">
+            <Star className="h-3 w-3 fill-sunset text-sunset" />
+            {product.rating} <span className="text-midnight/40">({compact(product.reviewCount)})</span>
+          </div>
+        )}
         <div className="mt-1 flex items-center gap-2">
-          <span className="text-base font-bold">{peso(best.price)}</span>
-          <DiscountBadge pct={pct} />
+          {isPriced(product) ? (
+            <>
+              <span className="text-base font-bold">{peso(best.price)}</span>
+              <DiscountBadge pct={pct} />
+            </>
+          ) : (
+            <Link href={`/product/${product.slug}`} className="text-sm font-bold text-pink">
+              See prices →
+            </Link>
+          )}
         </div>
         <div className="mt-auto flex items-center justify-between pt-2">
           <RetailerStack ids={product.offers.map((o) => o.retailer)} />

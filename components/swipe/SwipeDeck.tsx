@@ -7,7 +7,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ProductImage } from "@/components/product/ProductImage";
 import { toast, useHydrated } from "@/components/Providers";
 import { categoryById, VIBES } from "@/lib/data/categories";
-import { productById } from "@/lib/data/products";
+import { isPriced, productById } from "@/lib/data/products";
 import { getInsight } from "@/lib/insights";
 import { swipeFeed } from "@/lib/recommend";
 import { swipesToday, useLovioo, type SwipeAction } from "@/lib/store";
@@ -303,7 +303,7 @@ function Recap({ loves, vibe, onReset, onAllVibes }: { loves: string[]; vibe: Vi
   const cats = new Map<string, number>();
   products.forEach((p) => cats.set(p.category, (cats.get(p.category) ?? 0) + 1));
   const top = [...cats.entries()].sort((a, b) => b[1] - a[1]).slice(0, 3);
-  const best = [...products].sort((a, b) => getInsight(b).dealScore - getInsight(a).dealScore)[0];
+  const best = products.filter(isPriced).sort((a, b) => getInsight(b).dealScore - getInsight(a).dealScore)[0];
 
   return (
     <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="absolute inset-0 flex flex-col overflow-hidden rounded-[2rem] bg-white shadow-2xl">

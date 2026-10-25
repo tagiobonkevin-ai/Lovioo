@@ -154,11 +154,16 @@ export const bestOffer = (p: Product) =>
     .filter((o) => o.inStock)
     .sort((a, b) => a.price + a.shipping - (b.price + b.shipping))[0] ?? p.offers[0];
 
-export const lowestPrice = (p: Product) => Math.min(...p.offers.map((o) => o.price));
+/** "See prices" picks have no tracked price; the stores show live prices. */
+export const isPriced = (p: Product) => p.priceTracked !== false;
+
+/** Infinity for unpriced picks, so budget and price filters skip them and ascending sorts put them last. */
+export const lowestPrice = (p: Product) => (isPriced(p) ? Math.min(...p.offers.map((o) => o.price)) : Infinity);
 
 export const discountPct = (p: Product) => {
+  if (!isPriced(p)) return 0;
   const o = [...p.offers].sort((a, b) => a.price - b.price)[0];
-  return Math.round((1 - o.price / o.originalPrice) * 100);
+  return o.originalPrice > 0 ? Math.round((1 - o.price / o.originalPrice) * 100) : 0;
 };
 
 export const BRANDS: string[] = Array.from(new Set(PRODUCTS.map((p) => p.brand))).sort();

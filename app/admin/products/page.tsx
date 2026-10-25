@@ -7,14 +7,15 @@ import { adminDb, saveWith, useAdminQuery } from "@/components/admin/useAdmin";
 import { ErrorNote, PageHeader, Panel, Skeleton, Toggle, adminInput } from "@/components/admin/ui";
 import { RetailerBadge } from "@/components/product/RetailerBadge";
 import { CATEGORIES, categoryById } from "@/lib/data/categories";
+import { isPlaceholderUrl } from "@/lib/data/retailers";
 import { cn, peso } from "@/lib/utils";
 
 export default function AdminProducts() {
   const [q, setQ] = useState("");
   const [cat, setCat] = useState("");
-  const [status, setStatus] = useState<"all" | "published" | "hidden">("all");
+  const [status, setStatus] = useState<"all" | "published" | "hidden" | "needs-link" | "see-prices">("all");
   const { data, error, loading, setData } = useAdminQuery((sb) =>
-    sb.from("products").select("id, slug, name, brand, category_id, emoji, image, published, trending, is_new, updated_at, offers(retailer_id, price, in_stock)").order("sort").order("created_at"),
+    sb.from("products").select("id, slug, name, brand, category_id, emoji, image, published, trending, is_new, price_tracked, updated_at, offers(retailer_id, price, in_stock, url)").order("sort").order("created_at"),
   );
 
   const rows = useMemo(
@@ -23,7 +24,12 @@ export default function AdminProducts() {
         (p) =>
           (!q || `${p.name} ${p.brand} ${p.slug}`.toLowerCase().includes(q.toLowerCase())) &&
           (!cat || p.category_id === cat) &&
-          (status === "all" || (status === "published") === p.published),
+          (status === "all" ||
+            (status === "needs-link"
+              ? p.offers.some((o) => isPlaceholderUrl(o.url))
+              : status === "see-prices"
+                ? !p.price_tracked
+                : (status === "published") === p.published)),
       ),
     [data, q, cat, status],
   );
@@ -59,6 +65,8 @@ export default function AdminProducts() {
             <option value="all">All statuses</option>
             <option value="published">Published</option>
             <option value="hidden">Hidden</option>
+            <option value="needs-link">Needs real store links</option>
+            <option value="see-prices">&quot;See prices&quot; picks</option>
           </select>
         </div>
 
@@ -91,6 +99,7 @@ export default function AdminProducts() {
                             <span className="text-xs text-midnight/50">
                               {p.brand}
                               {p.trending && " · 🔥 trending"}
+                              {p.offers.some((o) => isPlaceholderUrl(o.url)) && <span className="ml-1 rounded-full bg-sunset/20 px-1.5 py-0.5 text-[10px] font-semibold text-[#B86E00]">needs link</span>}
                               {p.is_new && " · new"}
                             </span>
                           </span>
@@ -105,7 +114,9 @@ export default function AdminProducts() {
                           {p.offers.length === 0 && <span className="text-xs text-coral">No offers</span>}
                         </span>
                       </td>
-                      <td className="py-2.5 text-right font-semibold">{lowest != null ? peso(lowest) : "—"}</td>
+                      <td className="py-2.5 text-right font-semibold">
+                        {!p.price_tracked ? <span className="text-xs text-grape">See prices</span> : lowest != null ? peso(lowest) : "—"}
+                      </td>
                       <td className="py-2.5">
                         <span className="flex justify-center">
                           <Toggle on={p.published} onChange={() => togglePublished(p.id, !p.published)} label={`Publish ${p.name}`} />

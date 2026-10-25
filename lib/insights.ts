@@ -1,5 +1,6 @@
 import { onCatalogChange } from "@/lib/data/catalog";
-import { bestOffer, lowestPrice } from "@/lib/data/products";
+import { bestOffer, isPriced, lowestPrice } from "@/lib/data/products";
+import { retailerById } from "@/lib/data/retailers";
 import type { Insight, PricePoint, Product, RetailerId } from "@/lib/types";
 import { hashString, peso, roundPrice, seeded } from "@/lib/utils";
 
@@ -62,7 +63,12 @@ export function getInsight(p: Product): Insight {
   return insight;
 }
 
+/** Below this much real history, a buy/wait call would be a guess, so we say so instead. */
+export const MIN_HISTORY_DAYS = 14;
+
 function computeInsight(p: Product): Insight {
+  if (!isPriced(p)) return seePricesInsight(p);
+  if (p.stats && p.stats.days < MIN_HISTORY_DAYS) return earlyInsight(p, p.stats);
   let low: number, high: number, avg: number;
   if (p.stats) {
     ({ low90: low, high90: high, avg90: avg } = p.stats);
@@ -104,9 +110,47 @@ function computeInsight(p: Product): Insight {
     verdict,
     headline,
     reason,
+    priced: true,
     bestOffer: best,
     lowest90: low,
     avg90: Math.round(avg),
     savings: Math.max(0, Math.round(best.originalPrice - best.price)),
+  };
+}
+
+function earlyInsight(p: Product, stats: NonNullable<Product["stats"]>): Insight {
+  const best = bestOffer(p);
+  const listedOff = best.originalPrice > best.price ? Math.round((1 - best.price / best.originalPrice) * 100) : 0;
+  const days = Math.max(1, stats.days);
+  return {
+    // Neutral score: only the store's own "was" price to go on.
+    dealScore: Math.min(75, 45 + Math.round(listedOff * 0.8)),
+    verdict: "new",
+    headline: "Price tracking just started",
+    reason: `We've tracked this price for ${days} day${days === 1 ? "" : "s"}. ${
+      listedOff ? `The store lists it ${listedOff}% off. ` : ""
+    }Set a price alert and we'll tell you when it drops.`,
+    priced: true,
+    bestOffer: best,
+    lowest90: stats.low90,
+    avg90: stats.avg90,
+    savings: Math.max(0, Math.round(best.originalPrice - best.price)),
+  };
+}
+
+/** "See prices" picks: no tracked price, so no score or verdict, just a nudge to compare on the stores. */
+function seePricesInsight(p: Product): Insight {
+  const stores = p.offers.map((o) => retailerById(o.retailer).name);
+  const where = stores.length > 1 ? `${stores.slice(0, -1).join(", ")} & ${stores[stores.length - 1]}` : stores[0] ?? "the store";
+  return {
+    dealScore: 0,
+    verdict: "new",
+    priced: false,
+    headline: `Live prices on ${where}`,
+    reason: "A popular pick we don't price-track yet. Tap through to compare sellers, prices and reviews on the store.",
+    bestOffer: p.offers[0],
+    lowest90: 0,
+    avg90: 0,
+    savings: 0,
   };
 }

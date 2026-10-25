@@ -12,6 +12,8 @@ export interface Offer {
   shipping: number;
   inStock: boolean;
   url: string;
+  /** When this offer was last updated (Supabase mode). */
+  updatedAt?: string;
 }
 
 export interface Product {
@@ -32,6 +34,8 @@ export interface Product {
   isNew?: boolean;
   trending?: boolean;
   offers: Offer[];
+  /** false: a "See prices" pick — offers have no tracked price and shoppers compare on the store. */
+  priceTracked?: boolean;
   /** 90-day stats on the lowest daily price, from Supabase. Absent in demo mode. */
   stats?: PriceStats;
 }
@@ -40,6 +44,8 @@ export interface PriceStats {
   low90: number;
   avg90: number;
   high90: number;
+  /** How many days of history the stats cover. */
+  days: number;
 }
 
 export interface PricePoint {
@@ -50,7 +56,10 @@ export interface PricePoint {
 
 export interface Insight {
   dealScore: number;
-  verdict: "buy" | "wait" | "good";
+  /** "new": not enough real price history yet to call buy or wait. */
+  verdict: "buy" | "wait" | "good" | "new";
+  /** false for "See prices" picks: no price, score or savings to show. */
+  priced: boolean;
   headline: string;
   reason: string;
   bestOffer: Offer;
