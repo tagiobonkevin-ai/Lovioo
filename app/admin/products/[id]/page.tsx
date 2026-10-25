@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowLeft, ExternalLink, Plus, Trash2 } from "lucide-react";
+import { AlertTriangle, ArrowLeft, Clock, ExternalLink, Plus, Send, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -10,13 +10,16 @@ import { adminDb, useAdminQuery } from "@/components/admin/useAdmin";
 import { ErrorNote, Field, PageHeader, Panel, Skeleton, Toggle, adminInput } from "@/components/admin/ui";
 import { RetailerBadge } from "@/components/product/RetailerBadge";
 import { CATEGORIES, VIBES } from "@/lib/data/categories";
-import { RETAILERS } from "@/lib/data/retailers";
-import type { Database } from "@/lib/supabase/database.types";
+import { RETAILERS, retailerById } from "@/lib/data/retailers";
+import { linkError, storeLinkWarning } from "@/lib/links";
+import { CONTENT_KEYS, asChangeSet, changeLabels, shortDate, type ChangeSet } from "@/lib/review";
+import type { Database, Json } from "@/lib/supabase/database.types";
 import { cn, peso } from "@/lib/utils";
 
 type ProductRow = Database["public"]["Tables"]["products"]["Row"];
 type OfferRow = Database["public"]["Tables"]["offers"]["Row"];
 type OfferDraft = Pick<OfferRow, "retailer_id" | "price" | "original_price" | "shipping" | "in_stock" | "url">;
+type RequestRow = Database["public"]["Tables"]["product_change_requests"]["Row"];
 
 interface Draft {
   name: string;
@@ -63,6 +66,7 @@ const EMPTY: Draft = {
 const slugify = (s: string) => s.toLowerCase().replace(/['"]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
 const toDraft = (p: ProductRow): Draft => ({ ...p, rating: Number(p.rating), tags: p.tags.join(", "), highlights: p.highlights.join("\n") });
 const list = (s: string, sep: RegExp) => s.split(sep).map((x) => x.trim()).filter(Boolean);
+const storeName = (id: string) => retailerById(id).name;
 
 export default function ProductEditor({ params }: { params: { id: string } }) {
   const isNew = params.id === "new";
@@ -75,8 +79,9 @@ export default function ProductEditor({ params }: { params: { id: string } }) {
   const [saving, setSaving] = useState(false);
   const [problem, setProblem] = useState("");
   const [imageFailed, setImageFailed] = useState(false);
+  const [note, setNote] = useState("");
 
-  const { data, error, loading } = useAdminQuery<ProductRow & { offers: OfferRow[] }>(
+  const { data, error, loading, reload } = useAdminQuery<ProductRow & { offers: OfferRow[] }>(
     async (sb) => (isNew ? { data: null, error: null } : await sb.from("products").select("*, offers(*)").eq("id", params.id).single()),
     [params.id],
   );
@@ -89,16 +94,35 @@ export default function ProductEditor({ params }: { params: { id: string } }) {
   }, [data]);
 
   const brands = useAdminQuery((sb) => sb.from("brands").select("id, name").order("name"));
+  // Editors see their own requests, admins see everyone's (RLS).
+  const requests = useAdminQuery<RequestRow[]>(
+    async (sb) =>
+      isNew ? { data: [], error: null } : await sb.from("product_change_requests").select("*").eq("product_id", params.id).order("created_at", { ascending: false }).limit(10),
+    [params.id],
+  );
+  const pending = requests.data?.filter((r) => r.status === "pending") ?? [];
+  const latest = requests.data?.[0];
+  // An editor's changes to a live product: prices and stock save directly, everything else goes to review.
+  const liveLocked = !canPublish && !isNew && !!data?.published;
+  const imageProblem = linkError("Image URL", draft.image);
+  const offerProblem = (o: OfferDraft) => linkError(`${storeName(o.retailer_id)} link`, o.url);
   const set = <K extends keyof Draft>(k: K, v: Draft[K]) => setDraft((d) => ({ ...d, [k]: v }));
   const unusedStores = Object.values(RETAILERS).filter((r) => !offers.some((o) => o.retailer_id === r.id));
 
-  const save = async () => {
+  const fail = (message: string) => {
+    setProblem(message);
+    return false;
+  };
+
+  const save = async (): Promise<boolean> => {
     setProblem("");
-    if (!draft.name.trim() || !draft.brand.trim()) return setProblem("Name and brand are required.");
-    if (!/^[a-z0-9]+(-[a-z0-9]+)*$/.test(draft.slug)) return setProblem("The URL slug can only use lowercase letters, numbers and single dashes.");
+    if (!draft.name.trim() || !draft.brand.trim()) return fail("Name and brand are required.");
+    if (!/^[a-z0-9]+(-[a-z0-9]+)*$/.test(draft.slug)) return fail("The URL slug can only use lowercase letters, numbers and single dashes.");
+    const badLink = imageProblem ?? offers.map(offerProblem).find(Boolean);
+    if (badLink) return fail(badLink);
     if (draft.price_tracked && offers.some((o) => o.price <= 0))
-      return setProblem('Every store offer needs a price above ₱0 — or turn off "Track prices" to list it as a "See prices" pick.');
-    if (draft.published && offers.length === 0) return setProblem("Add at least one store offer before publishing.");
+      return fail('Every store offer needs a price above ₱0 — or turn off "Track prices" to list it as a "See prices" pick.');
+    if (draft.published && offers.length === 0) return fail("Add at least one store offer before publishing.");
 
     const sb = adminDb();
     const row = {
@@ -123,42 +147,113 @@ export default function ProductEditor({ params }: { params: { id: string } }) {
       ...(brands.data ? { brand_id: draft.brand_id ?? null } : {}),
     };
 
+    const original = (o: OfferDraft) => Math.max(o.original_price, o.price);
+    // "See prices" picks store no price, so nothing lands in the price history.
+    const priced = (o: OfferDraft) =>
+      draft.price_tracked ? { ...o, url: o.url.trim(), original_price: original(o) } : { ...o, url: o.url.trim(), price: 0, original_price: 0, shipping: 0 };
+
     setSaving(true);
     try {
+      if (liveLocked && data) return await saveLive(row, priced);
+
       let id = params.id;
       if (isNew) {
         const { data: created, error } = await sb.from("products").insert(row).select("id").single();
-        if (error) return setProblem(error.message);
+        if (error) return fail(error.message);
         id = created.id;
       } else {
         const { error } = await sb.from("products").update(row).eq("id", id);
-        if (error) return setProblem(error.message);
+        if (error) return fail(error.message);
       }
 
       if (offers.length) {
-        const original = (o: OfferDraft) => Math.max(o.original_price, o.price);
-        // "See prices" picks store no price, so nothing lands in the price history.
-        const priced = (o: OfferDraft) => (draft.price_tracked ? { ...o, original_price: original(o) } : { ...o, price: 0, original_price: 0, shipping: 0 });
         const { error } = await sb.from("offers").upsert(offers.map((o) => ({ ...priced(o), product_id: id })));
-        if (error) return setProblem(`Product saved, but offers failed: ${error.message}`);
+        if (error) return fail(`Product saved, but offers failed: ${error.message}`);
       }
       const keep = offers.map((o) => o.retailer_id);
       let del = sb.from("offers").delete().eq("product_id", id);
       if (keep.length) del = del.not("retailer_id", "in", `(${keep.join(",")})`);
       const { error: delError } = await del;
-      if (delError) return setProblem(`Product saved, but removing old offers failed: ${delError.message}`);
+      if (delError) return fail(`Product saved, but removing old offers failed: ${delError.message}`);
 
-      toast({ title: isNew ? "Product created" : "Product saved", body: "The shopper site picks it up within a minute.", kind: "ok" });
+      toast({ title: isNew ? "Product created" : "Product saved", body: draft.published ? "The shopper site picks it up within a minute." : undefined, kind: "ok" });
       if (isNew) router.replace(`/admin/products/${id}`);
+      return true;
     } finally {
       setSaving(false);
     }
   };
 
+  /** Editor on a live product: prices and stock go live now; other changes become a review request. */
+  const saveLive = async (row: Record<string, unknown>, priced: (o: OfferDraft) => OfferDraft) => {
+    if (!data) return false;
+    const sb = adminDb();
+    const { offers: liveOffers, ...live } = data;
+
+    const product: { [k: string]: Json } = {};
+    for (const k of CONTENT_KEYS) {
+      if (!(k in row)) continue;
+      const before = k === "rating" ? Number(live.rating) : live[k];
+      if (JSON.stringify(row[k]) !== JSON.stringify(before)) product[k] = row[k] as Json;
+    }
+    const links: ChangeSet["offers"] = {};
+    for (const o of offers) {
+      const was = liveOffers.find((x) => x.retailer_id === o.retailer_id);
+      if (was && was.url !== o.url.trim()) links[o.retailer_id] = { url: o.url.trim() };
+    }
+    const changes: ChangeSet = {
+      ...(Object.keys(product).length ? { product } : {}),
+      ...(Object.keys(links).length ? { offers: links } : {}),
+    };
+
+    if (draft.price_tracked !== live.price_tracked) {
+      const { error } = await sb.from("products").update({ price_tracked: draft.price_tracked }).eq("id", live.id);
+      if (error) return fail(error.message);
+    }
+    // Existing stores only, with their live links; link changes ride in the request.
+    const kept = offers.flatMap((o) => {
+      const was = liveOffers.find((x) => x.retailer_id === o.retailer_id);
+      return was ? [{ ...priced(o), url: was.url, product_id: live.id }] : [];
+    });
+    if (kept.length) {
+      const { error } = await sb.from("offers").upsert(kept);
+      if (error) return fail(`Prices couldn't be saved: ${error.message}`);
+    }
+
+    const forReview = changeLabels(changes, storeName);
+    if (forReview.length) {
+      const { data: auth } = await sb.auth.getUser();
+      if (!auth.user) return fail("Your session expired. Sign in again to send changes for review.");
+      const { error } = await sb.from("product_change_requests").insert({ product_id: live.id, requested_by: auth.user.id, changes, note: note.trim().slice(0, 1000) });
+      if (error) return fail(`Prices saved, but the review request failed: ${error.message}`);
+      setNote("");
+      toast({ title: "Sent for review", body: `An admin will check: ${forReview.join(", ")}. Prices and stock are live now.`, kind: "ok" });
+    } else {
+      toast({ title: "Prices saved", body: "The shopper site picks them up within a minute.", kind: "ok" });
+    }
+    reload();
+    requests.reload();
+    return true;
+  };
+
+  /** Editor on a draft: save it and put it in the admins' review queue. */
+  const submitForReview = async () => {
+    if (!(await save())) return;
+    const sb = adminDb();
+    const { data: auth } = await sb.auth.getUser();
+    const { error } = await sb
+      .from("products")
+      .update({ review_requested_at: new Date().toISOString(), review_requested_by: auth.user?.id ?? null })
+      .eq("id", params.id);
+    if (error) return fail(error.message);
+    toast({ title: "Submitted for review", body: "An admin will check it and publish it.", kind: "ok" });
+    reload();
+  };
+
   const remove = async () => {
     if (!window.confirm(`Delete “${draft.name}”? This also removes its offers, price history, saves and alerts.`)) return;
     const { error } = await adminDb().from("products").delete().eq("id", params.id);
-    if (error) return setProblem(error.message);
+    if (error) return fail(error.message);
     toast({ title: "Product deleted", kind: "ok" });
     router.push("/admin/products");
   };
@@ -182,11 +277,28 @@ export default function ProductEditor({ params }: { params: { id: string } }) {
             <Trash2 className="h-4 w-4" /> Delete
           </button>
         )}
+        {!isNew && !canPublish && !liveLocked && (
+          <button onClick={submitForReview} disabled={saving} className="btn-ghost">
+            <Send className="h-4 w-4" /> {data?.review_requested_at ? "Resubmit for review" : "Submit for review"}
+          </button>
+        )}
         <button onClick={save} disabled={saving} className="btn-primary">
-          {saving ? "Saving…" : isNew ? "Create product" : "Save changes"}
+          {saving ? "Saving…" : isNew ? "Create product" : liveLocked ? "Save" : "Save changes"}
         </button>
       </PageHeader>
       {problem && <p className="mb-4 rounded-2xl bg-coral/10 p-3 text-sm font-medium text-coral">{problem}</p>}
+      <ReviewStatus canPublish={canPublish} pending={pending} latest={latest} submittedAt={data?.published ? null : data?.review_requested_at ?? null} />
+      {liveLocked && (
+        <Panel className="mb-6">
+          <p className="text-sm text-midnight/70">
+            <b>This product is live.</b> Prices, stock and price tracking save straight away. Changes to anything else are sent to an admin for review
+            first — shoppers keep seeing the current version until it&apos;s approved.
+          </p>
+          <Field label="Note for the reviewer (optional)" className="mt-3">
+            <input className={adminInput} value={note} maxLength={1000} onChange={(e) => setNote(e.target.value)} placeholder="e.g. Brand renamed its product, new photo from the official store" />
+          </Field>
+        </Panel>
+      )}
 
       <div className="grid gap-6 xl:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
         <div className="space-y-6">
@@ -266,7 +378,8 @@ export default function ProductEditor({ params }: { params: { id: string } }) {
           <Panel
             title="Store offers"
             action={
-              unusedStores.length > 0 && (
+              unusedStores.length > 0 &&
+              !liveLocked && (
                 <select
                   className={cn(adminInput, "!w-auto")}
                   value=""
@@ -320,20 +433,30 @@ export default function ProductEditor({ params }: { params: { id: string } }) {
                         <span className="flex items-center gap-2 text-xs text-midnight/60">
                           <Toggle on={o.in_stock} onChange={() => update({ in_stock: !o.in_stock })} label="In stock" /> In stock
                         </span>
-                        <button onClick={() => setOffers((all) => all.filter((_, j) => j !== i))} className="text-midnight/40 hover:text-coral" aria-label={`Remove ${o.retailer_id}`}>
-                          <Trash2 className="h-4 w-4" />
-                        </button>
+                        {!liveLocked && (
+                          <button onClick={() => setOffers((all) => all.filter((_, j) => j !== i))} className="text-midnight/40 hover:text-coral" aria-label={`Remove ${o.retailer_id}`}>
+                            <Trash2 className="h-4 w-4" />
+                          </button>
+                        )}
                       </div>
                       <Field
                         label="Product link at store"
                         hint="Paste the product's affiliate link here to earn on this exact product. Left empty, the store's affiliate link is used."
                         className={draft.price_tracked ? "sm:col-span-5" : "sm:col-span-2"}
                       >
-                        <input className={adminInput} value={o.url} onChange={(e) => update({ url: e.target.value })} placeholder="https://…" />
+                        <input
+                          className={cn(adminInput, offerProblem(o) && "!border-coral")}
+                          value={o.url}
+                          onChange={(e) => update({ url: e.target.value })}
+                          placeholder="https://…"
+                          aria-invalid={!!offerProblem(o)}
+                        />
+                        <LinkNote error={offerProblem(o)} warning={storeLinkWarning(o.retailer_id, o.url)} />
                       </Field>
                     </div>
                   );
                 })}
+                {liveLocked && <p className="text-[11px] text-midnight/50">Adding or removing a store on a live product is done by an admin.</p>}
                 <p className="text-[11px] text-midnight/40">
                   {draft.price_tracked
                     ? "Each price change is recorded in the price history for today."
@@ -349,7 +472,9 @@ export default function ProductEditor({ params }: { params: { id: string } }) {
             <div className="space-y-3 text-sm">
               {!canPublish && (
                 <p className="rounded-2xl bg-lavender p-3 text-xs text-midnight/70">
-                  {draft.published ? "Live on the shopper site. Your edits show up within a minute." : "Draft: an admin will review and publish it."}
+                  {draft.published
+                    ? "Live on the shopper site. Price and stock edits show up within a minute; other edits after an admin approves them."
+                    : "Draft: when it's ready, tap Submit for review and an admin will publish it."}
                 </p>
               )}
               {(
@@ -375,7 +500,8 @@ export default function ProductEditor({ params }: { params: { id: string } }) {
               </Field>
               <Field label="Image URL">
                 <input
-                  className={adminInput}
+                  className={cn(adminInput, imageProblem && "!border-coral")}
+                  aria-invalid={!!imageProblem}
                   value={draft.image}
                   onChange={(e) => {
                     setImageFailed(false);
@@ -388,6 +514,10 @@ export default function ProductEditor({ params }: { params: { id: string } }) {
             <div className="mt-4 grid aspect-square place-items-center overflow-hidden rounded-2xl bg-blush text-7xl">
               {draft.image && !imageFailed ? <img src={draft.image} alt="" className="h-full w-full object-cover" onError={() => setImageFailed(true)} /> : draft.emoji}
             </div>
+            <LinkNote
+              error={imageProblem}
+              warning={draft.image && imageFailed ? "This image link doesn't load. Use a direct link to a .jpg, .png or .webp image." : null}
+            />
             <p className="mt-2 text-[11px] text-midnight/40">If the image can&apos;t load, shoppers see the emoji tile.</p>
           </Panel>
 
@@ -415,4 +545,65 @@ export default function ProductEditor({ params }: { params: { id: string } }) {
       </div>
     </div>
   );
+}
+
+function LinkNote({ error, warning }: { error: string | null; warning: string | null }) {
+  if (!error && !warning) return null;
+  return (
+    <span className={cn("mt-1 flex items-start gap-1 text-[11px] font-medium", error ? "text-coral" : "text-amber-700")} role={error ? "alert" : undefined}>
+      <AlertTriangle className="mt-px h-3 w-3 shrink-0" /> {error ?? warning}
+    </span>
+  );
+}
+
+/** Where this product stands in the review queue. */
+function ReviewStatus({ canPublish, pending, latest, submittedAt }: { canPublish: boolean; pending: RequestRow[]; latest?: RequestRow; submittedAt: string | null }) {
+  const box = "mb-4 flex items-start gap-2 rounded-2xl p-3 text-sm";
+  if (canPublish) {
+    if (!pending.length && !submittedAt) return null;
+    return (
+      <p className={cn(box, "bg-lavender text-midnight/80")}>
+        <Clock className="mt-0.5 h-4 w-4 shrink-0 text-pink" />
+        <span>
+          {submittedAt ? `An editor submitted this draft for review (${shortDate(submittedAt)}). ` : ""}
+          {pending.length > 0 && `${pending.length} change request${pending.length > 1 ? "s" : ""} waiting. `}
+          <Link href="/admin/review" className="font-semibold text-pink underline">
+            Open the review queue
+          </Link>
+        </span>
+      </p>
+    );
+  }
+  if (pending.length) {
+    return (
+      <p className={cn(box, "bg-lavender text-midnight/80")}>
+        <Clock className="mt-0.5 h-4 w-4 shrink-0 text-pink" />
+        <span>
+          <b>Waiting for review:</b> {pending.flatMap((r) => changeLabels(asChangeSet(r.changes), storeName)).join(", ")} · sent {shortDate(pending[0].created_at)}
+        </span>
+      </p>
+    );
+  }
+  if (latest?.status === "rejected") {
+    return (
+      <p className={cn(box, "bg-coral/10 text-coral")}>
+        <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
+        <span>
+          <b>Changes sent back</b>
+          {latest.reviewed_at ? ` (${shortDate(latest.reviewed_at)})` : ""}: {latest.review_note ? `“${latest.review_note}”` : "no note"}. Edit and save to send them again.
+        </span>
+      </p>
+    );
+  }
+  if (submittedAt) {
+    return (
+      <p className={cn(box, "bg-lavender text-midnight/80")}>
+        <Clock className="mt-0.5 h-4 w-4 shrink-0 text-pink" />
+        <span>
+          <b>Submitted for review</b> {shortDate(submittedAt)}. An admin will publish it.
+        </span>
+      </p>
+    );
+  }
+  return null;
 }
