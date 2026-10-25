@@ -48,7 +48,7 @@ function MiniProduct({ p }: { p: Product }) {
       <div className="p-2.5">
         <p className="line-clamp-2 text-xs font-semibold leading-snug">{p.name}</p>
         <div className="mt-1 flex items-center justify-between">
-          <span className="text-sm font-bold">{peso(i.bestOffer.price)}</span>
+          <span className={cn("text-sm font-bold", !i.priced && "text-pink")}>{i.priced ? peso(i.bestOffer.price) : "See prices"}</span>
           <RetailerBadge id={i.bestOffer.retailer} size="xs" />
         </div>
       </div>

@@ -11,7 +11,7 @@ import { ProductCard } from "@/components/product/ProductCard";
 import { ProductImage } from "@/components/product/ProductImage";
 import { toast, useHydrated } from "@/components/Providers";
 import { categoryById } from "@/lib/data/categories";
-import { bestOffer, discountPct, productBySlug } from "@/lib/data/products";
+import { bestOffer, discountPct, isPriced, productBySlug } from "@/lib/data/products";
 import { retailerById } from "@/lib/data/retailers";
 import { getInsight } from "@/lib/insights";
 import { similarProducts } from "@/lib/recommend";
@@ -34,6 +34,8 @@ export function ProductDetail({ slug }: { slug: string }) {
   const pct = discountPct(product);
   const cat = categoryById(product.category);
   const hasAlert = hydrated && !!alert;
+  const priced = isPriced(product);
+  const tabs = priced ? TABS : TABS.filter((t) => t !== "Price history");
 
   useEffect(() => trackEvent(getSupabase(), product.id, "view"), [product.id]);
 
@@ -76,15 +78,17 @@ export function ProductDetail({ slug }: { slug: string }) {
         <div>
           <p className="text-sm font-medium text-midnight/50">{product.brand}</p>
           <h1 className="mt-1 text-3xl font-extrabold leading-tight tracking-tight">{product.name}</h1>
-          <div className="mt-2 flex items-center gap-2 text-sm">
-            <span className="flex">
-              {Array.from({ length: 5 }).map((_, i) => (
-                <Star key={i} className={cn("h-4 w-4", i < Math.round(product.rating) ? "fill-sunset text-sunset" : "text-line")} />
-              ))}
-            </span>
-            <span className="font-semibold">{product.rating}</span>
-            <span className="text-midnight/50">({compact(product.reviewCount)} reviews)</span>
-          </div>
+          {product.reviewCount > 0 && (
+            <div className="mt-2 flex items-center gap-2 text-sm">
+              <span className="flex">
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <Star key={i} className={cn("h-4 w-4", i < Math.round(product.rating) ? "fill-sunset text-sunset" : "text-line")} />
+                ))}
+              </span>
+              <span className="font-semibold">{product.rating}</span>
+              <span className="text-midnight/50">({compact(product.reviewCount)} reviews)</span>
+            </div>
+          )}
           <div className="mt-3 flex flex-wrap gap-1.5">
             {product.tags.map((t) => (
               <span key={t} className="rounded-full bg-lavender px-2.5 py-1 text-[11px] font-medium capitalize text-midnight/70">
@@ -93,14 +97,25 @@ export function ProductDetail({ slug }: { slug: string }) {
             ))}
           </div>
 
-          <div className="mt-6 flex items-end gap-3">
-            <span className="text-4xl font-extrabold">{peso(best.price)}</span>
-            {best.originalPrice > best.price && <span className="pb-1 text-midnight/40 line-through">{peso(best.originalPrice)}</span>}
-            <DiscountBadge pct={pct} className="mb-1.5" />
-          </div>
-          <p className="mt-1 text-sm text-midnight/60">
-            Lowest price on <b>{retailerById(best.retailer).name}</b> · compared across {product.offers.length} stores
-          </p>
+          {priced ? (
+            <>
+              <div className="mt-6 flex items-end gap-3">
+                <span className="text-4xl font-extrabold">{peso(best.price)}</span>
+                {best.originalPrice > best.price && <span className="pb-1 text-midnight/40 line-through">{peso(best.originalPrice)}</span>}
+                <DiscountBadge pct={pct} className="mb-1.5" />
+              </div>
+              <p className="mt-1 text-sm text-midnight/60">
+                Lowest price on <b>{retailerById(best.retailer).name}</b> · compared across {product.offers.length} stores
+              </p>
+            </>
+          ) : (
+            <>
+              <p className="mt-6 text-3xl font-extrabold">See prices</p>
+              <p className="mt-1 text-sm text-midnight/60">
+                {insight.headline} — compare sellers in <button onClick={() => setTab("Compare offers")} className="font-semibold text-pink">Where to buy</button> below.
+              </p>
+            </>
+          )}
 
           <div className="mt-6 flex flex-wrap gap-2">
             <button
@@ -111,18 +126,20 @@ export function ProductDetail({ slug }: { slug: string }) {
             >
               <Heart className={cn("h-4 w-4", saved && "fill-white")} /> {saved ? "Saved" : "Save"}
             </button>
-            <button
-              onClick={() => {
-                if (hasAlert) removeAlert(product.id);
-                else {
-                  setAlert(product.id);
-                  toast({ title: "Price alert on 🔔", body: `We'll ping you under ${peso(insight.lowest90)}.`, kind: "ok" });
-                }
-              }}
-              className={cn("btn !px-5", hasAlert ? "bg-grape text-white" : "btn-ghost")}
-            >
-              {hasAlert ? <BellRing className="h-4 w-4" /> : <Bell className="h-4 w-4" />} {hasAlert ? "Alert on" : "Price alert"}
-            </button>
+            {priced && (
+              <button
+                onClick={() => {
+                  if (hasAlert) removeAlert(product.id);
+                  else {
+                    setAlert(product.id);
+                    toast({ title: "Price alert on 🔔", body: `We'll ping you under ${peso(insight.lowest90)}.`, kind: "ok" });
+                  }
+                }}
+                className={cn("btn !px-5", hasAlert ? "bg-grape text-white" : "btn-ghost")}
+              >
+                {hasAlert ? <BellRing className="h-4 w-4" /> : <Bell className="h-4 w-4" />} {hasAlert ? "Alert on" : "Price alert"}
+              </button>
+            )}
             <Link href={`/compare/${product.slug}`} className="btn-ghost !px-5">
               <GitCompareArrows className="h-4 w-4" /> Compare
             </Link>
@@ -140,9 +157,9 @@ export function ProductDetail({ slug }: { slug: string }) {
 
       <section className="card p-5 sm:p-6">
         <div className="no-scrollbar flex gap-6 overflow-x-auto border-b border-line">
-          {TABS.map((t) => (
+          {tabs.map((t) => (
             <button key={t} onClick={() => setTab(t)} className={cn("-mb-px shrink-0 border-b-2 pb-3 text-sm font-semibold transition", tab === t ? "border-pink text-pink" : "border-transparent text-midnight/50")}>
-              {t}
+              {t === "Compare offers" && !priced ? "Where to buy" : t}
             </button>
           ))}
         </div>
@@ -150,10 +167,12 @@ export function ProductDetail({ slug }: { slug: string }) {
           {tab === "Compare offers" && (
             <>
               <OfferTable product={product} />
-              <p className="mt-3 text-xs text-midnight/50">Last checked today. Prices and availability are provided by the retailers and may change.</p>
+              <p className="mt-3 text-xs text-midnight/50">
+                {priced && lastChecked(product.offers)}Prices and availability are set by each retailer and may change — check the store before you buy.
+              </p>
             </>
           )}
-          {tab === "Price history" && <PriceHistoryChart product={product} />}
+          {tab === "Price history" && priced && <PriceHistoryChart product={product} />}
           {tab === "Details" && (
             <ul className="grid gap-3 sm:grid-cols-2">
               {product.highlights.map((h) => (
@@ -180,4 +199,11 @@ export function ProductDetail({ slug }: { slug: string }) {
       </section>
     </div>
   );
+}
+
+function lastChecked(offers: { updatedAt?: string }[]) {
+  const times = offers.map((o) => (o.updatedAt ? Date.parse(o.updatedAt) : NaN)).filter((t) => !Number.isNaN(t));
+  if (!times.length) return "";
+  const d = new Date(Math.max(...times));
+  return `Prices last checked ${d.toLocaleDateString("en-PH", { month: "short", day: "numeric", year: "numeric", timeZone: "Asia/Manila" })}. `;
 }

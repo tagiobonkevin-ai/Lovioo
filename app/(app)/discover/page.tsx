@@ -9,7 +9,7 @@ import { DealScoreRing } from "@/components/product/DealScore";
 import { ProductCard } from "@/components/product/ProductCard";
 import { ProductImage } from "@/components/product/ProductImage";
 import { useHydrated } from "@/components/Providers";
-import { PRODUCTS } from "@/lib/data/products";
+import { PRODUCTS, isPriced } from "@/lib/data/products";
 import { retailerById } from "@/lib/data/retailers";
 import { getInsight } from "@/lib/insights";
 import { scoreProducts } from "@/lib/recommend";
@@ -32,7 +32,7 @@ export default function Discover() {
   );
   const topDeals = useMemo(
     () =>
-      [...PRODUCTS]
+      PRODUCTS.filter(isPriced)
         .map((p) => ({ p, s: getInsight(p).dealScore }))
         .sort((a, b) => b.s - a.s)
         .slice(0, 5)
@@ -49,7 +49,7 @@ export default function Discover() {
       </div>
 
       <div className="grid gap-4 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
-        <DealCarousel products={topDeals} />
+        {topDeals.length > 0 && <DealCarousel products={topDeals} />}
         <div className="grid gap-4">
           <Link href="/swipe" className="group relative overflow-hidden rounded-[2rem] bg-midnight p-6 text-white">
             <div className="absolute -right-6 -top-6 h-32 w-32 rounded-full bg-pink/40 blur-2xl" />

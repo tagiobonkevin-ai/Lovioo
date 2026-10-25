@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import { DiscountBadge } from "@/components/product/DealScore";
 import { ProductImage } from "@/components/product/ProductImage";
 import { RetailerBadge } from "@/components/product/RetailerBadge";
-import { PRODUCTS, bestOffer, discountPct } from "@/lib/data/products";
+import { PRODUCTS, bestOffer, discountPct, isPriced } from "@/lib/data/products";
 import { peso } from "@/lib/utils";
 
 const FEATURED = ["sony-wh-1000xm5-wireless-headphones", "nike-air-force-1-07", "laneige-water-sleeping-mask", "fujifilm-instax-mini-12", "pop-mart-labubu-blind-box", "nintendo-switch-oled"];
@@ -14,7 +14,7 @@ const FEATURED = ["sony-wh-1000xm5-wireless-headphones", "nike-air-force-1-07", 
 // Read at render time: the catalog may have been swapped in from Supabase after this module loaded.
 function heroPicks() {
   const picks = FEATURED.map((s) => PRODUCTS.find((p) => p.slug === s)).filter((p): p is (typeof PRODUCTS)[number] => !!p);
-  return picks.length >= 3 ? picks : PRODUCTS.slice(0, 6);
+  return picks.length >= 3 ? picks : PRODUCTS.filter(isPriced).slice(0, 6);
 }
 
 /** Self-playing swipe demo for the landing hero. */
@@ -35,10 +35,10 @@ export function HeroDeck() {
   return (
     <div className="relative mx-auto h-[440px] w-full max-w-sm sm:h-[500px]">
       <motion.div className="absolute -left-4 top-10 z-20 rounded-2xl bg-white px-3 py-2 text-xs font-semibold shadow-soft sm:-left-12" animate={{ y: [0, -8, 0] }} transition={{ repeat: Infinity, duration: 4 }}>
-        💸 Saved ₱2,400 this week
+        💸 One tap to compare 4+ stores
       </motion.div>
       <motion.div className="absolute -right-2 bottom-24 z-20 rounded-2xl bg-white px-3 py-2 text-xs font-semibold shadow-soft sm:-right-10" animate={{ y: [0, 8, 0] }} transition={{ repeat: Infinity, duration: 5 }}>
-        ✨ AI: Buy now — lowest in 90 days
+        ✨ AI: buy now or wait?
       </motion.div>
       <AnimatePresence initial={false} custom={dir}>
         {cards
@@ -58,7 +58,7 @@ export function HeroDeck() {
               <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-midnight/90 to-transparent p-5 pt-16 text-white">
                 <p className="text-lg font-bold leading-tight">{p.name}</p>
                 <div className="mt-1.5 flex items-center gap-2">
-                  <span className="text-xl font-extrabold">{peso(bestOffer(p).price)}</span>
+                  <span className="text-xl font-extrabold">{isPriced(p) ? peso(bestOffer(p).price) : "See prices"}</span>
                   <DiscountBadge pct={discountPct(p)} />
                   <RetailerBadge id={bestOffer(p).retailer} size="xs" className="ml-auto" />
                 </div>

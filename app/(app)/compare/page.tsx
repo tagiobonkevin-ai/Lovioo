@@ -6,7 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense } from "react";
 import { DealScoreRing } from "@/components/product/DealScore";
 import { ProductImage } from "@/components/product/ProductImage";
-import { RetailerBadge } from "@/components/product/RetailerBadge";
+import { RetailerBadge, RetailerStack } from "@/components/product/RetailerBadge";
 import { categoryById } from "@/lib/data/categories";
 import { productById } from "@/lib/data/products";
 import { retailerById } from "@/lib/data/retailers";
@@ -36,22 +36,38 @@ function CompareInner() {
   }
 
   const insights = products.map(getInsight);
-  const bestIdx = insights.reduce((b, ins, i) => (ins.dealScore > insights[b].dealScore ? i : b), 0);
-  const cheapestIdx = insights.reduce((b, ins, i) => (ins.bestOffer.price < insights[b].bestOffer.price ? i : b), 0);
+  // "See prices" picks have no price or score, so they never win these.
+  const priced = insights.map((ins, i) => ({ ins, i })).filter((x) => x.ins.priced);
+  const bestIdx = priced.length ? priced.reduce((b, x) => (x.ins.dealScore > b.ins.dealScore ? x : b)).i : -1;
+  const cheapestIdx = priced.length ? priced.reduce((b, x) => (x.ins.bestOffer.price < b.ins.bestOffer.price ? x : b)).i : -1;
+  const seeStore = <span className="text-sm text-midnight/50">See on store</span>;
 
   const rows: { label: string; render: (p: Product, i: number) => React.ReactNode }[] = [
-    { label: "Best price", render: (_, i) => <span className={cn("text-lg font-extrabold", i === cheapestIdx && "text-emerald-600")}>{peso(insights[i].bestOffer.price)}</span> },
-    { label: "Best store", render: (_, i) => <RetailerBadge id={insights[i].bestOffer.retailer} withName /> },
-    { label: "Deal score", render: (_, i) => <DealScoreRing score={insights[i].dealScore} size={48} /> },
+    {
+      label: "Best price",
+      render: (p, i) =>
+        insights[i].priced ? (
+          <span className={cn("text-lg font-extrabold", i === cheapestIdx && "text-emerald-600")}>{peso(insights[i].bestOffer.price)}</span>
+        ) : (
+          <Link href={`/product/${p.slug}`} className="text-sm font-bold text-pink">
+            See prices →
+          </Link>
+        ),
+    },
+    { label: "Best store", render: (p, i) => (insights[i].priced ? <RetailerBadge id={insights[i].bestOffer.retailer} withName /> : <RetailerStack ids={p.offers.map((o) => o.retailer)} />) },
+    { label: "Deal score", render: (_, i) => (insights[i].priced ? <DealScoreRing score={insights[i].dealScore} size={48} /> : seeStore) },
     { label: "AI verdict", render: (_, i) => <span className="text-sm font-semibold">{insights[i].headline}</span> },
-    { label: "90-day low", render: (_, i) => peso(insights[i].lowest90) },
+    { label: "90-day low", render: (_, i) => (insights[i].priced ? peso(insights[i].lowest90) : seeStore) },
     {
       label: "Rating",
-      render: (p) => (
-        <span className="inline-flex items-center gap-1 text-sm">
-          <Star className="h-4 w-4 fill-sunset text-sunset" /> {p.rating} ({compact(p.reviewCount)})
-        </span>
-      ),
+      render: (p) =>
+        p.reviewCount > 0 ? (
+          <span className="inline-flex items-center gap-1 text-sm">
+            <Star className="h-4 w-4 fill-sunset text-sunset" /> {p.rating} ({compact(p.reviewCount)})
+          </span>
+        ) : (
+          seeStore
+        ),
     },
     { label: "Category", render: (p) => `${categoryById(p.category).name} · ${p.subcategory}` },
     { label: "Stores", render: (p) => p.offers.map((o) => retailerById(o.retailer).name).join(", ") },

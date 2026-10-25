@@ -19,6 +19,12 @@ export type Database = {
         Update: { emoji?: string; id?: string; name?: string; sort?: number; tint?: string };
         Relationships: [];
       };
+      feedback: {
+        Row: { created_at: string; email: string | null; id: number; message: string; page: string | null; rating: number | null; status: string; user_id: string | null };
+        Insert: { created_at?: string; email?: string | null; id?: never; message: string; page?: string | null; rating?: number | null; status?: string; user_id?: string | null };
+        Update: { created_at?: string; email?: string | null; id?: never; message?: string; page?: string | null; rating?: number | null; status?: string; user_id?: string | null };
+        Relationships: [];
+      };
       offers: {
         Row: { in_stock: boolean; original_price: number; price: number; product_id: string; retailer_id: string; shipping: number; updated_at: string; url: string };
         Insert: { in_stock?: boolean; original_price: number; price: number; product_id: string; retailer_id: string; shipping?: number; updated_at?: string; url?: string };
@@ -55,17 +61,17 @@ export type Database = {
       products: {
         Row: {
           brand: string; category_id: string; created_at: string; description: string; emoji: string; highlights: string[]; id: string; image: string;
-          is_new: boolean; name: string; published: boolean; rating: number; review_count: number; slug: string; sort: number; subcategory: string;
+          is_new: boolean; name: string; price_tracked: boolean; published: boolean; rating: number; review_count: number; slug: string; sort: number; subcategory: string;
           tags: string[]; trending: boolean; updated_at: string; vibes: string[];
         };
         Insert: {
           brand: string; category_id: string; created_at?: string; description?: string; emoji?: string; highlights?: string[]; id?: string; image?: string;
-          is_new?: boolean; name: string; published?: boolean; rating?: number; review_count?: number; slug: string; sort?: number; subcategory?: string;
+          is_new?: boolean; name: string; price_tracked?: boolean; published?: boolean; rating?: number; review_count?: number; slug: string; sort?: number; subcategory?: string;
           tags?: string[]; trending?: boolean; updated_at?: string; vibes?: string[];
         };
         Update: {
           brand?: string; category_id?: string; created_at?: string; description?: string; emoji?: string; highlights?: string[]; id?: string; image?: string;
-          is_new?: boolean; name?: string; published?: boolean; rating?: number; review_count?: number; slug?: string; sort?: number; subcategory?: string;
+          is_new?: boolean; name?: string; price_tracked?: boolean; published?: boolean; rating?: number; review_count?: number; slug?: string; sort?: number; subcategory?: string;
           tags?: string[]; trending?: boolean; updated_at?: string; vibes?: string[];
         };
         Relationships: [{ foreignKeyName: "products_category_id_fkey"; columns: ["category_id"]; isOneToOne: false; referencedRelation: "categories"; referencedColumns: ["id"] }];
@@ -86,9 +92,9 @@ export type Database = {
         Relationships: [];
       };
       retailers: {
-        Row: { active: boolean; color: string; homepage: string | null; id: string; name: string; short: string; sort: number; text_color: string };
-        Insert: { active?: boolean; color: string; homepage?: string | null; id: string; name: string; short: string; sort?: number; text_color?: string };
-        Update: { active?: boolean; color?: string; homepage?: string | null; id?: string; name?: string; short?: string; sort?: number; text_color?: string };
+        Row: { active: boolean; affiliate_url: string | null; color: string; homepage: string | null; id: string; name: string; short: string; sort: number; text_color: string };
+        Insert: { active?: boolean; affiliate_url?: string | null; color: string; homepage?: string | null; id: string; name: string; short: string; sort?: number; text_color?: string };
+        Update: { active?: boolean; affiliate_url?: string | null; color?: string; homepage?: string | null; id?: string; name?: string; short?: string; sort?: number; text_color?: string };
         Relationships: [];
       };
       saved_items: {

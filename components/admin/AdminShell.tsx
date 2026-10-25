@@ -1,7 +1,7 @@
 "use client";
 
 import type { Session } from "@supabase/supabase-js";
-import { BarChart3, ExternalLink, FolderTree, LayoutDashboard, LogOut, Menu, Package, Settings, Store, Tag, Users, X } from "lucide-react";
+import { BarChart3, ExternalLink, FolderTree, LayoutDashboard, LogOut, Menu, MessageCircleHeart, Package, Settings, Store, Tag, Users, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -16,6 +16,7 @@ const NAV = [
   { href: "/admin/deals", label: "Deals & alerts", icon: Tag },
   { href: "/admin/categories", label: "Categories", icon: FolderTree },
   { href: "/admin/users", label: "Shoppers", icon: Users },
+  { href: "/admin/feedback", label: "Feedback", icon: MessageCircleHeart },
   { href: "/admin/settings", label: "Admins", icon: Settings },
 ];
 

@@ -92,7 +92,9 @@ export function askLovioo(input: string, name = "there"): AiReply {
   const catLabel = cats.length ? CATEGORIES.find((c) => c.id === cats[0])!.name.toLowerCase() : "picks";
   const parts = [
     wantsTrending ? `Here's what's trending right now 🔥` : wantsGift ? `Gift-worthy finds 🎁` : `Found ${pool.length} ${catLabel}${budget ? ` under ${peso(budget)}` : ""} for you ✨`,
-    `My top pick is **${top.name}** — ${peso(ti.bestOffer.price)} on ${retailerById(ti.bestOffer.retailer).name}, deal score ${ti.dealScore}/100. ${ti.headline}.`,
+    ti.priced
+      ? `My top pick is **${top.name}** — ${peso(ti.bestOffer.price)} on ${retailerById(ti.bestOffer.retailer).name}, deal score ${ti.dealScore}/100. ${ti.headline}.`
+      : `My top pick is **${top.name}**, a popular one. ${ti.headline} — tap it to compare sellers.`,
   ];
   if (wantsDeals && ti.savings > 0) parts.push(`That's ${peso(ti.savings)} off the list price.`);
 
@@ -111,7 +113,7 @@ export function buyOrWait(products: Product[]): AiReply {
   if (!products.length) return askLovioo("best deals");
   const lines = products.slice(0, 3).map((p) => {
     const i = getInsight(p);
-    const icon = i.verdict === "buy" ? "✅" : i.verdict === "good" ? "👌" : "⏳";
+    const icon = i.verdict === "buy" ? "✅" : i.verdict === "good" ? "👌" : i.verdict === "new" ? "🆕" : "⏳";
     return `${icon} ${p.name}: ${i.headline.toLowerCase()} (score ${i.dealScore}).`;
   });
   return {

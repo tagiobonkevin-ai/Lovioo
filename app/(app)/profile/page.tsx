@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { RetailerBadge } from "@/components/product/RetailerBadge";
-import { toast, useHydrated } from "@/components/Providers";
+import { useHydrated } from "@/components/Providers";
 import { BUDGETS, CATEGORIES } from "@/lib/data/categories";
 import { ALL_RETAILERS, retailerById } from "@/lib/data/retailers";
 import { useLovioo } from "@/lib/store";
@@ -122,28 +122,13 @@ export default function ProfilePage() {
         {[
           ...(isAdmin ? [{ icon: BarChart3, label: "Open Lovioo Business (admin)", href: "/admin" }] : []),
           { icon: Sparkles, label: "Redo onboarding", href: "/onboarding" },
-          {
-            icon: Shield,
-            label: "Privacy & data",
-            onClick: () =>
-              toast(
-                user.id
-                  ? { title: "Your data is tied to your account", body: "Only you (and Lovioo admins) can see it.", kind: "ok" }
-                  : { title: "Your data stays in this browser", body: "Demo mode — nothing is sent anywhere.", kind: "ok" },
-              ),
-          },
-          { icon: HelpCircle, label: "Help & support", onClick: () => toast({ title: "We're here to help 💌", body: "help@lovioo.example", kind: "ok" }) },
-        ].map((row) =>
-          row.href ? (
-            <Link key={row.label} href={row.href} className="flex items-center gap-3 p-4 text-sm font-medium hover:bg-blush/40">
-              <row.icon className="h-5 w-5 text-pink" /> <span className="flex-1">{row.label}</span> <ChevronRight className="h-4 w-4 text-midnight/30" />
-            </Link>
-          ) : (
-            <button key={row.label} onClick={row.onClick} className="flex w-full items-center gap-3 p-4 text-left text-sm font-medium hover:bg-blush/40">
-              <row.icon className="h-5 w-5 text-pink" /> <span className="flex-1">{row.label}</span> <ChevronRight className="h-4 w-4 text-midnight/30" />
-            </button>
-          ),
-        )}
+          { icon: Shield, label: "Privacy policy", href: "/privacy" },
+          { icon: HelpCircle, label: "Terms of use", href: "/terms" },
+        ].map((row) => (
+          <Link key={row.label} href={row.href} className="flex items-center gap-3 p-4 text-sm font-medium hover:bg-blush/40">
+            <row.icon className="h-5 w-5 text-pink" /> <span className="flex-1">{row.label}</span> <ChevronRight className="h-4 w-4 text-midnight/30" />
+          </Link>
+        ))}
         <button
           onClick={async () => {
             await getSupabase()?.auth.signOut();

@@ -44,15 +44,17 @@ export const demoCatalog = (): Catalog => ({
 });
 
 export function mapRetailer(r: Tables["retailers"]["Row"]): Retailer {
-  return { id: r.id, name: r.name, short: r.short, color: r.color, text: r.text_color, homepage: r.homepage ?? "", active: r.active };
+  return { id: r.id, name: r.name, short: r.short, color: r.color, text: r.text_color, homepage: r.homepage ?? "", active: r.active, affiliateUrl: r.affiliate_url ?? undefined };
 }
 
 export function mapOffer(o: Tables["offers"]["Row"]): Offer {
-  return { retailer: o.retailer_id, price: o.price, originalPrice: o.original_price, shipping: o.shipping, inStock: o.in_stock, url: o.url };
+  return { retailer: o.retailer_id, price: o.price, originalPrice: o.original_price, shipping: o.shipping, inStock: o.in_stock, url: o.url, updatedAt: o.updated_at };
 }
 
 /** Maps a product row (with offers) to the app's Product. Offers from inactive stores are dropped. */
 export function mapProduct(row: ProductRow, stats: StatsRow | undefined, activeRetailers: Set<string>): Product {
+  const offers = row.offers.filter((o) => activeRetailers.has(o.retailer_id)).map(mapOffer);
+  const lowestNow = offers.length ? Math.min(...offers.map((o) => o.price)) : 0;
   return {
     id: row.id,
     slug: row.slug,
@@ -70,11 +72,13 @@ export function mapProduct(row: ProductRow, stats: StatsRow | undefined, activeR
     highlights: row.highlights,
     isNew: row.is_new,
     trending: row.trending,
-    offers: row.offers.filter((o) => activeRetailers.has(o.retailer_id)).map(mapOffer),
+    offers,
+    priceTracked: row.price_tracked,
+    // No history yet means "just started tracking" — never the demo-mode price generator.
     stats:
       stats?.low_90 != null && stats.avg_90 != null && stats.high_90 != null
-        ? { low90: stats.low_90, avg90: stats.avg_90, high90: stats.high_90 }
-        : undefined,
+        ? { low90: stats.low_90, avg90: stats.avg_90, high90: stats.high_90, days: stats.days ?? 0 }
+        : { low90: lowestNow, avg90: lowestNow, high90: lowestNow, days: 0 },
   };
 }
 

@@ -8,7 +8,7 @@ import { ProductCard } from "@/components/product/ProductCard";
 import { ProductImage } from "@/components/product/ProductImage";
 import { RetailerBadge } from "@/components/product/RetailerBadge";
 import { toast, useHydrated } from "@/components/Providers";
-import { bestOffer, discountPct, productById } from "@/lib/data/products";
+import { bestOffer, discountPct, isPriced, productById } from "@/lib/data/products";
 import { getInsight } from "@/lib/insights";
 import { useLovioo } from "@/lib/store";
 import type { Product } from "@/lib/types";
@@ -80,7 +80,7 @@ export default function SavedPage() {
                   <motion.div key={p.id} layout initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.8 }}>
                     <div className="relative">
                       <ProductCard product={p} />
-                      {!alerts.some((a) => a.productId === p.id) && (
+                      {isPriced(p) && !alerts.some((a) => a.productId === p.id) && (
                         <button
                           onClick={() => {
                             setAlert(p.id);
@@ -109,7 +109,7 @@ export default function SavedPage() {
         <ul className="space-y-3">
           {alerts.map((a) => {
             const p = productById(a.productId);
-            if (!p) return null;
+            if (!p || !isPriced(p)) return null;
             const now = bestOffer(p);
             const hit = now.price <= a.targetPrice;
             return (
