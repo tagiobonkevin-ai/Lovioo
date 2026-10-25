@@ -1,15 +1,15 @@
 "use client";
 
-import { Compass, Heart, Home, Layers, User } from "lucide-react";
+import { BadgeCheck, Home, Layers, Search, User } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 
 const TABS = [
   { href: "/discover", label: "Home", icon: Home },
-  { href: "/search", label: "Discover", icon: Compass },
+  { href: "/search", label: "Search", icon: Search },
   { href: "/swipe", label: "Swipe", icon: Layers, center: true },
-  { href: "/saved", label: "Saved", icon: Heart },
+  { href: "/brand", label: "Brands", icon: BadgeCheck, to: "/brands" },
   { href: "/profile", label: "Profile", icon: User },
 ];
 
@@ -18,7 +18,7 @@ export function MobileTabBar() {
   return (
     <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-line/70 bg-white/90 pb-[env(safe-area-inset-bottom)] backdrop-blur-xl md:hidden">
       <div className="mx-auto flex max-w-md items-end justify-around px-2 pt-1.5">
-        {TABS.map(({ href, label, icon: Icon, center }) => {
+        {TABS.map(({ href, label, icon: Icon, center, to }) => {
           const active = pathname.startsWith(href);
           if (center) {
             return (
@@ -31,8 +31,8 @@ export function MobileTabBar() {
             );
           }
           return (
-            <Link key={href} href={href} className={cn("flex flex-col items-center gap-0.5 px-3 pb-1.5 pt-1", active ? "text-pink" : "text-midnight/50")}>
-              <Icon className={cn("h-5 w-5", active && label === "Saved" && "fill-pink")} />
+            <Link key={href} href={to ?? href} className={cn("flex flex-col items-center gap-0.5 px-3 pb-1.5 pt-1 transition active:scale-90", active ? "text-pink" : "text-midnight/50")}>
+              <Icon className="h-5 w-5" />
               <span className="text-[10px] font-medium">{label}</span>
             </Link>
           );

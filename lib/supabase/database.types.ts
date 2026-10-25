@@ -13,6 +13,21 @@ export type Database = {
         Update: { added_at?: string; email?: string };
         Relationships: [];
       };
+      brands: {
+        Row: {
+          color: string; cover_url: string; created_at: string; description: string; featured: boolean; id: string; logo_url: string; name: string;
+          published: boolean; retailer_id: string | null; sort: number; store_url: string | null; tagline: string; updated_at: string;
+        };
+        Insert: {
+          color?: string; cover_url?: string; created_at?: string; description?: string; featured?: boolean; id: string; logo_url?: string; name: string;
+          published?: boolean; retailer_id?: string | null; sort?: number; store_url?: string | null; tagline?: string; updated_at?: string;
+        };
+        Update: {
+          color?: string; cover_url?: string; created_at?: string; description?: string; featured?: boolean; id?: string; logo_url?: string; name?: string;
+          published?: boolean; retailer_id?: string | null; sort?: number; store_url?: string | null; tagline?: string; updated_at?: string;
+        };
+        Relationships: [];
+      };
       categories: {
         Row: { emoji: string; id: string; name: string; sort: number; tint: string };
         Insert: { emoji?: string; id: string; name: string; sort?: number; tint?: string };
@@ -60,17 +75,17 @@ export type Database = {
       };
       products: {
         Row: {
-          brand: string; category_id: string; created_at: string; description: string; emoji: string; highlights: string[]; id: string; image: string;
+          brand: string; brand_id: string | null; category_id: string; created_at: string; description: string; emoji: string; highlights: string[]; id: string; image: string;
           is_new: boolean; name: string; price_tracked: boolean; published: boolean; rating: number; review_count: number; slug: string; sort: number; subcategory: string;
           tags: string[]; trending: boolean; updated_at: string; vibes: string[];
         };
         Insert: {
-          brand: string; category_id: string; created_at?: string; description?: string; emoji?: string; highlights?: string[]; id?: string; image?: string;
+          brand: string; brand_id?: string | null; category_id: string; created_at?: string; description?: string; emoji?: string; highlights?: string[]; id?: string; image?: string;
           is_new?: boolean; name: string; price_tracked?: boolean; published?: boolean; rating?: number; review_count?: number; slug: string; sort?: number; subcategory?: string;
           tags?: string[]; trending?: boolean; updated_at?: string; vibes?: string[];
         };
         Update: {
-          brand?: string; category_id?: string; created_at?: string; description?: string; emoji?: string; highlights?: string[]; id?: string; image?: string;
+          brand?: string; brand_id?: string | null; category_id?: string; created_at?: string; description?: string; emoji?: string; highlights?: string[]; id?: string; image?: string;
           is_new?: boolean; name?: string; price_tracked?: boolean; published?: boolean; rating?: number; review_count?: number; slug?: string; sort?: number; subcategory?: string;
           tags?: string[]; trending?: boolean; updated_at?: string; vibes?: string[];
         };

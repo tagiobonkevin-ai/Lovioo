@@ -9,7 +9,9 @@ import { DealScoreRing } from "@/components/product/DealScore";
 import { ProductCard } from "@/components/product/ProductCard";
 import { ProductImage } from "@/components/product/ProductImage";
 import { useHydrated } from "@/components/Providers";
-import { PRODUCTS, isPriced } from "@/lib/data/products";
+import { BrandCrush } from "@/components/brand/BrandCrush";
+import { VIBES } from "@/lib/data/categories";
+import { PRODUCTS, isPriced, lowestPrice } from "@/lib/data/products";
 import { retailerById } from "@/lib/data/retailers";
 import { getInsight } from "@/lib/insights";
 import { scoreProducts } from "@/lib/recommend";
@@ -22,6 +24,7 @@ export default function Discover() {
   const prefs = useLovioo((s) => s.prefs);
   const swipes = useLovioo((s) => s.swipes);
   const saved = useLovioo((s) => s.saved);
+  const streak = useLovioo((s) => s.streak);
 
   const recommended = useMemo(
     () =>
@@ -40,13 +43,33 @@ export default function Discover() {
     [],
   );
   const trending = PRODUCTS.filter((p) => p.trending);
+  const budget = PRODUCTS.filter((p) => isPriced(p) && lowestPrice(p) <= 500).slice(0, 12);
 
   return (
     <div className="space-y-10">
-      <div>
-        <p className="text-sm text-midnight/60">{hydrated && user ? `Good to see you, ${user.name.split(" ")[0]} 👋` : "Welcome to Lovioo 👋"}</p>
-        <h1 className="text-2xl font-extrabold tracking-tight sm:text-3xl">What are you loving today?</h1>
+      <div className="relative">
+        <div className="pointer-events-none absolute -left-10 -top-10 h-40 w-40 rounded-full bg-pink/20 blur-3xl" />
+        <div className="pointer-events-none absolute -top-6 right-0 h-32 w-32 rounded-full bg-sunset/25 blur-3xl" />
+        <div className="relative flex items-center justify-between gap-3">
+          <p className="text-sm text-midnight/60">{hydrated && user ? `Hey ${user.name.split(" ")[0]} 👋` : "Welcome to Lovioo 👋"}</p>
+          {hydrated && streak > 0 && <span className="rounded-full bg-white px-3 py-1 text-xs font-bold text-coral shadow-soft">🔥 {streak}-day streak</span>}
+        </div>
+        <h1 className="relative mt-1 text-3xl font-extrabold leading-tight tracking-tight sm:text-4xl">
+          What are you <span className="text-gradient">loving</span> today? <span className="inline-block animate-wiggle">💘</span>
+        </h1>
+        <div className="no-scrollbar relative -mx-4 mt-4 flex gap-2 overflow-x-auto px-4 pb-1">
+          {VIBES.map((v) => (
+            <Link key={v.id} href={`/swipe?vibe=${v.id}`} className="chip shrink-0 !py-2 text-sm transition active:scale-95">
+              <span className="text-base">{v.emoji}</span> {v.label}
+            </Link>
+          ))}
+          <Link href="/swipe?vibe=under1k" className="chip shrink-0 !py-2 text-sm transition active:scale-95">
+            <span className="text-base">💸</span> Under ₱1k
+          </Link>
+        </div>
       </div>
+
+      <BrandCrush />
 
       <div className="grid gap-4 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
         {topDeals.length > 0 && <DealCarousel products={topDeals} />}
@@ -83,6 +106,22 @@ export default function Discover() {
           ))}
         </div>
       </section>
+
+      {budget.length > 0 && (
+        <section>
+          <div className="flex items-end justify-between">
+            <h2 className="text-xl font-extrabold">Under ₱500 💸</h2>
+            <Link href="/search?max=500" className="text-sm font-semibold text-pink">
+              See all
+            </Link>
+          </div>
+          <div className="no-scrollbar -mx-4 mt-4 flex gap-4 overflow-x-auto px-4 pb-2">
+            {budget.map((p) => (
+              <ProductCard key={p.id} product={p} className="w-44 shrink-0" />
+            ))}
+          </div>
+        </section>
+      )}
 
       <section>
         <div className="flex items-end justify-between">

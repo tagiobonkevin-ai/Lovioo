@@ -1,5 +1,6 @@
 import { ArrowRight, BarChart3, Heart, Search, Sparkles } from "lucide-react";
 import Link from "next/link";
+import { BrandCrush } from "@/components/brand/BrandCrush";
 import { Logo } from "@/components/brand/Logo";
 import { FeedbackButton } from "@/components/FeedbackButton";
 import { HeroDeck } from "@/components/landing/HeroDeck";
@@ -93,6 +94,10 @@ export default async function Landing() {
           ))}
         </div>
       </section>
+
+      <div className="mx-auto max-w-7xl px-4 py-8 lg:px-6">
+        <BrandCrush />
+      </div>
 
       {/* Trending */}
       <section className="mx-auto max-w-7xl px-4 py-8 lg:px-6">

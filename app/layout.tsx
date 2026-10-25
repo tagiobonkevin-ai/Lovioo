@@ -15,7 +15,9 @@ const poppins = Poppins({
 export const metadata: Metadata = {
   title: "Lovioo — Swipe. Love. Shop.",
   description: "Discover products you'll love, compare deals across Shopee, Lazada, TikTok Shop and Amazon, and shop smarter with AI insights.",
-  icons: { icon: "/icon.svg" },
+  icons: { icon: "/icon.svg", apple: "/icons/apple-touch-icon.png" },
+  appleWebApp: { capable: true, title: "Lovioo", statusBarStyle: "default" },
+  applicationName: "Lovioo",
   metadataBase: new URL(SITE_URL),
   openGraph: {
     title: "Lovioo — Swipe. Love. Shop.",
@@ -29,6 +31,8 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = {
   themeColor: "#FF2D9A",
+  // Lets the app draw under the notch and home bar when installed; layouts pad with safe-area insets.
+  viewportFit: "cover",
 };
 
 // Re-read the catalog from Supabase at most once a minute, so admin edits show up quickly.

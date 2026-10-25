@@ -1,7 +1,7 @@
 "use client";
 
 import type { Session } from "@supabase/supabase-js";
-import { BarChart3, ExternalLink, FolderTree, LayoutDashboard, LogOut, Menu, MessageCircleHeart, Package, Settings, Store, Tag, Users, X } from "lucide-react";
+import { BadgeCheck, BarChart3, ExternalLink, FolderTree, LayoutDashboard, LogOut, Menu, MessageCircleHeart, Package, ReceiptText, Settings, Store, Tag, Users, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { createContext, useContext, useEffect, useState } from "react";
@@ -14,6 +14,8 @@ import { cn } from "@/lib/utils";
 const NAV: { href: string; label: string; icon: React.ElementType; editor?: boolean }[] = [
   { href: "/admin", label: "Overview", icon: LayoutDashboard },
   { href: "/admin/products", label: "Products", icon: Package, editor: true },
+  { href: "/admin/prices", label: "Price list", icon: ReceiptText, editor: true },
+  { href: "/admin/brands", label: "Brands & partners", icon: BadgeCheck },
   { href: "/admin/retailers", label: "Retailer sources", icon: Store },
   { href: "/admin/deals", label: "Deals & alerts", icon: Tag },
   { href: "/admin/categories", label: "Categories", icon: FolderTree },
@@ -64,7 +66,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
 
   const role = access.state === "ok" ? access.role : null;
   const allowed = (href: string) => role !== null && (isAdminRole(role) || !!NAV.find((n) => n.href === href)?.editor);
-  const pageAllowed = role !== null && (isAdminRole(role) || pathname.startsWith("/admin/products"));
+  const pageAllowed = role !== null && (isAdminRole(role) || NAV.some((n) => n.editor && pathname.startsWith(n.href)));
 
   // Editors only have the product catalog; send them there from any other admin page.
   useEffect(() => {

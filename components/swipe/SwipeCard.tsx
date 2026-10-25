@@ -7,6 +7,7 @@ import { forwardRef, useImperativeHandle, useRef } from "react";
 import { DealScoreRing, DiscountBadge, scoreColor } from "@/components/product/DealScore";
 import { ProductImage } from "@/components/product/ProductImage";
 import { RetailerBadge, RetailerStack } from "@/components/product/RetailerBadge";
+import { brandOf } from "@/lib/data/brands";
 import { discountPct } from "@/lib/data/products";
 import { offerHref, retailerById } from "@/lib/data/retailers";
 import { getInsight } from "@/lib/insights";
@@ -152,7 +153,13 @@ export const SwipeCard = forwardRef<SwipeCardHandle, Props>(function SwipeCard({
             <div className="flex items-start gap-3">
               <ProductImage product={product} className="h-16 w-16 shrink-0 rounded-2xl" emojiSize="text-3xl" />
               <div className="min-w-0">
-                <p className="text-xs text-midnight/50">{product.brand}</p>
+                {brandOf(product) ? (
+                  <Link href={`/brand/${brandOf(product)!.id}`} onPointerDownCapture={(e) => e.stopPropagation()} className="text-xs font-semibold text-pink">
+                    {product.brand} →
+                  </Link>
+                ) : (
+                  <p className="text-xs text-midnight/50">{product.brand}</p>
+                )}
                 <p className="line-clamp-2 font-bold leading-snug">{product.name}</p>
               </div>
             </div>

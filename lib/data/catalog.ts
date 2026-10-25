@@ -1,5 +1,6 @@
 import type { Database } from "@/lib/supabase/database.types";
 import type { Offer, Product } from "@/lib/types";
+import { BRAND_LIST, type Brand } from "./brands";
 import { CATEGORIES, type Category } from "./categories";
 import { BRANDS, PRODUCTS } from "./products";
 import { ALL_RETAILERS, RETAILERS, type Retailer } from "./retailers";
@@ -9,6 +10,7 @@ export interface Catalog {
   products: Product[];
   categories: Category[];
   retailers: Retailer[];
+  brands: Brand[];
 }
 
 type Tables = Database["public"]["Tables"];
@@ -32,6 +34,7 @@ export function applyCatalog(c: Catalog) {
   c.retailers.forEach((r) => (RETAILERS[r.id] = r));
   ALL_RETAILERS.splice(0, ALL_RETAILERS.length, ...c.retailers.filter((r) => r.active !== false).map((r) => r.id));
   PRODUCTS.splice(0, PRODUCTS.length, ...c.products);
+  BRAND_LIST.splice(0, BRAND_LIST.length, ...c.brands);
   BRANDS.splice(0, BRANDS.length, ...Array.from(new Set(c.products.map((p) => p.brand))).sort());
   listeners.forEach((fn) => fn());
 }
@@ -41,7 +44,24 @@ export const demoCatalog = (): Catalog => ({
   products: PRODUCTS,
   categories: CATEGORIES,
   retailers: Object.values(RETAILERS),
+  brands: BRAND_LIST,
 });
+
+export function mapBrand(b: Tables["brands"]["Row"]): Brand {
+  return {
+    id: b.id,
+    name: b.name,
+    tagline: b.tagline,
+    description: b.description,
+    logo: b.logo_url,
+    cover: b.cover_url,
+    color: b.color,
+    storeUrl: b.store_url ?? undefined,
+    retailer: b.retailer_id ?? undefined,
+    featured: b.featured,
+    sort: b.sort,
+  };
+}
 
 export function mapRetailer(r: Tables["retailers"]["Row"]): Retailer {
   return { id: r.id, name: r.name, short: r.short, color: r.color, text: r.text_color, homepage: r.homepage ?? "", active: r.active, affiliateUrl: r.affiliate_url ?? undefined };
@@ -60,6 +80,7 @@ export function mapProduct(row: ProductRow, stats: StatsRow | undefined, activeR
     slug: row.slug,
     name: row.name,
     brand: row.brand,
+    brandId: row.brand_id ?? undefined,
     category: row.category_id,
     subcategory: row.subcategory,
     emoji: row.emoji,
@@ -87,6 +108,7 @@ export function buildCatalog(
   retailers: Tables["retailers"]["Row"][],
   products: ProductRow[],
   stats: StatsRow[],
+  brands: Tables["brands"]["Row"][] = [],
 ): Catalog {
   const mappedRetailers = retailers.map(mapRetailer);
   const active = new Set(mappedRetailers.filter((r) => r.active).map((r) => r.id));
@@ -95,6 +117,7 @@ export function buildCatalog(
     source: "supabase",
     categories: categories.map((c) => ({ id: c.id, name: c.name, emoji: c.emoji, tint: c.tint })),
     retailers: mappedRetailers,
+    brands: brands.filter((b) => b.published).map(mapBrand),
     // A product with no offers from an active store can't be shown or priced.
     products: products.map((p) => mapProduct(p, statsById.get(p.id), active)).filter((p) => p.offers.length > 0),
   };

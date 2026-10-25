@@ -6,8 +6,20 @@
   color-scheme: light;
 }
 
+html {
+  -webkit-tap-highlight-color: transparent;
+}
+
 body {
   @apply bg-cream text-midnight antialiased;
+  overscroll-behavior-y: none;
+}
+
+/* Installed app: keep content clear of the notch / status bar. */
+@media (display-mode: standalone) {
+  body {
+    padding-top: env(safe-area-inset-top);
+  }
 }
 
 @layer components {

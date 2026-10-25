@@ -8,6 +8,7 @@ import { applyCatalog, type Catalog } from "@/lib/data/catalog";
 import { useLovioo } from "@/lib/store";
 import { cn } from "@/lib/utils";
 import { AuthSync } from "./AuthSync";
+import { InstallPrompt } from "./InstallPrompt";
 
 interface Toast {
   id: number;
@@ -47,6 +48,7 @@ export function Providers({ children, catalog }: { children: React.ReactNode; ca
     <>
       {children}
       <AuthSync />
+      <InstallPrompt />
       <ToastViewport />
     </>
   );

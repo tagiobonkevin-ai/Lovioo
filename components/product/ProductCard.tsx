@@ -3,6 +3,7 @@
 import { GitCompareArrows, Star } from "lucide-react";
 import Link from "next/link";
 import { useHydrated } from "@/components/Providers";
+import { brandOf } from "@/lib/data/brands";
 import { bestOffer, discountPct, isPriced } from "@/lib/data/products";
 import { useLovioo } from "@/lib/store";
 import type { Product } from "@/lib/types";
@@ -18,6 +19,7 @@ export function ProductCard({ product, showCompare = true, className }: { produc
   const hydrated = useHydrated();
   const inCompare = useLovioo((s) => s.compare.includes(product.id)) && hydrated;
   const toggleCompare = useLovioo((s) => s.toggleCompare);
+  const brand = brandOf(product);
 
   return (
     <div className={cn("group relative flex flex-col overflow-hidden rounded-3xl border border-line/70 bg-white transition hover:-translate-y-1 hover:shadow-soft", className)}>
@@ -31,6 +33,13 @@ export function ProductCard({ product, showCompare = true, className }: { produc
       <HeartButton productId={product.id} className="absolute right-3 top-3" />
 
       <div className="flex flex-1 flex-col gap-1 p-3.5">
+        {brand ? (
+          <Link href={`/brand/${brand.id}`} className="w-fit truncate text-[11px] font-bold uppercase tracking-wide text-pink/90 hover:text-pink">
+            {brand.name}
+          </Link>
+        ) : (
+          <span className="truncate text-[11px] font-bold uppercase tracking-wide text-midnight/40">{product.brand}</span>
+        )}
         <Link href={`/product/${product.slug}`} className="line-clamp-2 text-sm font-semibold leading-snug hover:text-pink">
           {product.name}
         </Link>
