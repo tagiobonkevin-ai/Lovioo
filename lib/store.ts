@@ -2,6 +2,7 @@
 
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
+import type { AiLang } from "@/lib/ai-i18n";
 import { isPriced, productById } from "@/lib/data/products";
 import { getInsight } from "@/lib/insights";
 import type { PriceAlert, Preferences } from "@/lib/types";
@@ -32,6 +33,8 @@ interface LoviooState {
   streakDay: string | null;
   streak: number;
   dailyGoal: number;
+  /** Lovioo AI's reply language. */
+  aiLang: AiLang;
 
   signIn: (u: User) => void;
   signOut: () => void;
@@ -47,6 +50,7 @@ interface LoviooState {
   resetSwipes: () => void;
   toggleCompare: (id: string) => void;
   clearCompare: () => void;
+  setAiLang: (lang: AiLang) => void;
   /** Replaces the signed-in user's personal data (used when loading it from Supabase). */
   loadUserData: (d: Pick<LoviooState, "saved" | "alerts" | "swipes" | "prefs" | "onboarded" | "streak" | "streakDay">) => void;
 }
@@ -66,6 +70,7 @@ export const useLovioo = create<LoviooState>()(
       streakDay: null,
       streak: 0,
       dailyGoal: 20,
+      aiLang: "en",
 
       signIn: (user) => set({ user }),
       // Signing out clears personal data so the next person on this browser starts fresh.
@@ -119,6 +124,7 @@ export const useLovioo = create<LoviooState>()(
         else set({ compare: [...c, id].slice(-3) });
       },
       clearCompare: () => set({ compare: [] }),
+      setAiLang: (aiLang) => set({ aiLang }),
       loadUserData: (d) => set(d),
     }),
     {
