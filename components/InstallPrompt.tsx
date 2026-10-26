@@ -67,7 +67,7 @@ export function InstallPrompt({ paused = false }: { paused?: boolean }) {
           initial={{ y: 120, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           exit={{ y: 120, opacity: 0 }}
-          className="fixed inset-x-3 bottom-[calc(5rem+env(safe-area-inset-bottom))] z-50 rounded-3xl bg-white p-4 shadow-2xl ring-1 ring-line md:hidden"
+          className="fixed inset-x-3 bottom-[calc(5rem+env(safe-area-inset-bottom))] z-50 rounded-3xl bg-white p-4 shadow-2xl ring-1 ring-line lg:hidden"
           role="dialog"
           aria-label="Install Lovioo"
         >

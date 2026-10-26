@@ -62,7 +62,7 @@ function ProductView({ product }: { product: Product }) {
   };
 
   return (
-    <div className="space-y-10 pb-16 md:pb-0">
+    <div className="space-y-10 pb-16 lg:pb-0">
       <nav className="text-xs text-midnight/50">
         <Link href="/discover" className="hover:text-pink">Home</Link> <span className="mx-1.5">›</span>
         <Link href={`/search?category=${cat.id}`} className="hover:text-pink">{cat.name}</Link> <span className="mx-1.5">›</span>
@@ -230,7 +230,7 @@ function StickyBuyBar({ product, priced, onCompare }: { product: ReturnType<type
   const best = bestOffer(product);
   const link = offerHref(best.retailer, best.url, product.name);
   return (
-    <div className="fixed inset-x-3 bottom-[calc(4.75rem+env(safe-area-inset-bottom))] z-30 flex items-center gap-3 rounded-2xl bg-midnight/95 p-2.5 pl-4 text-white shadow-soft backdrop-blur md:hidden">
+    <div className="fixed inset-x-3 bottom-[calc(4.75rem+env(safe-area-inset-bottom))] z-30 flex items-center gap-3 rounded-2xl bg-midnight/95 p-2.5 pl-4 text-white shadow-soft backdrop-blur lg:hidden">
       <span className="min-w-0 flex-1">
         <span className="block text-[11px] text-white/60">{priced ? `Best price on ${retailerById(best.retailer).name}` : `${product.offers.length} stores`}</span>
         <span className="block truncate text-base font-extrabold">{priced ? peso(best.price) : "See live prices"}</span>

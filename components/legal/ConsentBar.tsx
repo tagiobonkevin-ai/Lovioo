@@ -46,7 +46,7 @@ export function ConsentBar() {
           exit={{ y: 80, opacity: 0 }}
           role="region"
           aria-label="Analytics choice"
-          className="fixed inset-x-3 bottom-[calc(5rem+env(safe-area-inset-bottom))] z-50 mx-auto max-w-xl rounded-2xl bg-midnight p-3 pr-10 text-white shadow-2xl md:bottom-6"
+          className="fixed inset-x-3 bottom-[calc(5rem+env(safe-area-inset-bottom))] z-50 mx-auto max-w-xl rounded-2xl bg-midnight p-3 pr-10 text-white shadow-2xl lg:bottom-6"
         >
           <button
             onClick={() => useConsent.setState({ barOpen: false, dismissed: true })}

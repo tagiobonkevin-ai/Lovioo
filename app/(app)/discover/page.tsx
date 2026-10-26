@@ -94,9 +94,9 @@ export default function Discover() {
       <CategoryBubbles />
 
       <section>
-        <div className="flex items-end justify-between">
+        <div className="flex items-end justify-between gap-3">
           <h2 className="text-xl font-extrabold">Recommended for you</h2>
-          <Link href="/search" className="text-sm font-semibold text-pink">
+          <Link href="/search" className="shrink-0 whitespace-nowrap text-sm font-semibold text-pink">
             See all
           </Link>
         </div>
@@ -109,9 +109,9 @@ export default function Discover() {
 
       {budget.length > 0 && (
         <section>
-          <div className="flex items-end justify-between">
+          <div className="flex items-end justify-between gap-3">
             <h2 className="text-xl font-extrabold">Under ₱500 💸</h2>
-            <Link href="/search?max=500" className="text-sm font-semibold text-pink">
+            <Link href="/search?max=500" className="shrink-0 whitespace-nowrap text-sm font-semibold text-pink">
               See all
             </Link>
           </div>
@@ -124,9 +124,9 @@ export default function Discover() {
       )}
 
       <section>
-        <div className="flex items-end justify-between">
+        <div className="flex items-end justify-between gap-3">
           <h2 className="text-xl font-extrabold">Trending deals 🔥</h2>
-          <Link href="/search?sort=trending" className="text-sm font-semibold text-pink">
+          <Link href="/search?sort=trending" className="shrink-0 whitespace-nowrap text-sm font-semibold text-pink">
             See all
           </Link>
         </div>

@@ -17,7 +17,7 @@ export function AiFab() {
     <>
       <button
         onClick={() => setOpen(true)}
-        className="fixed bottom-6 right-6 z-40 hidden items-center gap-2 rounded-full bg-dusk px-5 py-3 text-sm font-semibold text-white shadow-pop transition hover:scale-105 md:inline-flex"
+        className="fixed bottom-6 right-6 z-40 hidden items-center gap-2 rounded-full bg-dusk px-5 py-3 text-sm font-semibold text-white shadow-pop transition hover:scale-105 lg:inline-flex"
       >
         <Sparkles className="h-4 w-4" /> Ask Lovioo AI
       </button>

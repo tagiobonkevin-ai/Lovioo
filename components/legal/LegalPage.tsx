@@ -35,7 +35,7 @@ export function LegalPage({
         <Link href="/" aria-label="Lovioo home">
           <Logo />
         </Link>
-        <Link href="/discover" className="text-sm font-semibold text-pink">
+        <Link href="/discover" className="inline-flex min-h-[40px] items-center px-1 text-sm font-semibold text-pink">
           Back to Lovioo
         </Link>
       </header>
@@ -55,7 +55,7 @@ export function LegalPage({
             <ol className="mt-3 grid gap-x-6 gap-y-1.5 text-[13px] sm:grid-cols-2">
               {sections.map((s) => (
                 <li key={s.id}>
-                  <a href={`#${s.id}`} className="text-midnight/70 hover:text-pink">
+                  <a href={`#${s.id}`} className="inline-flex min-h-[32px] items-center text-midnight/70 hover:text-pink">
                     {s.title}
                   </a>
                 </li>

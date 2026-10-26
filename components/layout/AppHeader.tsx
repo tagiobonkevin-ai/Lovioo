@@ -32,7 +32,7 @@ export function AppHeader() {
         <Link href="/discover" aria-label="Lovioo home">
           <Logo />
         </Link>
-        <nav className="ml-4 hidden items-center gap-1 md:flex">
+        <nav className="ml-4 hidden items-center gap-1 lg:flex">
           {NAV.map((n) => {
             const active = pathname === n.href.split("?")[0] && (n.href.includes("?") ? false : true);
             return (
@@ -73,7 +73,7 @@ export function AppHeader() {
           <Link href="/search" className="grid h-10 w-10 place-items-center rounded-full hover:bg-white lg:hidden" aria-label="Search">
             <Search className="h-5 w-5" />
           </Link>
-          <Link href="/ai" className="grid h-10 w-10 place-items-center rounded-full hover:bg-white md:hidden" aria-label="Lovioo AI">
+          <Link href="/ai" className="grid h-10 w-10 place-items-center rounded-full hover:bg-white lg:hidden" aria-label="Lovioo AI">
             <Sparkles className="h-5 w-5 text-grape" />
           </Link>
           <Link href="/saved" className="relative grid h-10 w-10 place-items-center rounded-full hover:bg-white" aria-label="Saved items">
