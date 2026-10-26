@@ -5,10 +5,8 @@ import { createJSONStorage, persist } from "zustand/middleware";
 import type { Supabase } from "@/lib/supabase/client";
 import { CONSENT_VERSION } from "@/lib/site";
 
-/** Choices made on the sign-up form that still have to be saved to the account (Google sign-up, email confirmation). */
+/** The required agreements ticked on the sign-up form, still to be saved to the account (Google sign-up, email confirmation). */
 export interface PendingConsent {
-  marketing: boolean;
-  analytics: boolean;
   version: string;
 }
 
@@ -25,7 +23,7 @@ interface ConsentState {
   /** "Decide later": hidden for the rest of this visit. */
   dismissed: boolean;
   setAnalytics: (on: boolean) => void;
-  setChoices: (c: { analytics: boolean; marketing: boolean }) => void;
+  setChoices: (c: { analytics: boolean | null; marketing: boolean }) => void;
   setPending: (p: PendingConsent | null) => void;
 }
 
@@ -82,15 +80,17 @@ type ProfileConsent = { terms_accepted_at: string | null; terms_version: string 
  */
 export async function syncConsent(sb: Supabase, p: ProfileConsent) {
   const { pending, setChoices } = useConsent.getState();
+  // An account "yes" to analytics applies here too; otherwise this device's answer stands (or the bar asks).
+  const analytics = (p: ProfileConsent) => (p.analytics_opt_in ? true : useConsent.getState().analytics);
   if (p.terms_accepted_at && p.terms_version === CONSENT_VERSION) {
-    setChoices({ analytics: p.analytics_opt_in, marketing: p.marketing_opt_in });
+    setChoices({ analytics: analytics(p), marketing: p.marketing_opt_in });
     useConsent.setState({ needsSheet: false, pending: null });
     return;
   }
   if (pending && pending.version === CONSENT_VERSION) {
-    const { error } = await saveConsents(sb, { terms: true, privacy: true, marketing: pending.marketing, analytics: pending.analytics, source: "consent_sheet" });
+    const { error } = await saveConsents(sb, { terms: true, privacy: true, source: "consent_sheet" });
     if (!error) {
-      setChoices({ analytics: pending.analytics, marketing: pending.marketing });
+      setChoices({ analytics: analytics(p), marketing: p.marketing_opt_in });
       useConsent.setState({ needsSheet: false, pending: null });
       return;
     }

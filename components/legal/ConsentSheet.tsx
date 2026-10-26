@@ -29,7 +29,6 @@ export function ConsentSheet() {
     const { error } = await saveConsents(sb, { ...choices, source: "consent_sheet" });
     setBusy(false);
     if (error) return toast({ title: "Couldn't save your choices", body: error.message, kind: "error" });
-    useConsent.getState().setChoices({ analytics: choices.analytics, marketing: choices.marketing });
     useConsent.setState({ needsSheet: false, pending: null });
     toast({ title: "Thanks — you're all set", kind: "ok" });
   };
@@ -49,7 +48,7 @@ export function ConsentSheet() {
             <h2 id="consent-title" className="text-center text-xl font-extrabold">
               Welcome to Lovioo 💗
             </h2>
-            <p className="mt-1 text-center text-sm text-midnight/60">Before you continue, please review our updated terms and your choices.</p>
+            <p className="mt-1 text-center text-sm text-midnight/60">Before you continue, please review and accept our terms.</p>
             <hr className="my-5 border-line" />
             <ConsentChecks value={choices} onChange={setChoices} showErrors={tried} />
             {tried && missing && <p className="mt-3 text-xs font-medium text-coral">{missing}</p>}

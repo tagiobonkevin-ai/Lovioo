@@ -83,7 +83,7 @@ export default function CookiesPage() {
                   stores are useful. Stored in Lovioo&apos;s database (Supabase) and linked to your account if you&apos;re signed in.
                 </li>
               </ul>
-              <p>Neither runs until you choose Allow, either on the bar at the bottom of the screen or when you create an account.</p>
+              <p>Neither runs until you choose Allow, either on the bar at the bottom of the screen or in Profile → Privacy choices.</p>
             </>
           ),
         },

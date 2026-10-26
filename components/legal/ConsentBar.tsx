@@ -16,13 +16,12 @@ const QUIET = ["/auth", "/admin", "/onboarding", "/terms", "/privacy", "/affilia
 export function useConsentBarVisible() {
   const pathname = usePathname();
   const { ready, analytics, barOpen, needsSheet, dismissed } = useConsent();
-  const signedIn = useLovioo((s) => !!s.user);
   if (!ready || needsSheet) return false;
   if (barOpen) return true;
-  return analytics === null && !dismissed && !signedIn && !QUIET.some((p) => pathname.startsWith(p));
+  return analytics === null && !dismissed && !QUIET.some((p) => pathname.startsWith(p));
 }
 
-/** A small bottom bar asking signed-out visitors about analytics. Nothing non-essential runs until they answer yes. */
+/** A small bottom bar asking about analytics until the visitor answers. Nothing non-essential runs until they say yes. */
 export function ConsentBar() {
   const visible = useConsentBarVisible();
   const setAnalytics = useConsent((s) => s.setAnalytics);
