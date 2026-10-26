@@ -38,10 +38,17 @@ const config: Config = {
           "0%,100%": { transform: "rotate(-3deg)" },
           "50%": { transform: "rotate(3deg)" },
         },
+        // Two copies of a row side by side: moving by half its width loops seamlessly.
+        drift: {
+          from: { transform: "translateX(0)" },
+          to: { transform: "translateX(-50%)" },
+        },
       },
       animation: {
         floaty: "floaty 4s ease-in-out infinite",
         wiggle: "wiggle 1.2s ease-in-out infinite",
+        drift: "drift 60s linear infinite",
+        "drift-reverse": "drift 70s linear infinite reverse",
       },
     },
   },
