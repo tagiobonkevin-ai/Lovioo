@@ -8,7 +8,7 @@ import { LegalLinks } from "@/components/legal/LegalLinks";
 import { RetailerBadge } from "@/components/product/RetailerBadge";
 import { serif } from "@/app/fonts";
 import { VIBES } from "@/lib/data/categories";
-import { loadCatalog } from "@/lib/data/load-catalog";
+import { loadCatalog, loadTeaser } from "@/lib/data/load-catalog";
 import { MAIN_RETAILERS, retailerById } from "@/lib/data/retailers";
 import { cn } from "@/lib/utils";
 
@@ -36,8 +36,8 @@ const STEPS = [
 ];
 
 export default async function Landing() {
-  await loadCatalog();
-  const [rowA, rowB] = driftRows();
+  const [, teaser] = await Promise.all([loadCatalog(), loadTeaser()]);
+  const [rowA, rowB] = driftRows(teaser);
   const h = "font-[family-name:var(--font-serif)] font-normal tracking-[-0.01em]";
 
   return (
@@ -53,7 +53,7 @@ export default async function Landing() {
           <Link href="/auth?mode=signin" className="rounded-full px-4 py-2 text-sm text-midnight/70 hover:text-midnight">
             Sign in
           </Link>
-          <Link href="/auth" className="rounded-full bg-midnight px-4 py-2 text-sm font-semibold text-white transition hover:bg-midnight/90">
+          <Link href="/auth?next=/swipe" className="rounded-full bg-midnight px-4 py-2 text-sm font-semibold text-white transition hover:bg-midnight/90">
             Join free
           </Link>
         </div>
@@ -78,8 +78,14 @@ export default async function Landing() {
 
       {/* Drifting picks */}
       <section aria-label="Popular on Lovioo" className="space-y-5 py-8">
-        <DriftRow products={rowA} />
-        <DriftRow products={rowB} reverse />
+        <p className="text-center text-xs text-midnight/50">
+          Prices and stores are for members.{" "}
+          <Link href="/auth?next=/swipe" className="font-semibold text-pink hover:underline">
+            Create a free account
+          </Link>
+        </p>
+        <DriftRow items={rowA} />
+        <DriftRow items={rowB} reverse />
       </section>
 
       {/* How it works */}
@@ -155,11 +161,11 @@ export default async function Landing() {
         </h2>
         <DreamPrompt className="mx-auto mt-8 max-w-xl text-left" chips={false} />
         <div className="mt-6 flex flex-wrap justify-center gap-3 text-sm">
-          <Link href="/swipe" className="rounded-full bg-midnight px-5 py-2.5 font-semibold text-white hover:bg-midnight/90">
-            Start swiping
+          <Link href="/auth?next=/swipe" className="rounded-full bg-midnight px-5 py-2.5 font-semibold text-white hover:bg-midnight/90">
+            Create free account
           </Link>
-          <Link href="/discover" className="rounded-full px-5 py-2.5 font-semibold text-midnight/70 ring-1 ring-midnight/15 hover:text-midnight">
-            Browse deals
+          <Link href="/auth?mode=signin" className="rounded-full px-5 py-2.5 font-semibold text-midnight/70 ring-1 ring-midnight/15 hover:text-midnight">
+            Sign in
           </Link>
         </div>
       </section>

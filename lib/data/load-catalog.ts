@@ -1,30 +1,27 @@
 import "server-only";
 import { cache } from "react";
 import { createServerClient } from "@/lib/supabase/client";
-import { applyCatalog, buildCatalog, demoCatalog, type Catalog } from "./catalog";
+import { applyCatalog, demoCatalog, type Catalog } from "./catalog";
+import { fetchCatalog } from "./fetch-catalog";
+import { PRODUCTS } from "./products";
+import { fetchTeaser, teaserFromProducts, type Teaser } from "./teaser";
 
 /**
- * Loads the published catalog from Supabase once per request (pages are revalidated every 60s).
+ * Loads the public part of the catalog (categories, stores, brands) once per request (pages are revalidated every 60s).
+ * Products and prices are members-only: the browser loads them after sign-in (lib/data/member-catalog.ts).
  * Falls back to the built-in demo catalog when Supabase isn't configured.
  * A configured-but-failing Supabase is an error, not a silent switch to demo data.
  */
 export const loadCatalog = cache(async (): Promise<Catalog> => {
   const sb = createServerClient();
   if (!sb) return demoCatalog();
-
-  const [categories, retailers, products, stats, brands] = await Promise.all([
-    sb.from("categories").select("*").order("sort"),
-    sb.from("retailers").select("*").order("sort"),
-    sb.from("products").select("*, offers(*)").eq("published", true).order("sort").order("created_at"),
-    sb.from("product_price_stats").select("*"),
-    sb.from("brands").select("*").eq("published", true).order("sort").order("name"),
-  ]);
-  // The brands table arrives with migration 20261026000200; until it's applied, run without brand pages.
-  const brandsMissing = brands.error && /brands|42P01|PGRST20/.test(`${brands.error.code} ${brands.error.message}`);
-  const error = categories.error ?? retailers.error ?? products.error ?? stats.error ?? (brandsMissing ? null : brands.error);
-  if (error) throw new Error(`Couldn't load the catalog from Supabase: ${error.message}`);
-
-  const catalog = buildCatalog(categories.data!, retailers.data!, products.data!, stats.data!, brands.data ?? []);
+  const catalog = await fetchCatalog(sb, { products: false });
   applyCatalog(catalog);
   return catalog;
+});
+
+/** The home page teaser for guests: product photos and names, no prices. */
+export const loadTeaser = cache(async (): Promise<Teaser[]> => {
+  const sb = createServerClient();
+  return sb ? fetchTeaser(sb) : teaserFromProducts(PRODUCTS);
 });

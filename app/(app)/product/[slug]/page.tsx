@@ -1,22 +1,8 @@
-import { notFound } from "next/navigation";
-import { loadCatalog } from "@/lib/data/load-catalog";
-import { productBySlug } from "@/lib/data/products";
 import { ProductDetail } from "./ProductDetail";
 
-export async function generateStaticParams() {
-  const { products } = await loadCatalog();
-  return products.map((p) => ({ slug: p.slug }));
-}
+// Products and prices are members-only, so they're never on the server: the page renders in the browser after sign-in.
+export const metadata = { title: "Product · Lovioo" };
 
-export async function generateMetadata({ params }: { params: { slug: string } }) {
-  await loadCatalog();
-  const p = productBySlug(params.slug);
-  return { title: p ? `${p.name} · Lovioo` : "Not found · Lovioo" };
-}
-
-export default async function ProductPage({ params }: { params: { slug: string } }) {
-  await loadCatalog();
-  const product = productBySlug(params.slug);
-  if (!product) notFound();
-  return <ProductDetail slug={product.slug} />;
+export default function ProductPage({ params }: { params: { slug: string } }) {
+  return <ProductDetail slug={params.slug} />;
 }

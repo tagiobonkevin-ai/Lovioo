@@ -10,6 +10,8 @@ import { DriftRow, driftRows } from "@/components/landing/ProductDrift";
 import { ConsentChecks, NO_CHOICES, requiredMissing, type ConsentChoices } from "@/components/legal/ConsentChecks";
 import { LegalLinks } from "@/components/legal/LegalLinks";
 import { useConsent } from "@/lib/consent";
+import { PRODUCTS } from "@/lib/data/products";
+import { fetchTeaser, teaserFromProducts, type Teaser } from "@/lib/data/teaser";
 import { CONSENT_VERSION } from "@/lib/site";
 import { safeNext } from "@/lib/safe-redirect";
 import { useLovioo } from "@/lib/store";
@@ -51,11 +53,22 @@ function AuthForm() {
   useEffect(() => {
     isAuthProviderEnabled("google").then(setGoogleReady);
   }, []);
-  const [rowA, rowB] = driftRows();
+  // Desktop side panel: the same price-free teaser guests see on the home page.
+  const [teaser, setTeaser] = useState<Teaser[]>([]);
+  useEffect(() => {
+    const sb = getSupabase();
+    if (!sb) setTeaser(teaserFromProducts(PRODUCTS));
+    else fetchTeaser(sb).then(setTeaser);
+  }, []);
+  const [rowA, rowB] = driftRows(teaser);
 
   /** The required agreements are saved with the account once it exists (sign-up trigger, or syncConsent for Google). */
   const rememberChoices = () => useConsent.getState().setPending({ version: CONSENT_VERSION });
   const next = safeNext(params.get("next"));
+  // New accounts answer the profile questions first, then go where they were heading (or to Swipe).
+  const onboardingPath = params.get("next") ? `/onboarding?next=${encodeURIComponent(next)}` : "/onboarding";
+  // Sent here from a members-only page (products and prices need an account).
+  const fromLocked = params.get("next") !== null && signup;
   const switchMode = (m: "signup" | "signin") => {
     setMode(m);
     setError("");
@@ -66,7 +79,7 @@ function AuthForm() {
   const finishDemo = (n: string, e: string) => {
     signIn({ name: n, email: e });
     const { onboarded } = useLovioo.getState();
-    router.push(signup && !onboarded ? "/onboarding" : next);
+    router.push(signup && !onboarded ? onboardingPath : next);
   };
 
   const submit = async (ev: React.FormEvent) => {
@@ -90,11 +103,11 @@ function AuthForm() {
         const { data, error } = await sb.auth.signUp({
           email,
           password,
-          options: { data: { consent: { ...choices, version: CONSENT_VERSION } }, emailRedirectTo: `${window.location.origin}/onboarding` },
+          options: { data: { consent: { ...choices, version: CONSENT_VERSION } }, emailRedirectTo: `${window.location.origin}${onboardingPath}` },
         });
         if (error) setError(friendlyAuthError(error.message, googleReady));
         else if (!data.session) setNotice(`We sent a confirmation link to ${email}. Open it to finish creating your account.`);
-        else router.push("/onboarding");
+        else router.push(onboardingPath);
       } else {
         const { error } = await sb.auth.signInWithPassword({ email, password });
         if (error) setError(friendlyAuthError(error.message, googleReady));
@@ -115,7 +128,7 @@ function AuthForm() {
     const sb = getSupabase();
     if (!sb) return finishDemo("Marie Santos", "marie@example.com");
     // New Google accounts finish their profile first; returning ones go back to where they were.
-    const back = signup ? `/onboarding?next=${encodeURIComponent(next)}` : next;
+    const back = signup ? onboardingPath : next;
     const { error } = await sb.auth.signInWithOAuth({ provider: "google", options: { redirectTo: `${window.location.origin}${back}` } });
     if (error) setError(`Google sign-in isn't available yet: ${error.message}`);
   };
@@ -146,7 +159,11 @@ function AuthForm() {
             )}
           </h1>
           <p className="mt-3 text-[15px] leading-relaxed text-midnight/60">
-            {signup ? "Save the things you love, get price-drop alerts and picks made for you." : "Sign in to see your loves, alerts and picks."}
+            {fromLocked
+              ? "Create a free account to see prices and start swiping."
+              : signup
+                ? "Save the things you love, get price-drop alerts and picks made for you."
+                : "Sign in to see your loves, alerts and picks."}
           </p>
 
           <div className="mt-7 grid grid-cols-2 rounded-full bg-white p-1 ring-1 ring-midnight/10" role="tablist" aria-label="Account">
@@ -262,8 +279,8 @@ function AuthForm() {
           <p className={cn(h, "px-12 text-4xl leading-tight xl:text-5xl")}>
             Your next favourite thing is <em className="text-pink">one sentence</em> away.
           </p>
-          <DriftRow products={rowA} />
-          <DriftRow products={rowB} reverse />
+          <DriftRow items={rowA} />
+          <DriftRow items={rowB} reverse />
           <p className="px-12 text-sm text-midnight/55">Compare Shopee, Lazada, TikTok Shop and Amazon in one place.</p>
         </div>
       </aside>

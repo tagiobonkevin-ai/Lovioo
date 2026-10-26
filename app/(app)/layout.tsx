@@ -1,4 +1,5 @@
 import { AiFab } from "@/components/ai/AiFab";
+import { MembersOnly } from "@/components/auth/MembersOnly";
 import { FeedbackButton } from "@/components/FeedbackButton";
 import { AppHeader } from "@/components/layout/AppHeader";
 import { MobileTabBar } from "@/components/layout/MobileTabBar";
@@ -10,7 +11,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     <div className="min-h-screen bg-cream">
       <AppHeader />
       <main className="mx-auto max-w-7xl px-4 pb-32 pt-6 md:pb-16 lg:px-6">
-        {children}
+        <MembersOnly>{children}</MembersOnly>
         <LegalFooter />
       </main>
       <CompareTray />

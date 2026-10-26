@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import { resetConsentSession, syncConsent } from "@/lib/consent";
+import { clearMemberCatalog, loadMemberCatalog } from "@/lib/data/member-catalog";
 import { useProfileStatus } from "@/lib/profile";
 import { useLovioo } from "@/lib/store";
 import { getSupabase } from "@/lib/supabase/client";
@@ -28,6 +29,7 @@ export function AuthSync() {
         stopSync?.();
         activeUserId = null;
         resetConsentSession();
+        clearMemberCatalog();
         useProfileStatus.setState({ needsProfile: false, avatarUrl: null });
         // Also clears a leftover demo-mode login or an expired session; guests (no user) keep their data.
         if (useLovioo.getState().user) useLovioo.getState().signOut();
@@ -40,6 +42,9 @@ export function AuthSync() {
       useLovioo.getState().signIn({ id: u.id, email: u.email ?? "", name: meta.full_name || meta.name || (u.email ?? "").split("@")[0] });
       // Defer Supabase calls out of the auth callback, as supabase-js recommends.
       setTimeout(async () => {
+        // Products first: merging saves and alerts checks them against the (members-only) catalog.
+        await loadMemberCatalog(u.id);
+        if (activeUserId !== u.id) return;
         const res = await pullAndMerge(sb, u.id, onError);
         if (activeUserId !== u.id) return;
         if (res?.fullName) useLovioo.getState().signIn({ id: u.id, email: u.email ?? "", name: res.fullName });

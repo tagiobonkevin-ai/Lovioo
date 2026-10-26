@@ -6,7 +6,15 @@ import type { Product } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
 /** Product photo with a branded emoji tile fallback when the remote image can't load. */
-export function ProductImage({ product, className, emojiSize = "text-6xl" }: { product: Product; className?: string; emojiSize?: string }) {
+export function ProductImage({
+  product,
+  className,
+  emojiSize = "text-6xl",
+}: {
+  product: Pick<Product, "image" | "name" | "emoji" | "category">;
+  className?: string;
+  emojiSize?: string;
+}) {
   const [failed, setFailed] = useState(false);
   const img = useRef<HTMLImageElement>(null);
   // A server-rendered <img> can fail before React attaches onError, so check once on mount.
