@@ -22,7 +22,7 @@ export function ProductCard({ product, showCompare = true, className }: { produc
   const brand = brandOf(product);
 
   return (
-    <div className={cn("group relative flex flex-col overflow-hidden rounded-3xl border border-line/70 bg-white transition hover:-translate-y-1 hover:shadow-soft", className)}>
+    <div className={cn("group relative flex flex-col overflow-hidden rounded-3xl border border-ink/10 bg-white transition hover:-translate-y-1 hover:shadow-soft", className)}>
       <Link href={`/product/${product.slug}`} className="block">
         <ProductImage product={product} className="aspect-square transition duration-500 group-hover:scale-[1.03]" />
       </Link>
@@ -38,16 +38,16 @@ export function ProductCard({ product, showCompare = true, className }: { produc
             {brand.name}
           </Link>
         ) : (
-          <span className="truncate text-[11px] font-bold uppercase tracking-wide text-midnight/40">{product.brand}</span>
+          <span className="truncate text-[11px] font-bold uppercase tracking-wide text-ink/40">{product.brand}</span>
         )}
         <Link href={`/product/${product.slug}`} className="line-clamp-2 text-sm font-semibold leading-snug hover:text-pink">
           {product.name}
         </Link>
-        <span className="text-xs text-midnight/50">{product.subcategory}</span>
+        <span className="text-xs text-ink/50">{product.subcategory}</span>
         {product.reviewCount > 0 && (
-          <div className="mt-1 flex items-center gap-1 text-[11px] text-midnight/60">
+          <div className="mt-1 flex items-center gap-1 text-[11px] text-ink/60">
             <Star className="h-3 w-3 fill-sunset text-sunset" />
-            {product.rating} <span className="text-midnight/40">({compact(product.reviewCount)})</span>
+            {product.rating} <span className="text-ink/40">({compact(product.reviewCount)})</span>
           </div>
         )}
         <div className="mt-1 flex items-center gap-2">

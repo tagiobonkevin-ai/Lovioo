@@ -12,14 +12,14 @@ export function CategoryBubbles() {
           >
             {c.emoji}
           </span>
-          <span className="text-[11px] font-medium leading-tight text-midnight/80">{c.name.split(" &")[0]}</span>
+          <span className="text-[11px] font-medium leading-tight text-ink/80">{c.name.split(" &")[0]}</span>
         </Link>
       ))}
       <Link href="/search" className="group flex w-20 shrink-0 flex-col items-center gap-2 text-center">
         <span className="grid h-16 w-16 place-items-center rounded-full bg-lavender text-2xl shadow-sm ring-4 ring-white transition group-hover:-translate-y-1">
           ✨
         </span>
-        <span className="text-[11px] font-medium text-midnight/80">All</span>
+        <span className="text-[11px] font-medium text-ink/80">All</span>
       </Link>
     </div>
   );

@@ -71,14 +71,14 @@ export function InstallPrompt({ paused = false }: { paused?: boolean }) {
           role="dialog"
           aria-label="Install Lovioo"
         >
-          <button onClick={close} className="absolute right-3 top-3 grid h-8 w-8 place-items-center rounded-full text-midnight/40" aria-label="Not now">
+          <button onClick={close} className="absolute right-3 top-3 grid h-8 w-8 place-items-center rounded-full text-ink/40" aria-label="Not now">
             <X className="h-4 w-4" />
           </button>
           <div className="flex items-center gap-3 pr-8">
             <img src="/icons/icon-192.png" alt="" className="h-12 w-12 rounded-2xl shadow-soft" />
             <div>
               <p className="text-sm font-extrabold">Get the Lovioo app</p>
-              <p className="text-xs text-midnight/60">Add Lovioo to your home screen — full-screen swiping, one tap away.</p>
+              <p className="text-xs text-ink/60">Add Lovioo to your home screen — full-screen swiping, one tap away.</p>
             </div>
           </div>
           {show === "android" ? (
@@ -92,7 +92,7 @@ export function InstallPrompt({ paused = false }: { paused?: boolean }) {
               <SquarePlus className="h-4 w-4" /> Install app
             </button>
           ) : (
-            <p className="mt-3 flex flex-wrap items-center gap-1 rounded-2xl bg-cream p-3 text-xs text-midnight/70">
+            <p className="mt-3 flex flex-wrap items-center gap-1 rounded-2xl bg-ink/[0.03] p-3 text-xs text-ink/70">
               Tap <Share className="h-4 w-4 text-signal" /> <b>Share</b>, then <b>Add to Home Screen</b> <SquarePlus className="h-4 w-4" />
             </p>
           )}

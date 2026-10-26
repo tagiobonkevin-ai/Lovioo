@@ -54,11 +54,11 @@ export function PrivacyChoices() {
         </span>
         <div>
           <h2 className="font-bold">Privacy choices</h2>
-          <p className="text-xs text-midnight/50">Change these any time. Saved to your account.</p>
+          <p className="text-xs text-ink/50">Change these any time. Saved to your account.</p>
         </div>
       </div>
       {rows.map((r) => (
-        <div key={r.key} className="flex items-center justify-between gap-4 border-b border-line/70 py-3 last:border-0">
+        <div key={r.key} className="flex items-center justify-between gap-4 border-b border-ink/10 py-3 last:border-0">
           <span className="text-sm">{r.label}</span>
           <button
             role="switch"
@@ -72,7 +72,7 @@ export function PrivacyChoices() {
           </button>
         </div>
       ))}
-      <p className="mt-3 text-[11px] text-midnight/45">
+      <p className="mt-3 text-[11px] text-ink/45">
         {acceptedAt ? `You accepted the Terms and Privacy Policy on ${new Date(acceptedAt).toLocaleDateString("en-PH", { dateStyle: "medium" })}. ` : ""}
         Lovioo doesn&apos;t send marketing emails yet; your choice is kept for when it does.
       </p>

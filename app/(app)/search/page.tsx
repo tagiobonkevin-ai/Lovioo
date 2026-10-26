@@ -114,7 +114,7 @@ function SearchInner() {
   const sidebar = (
     <div className="space-y-1">
       <div className="flex items-center justify-between pb-3">
-        <span className="text-xs font-semibold uppercase tracking-wider text-midnight/50">Products: {results.length}</span>
+        <span className="text-xs font-semibold uppercase tracking-wider text-ink/50">Products: {results.length}</span>
         {activeCount > 0 && (
           <button onClick={reset} className="inline-flex items-center gap-1 rounded-full bg-midnight px-2.5 py-1 text-[11px] font-semibold text-white">
             Clear filters <X className="h-3 w-3" />
@@ -132,7 +132,7 @@ function SearchInner() {
         ))}
         <div className="flex items-center gap-2 pt-2">
           <input className="input !rounded-xl !px-3 !py-2" inputMode="numeric" placeholder="Min ₱" value={f.min} onChange={(e) => update({ min: e.target.value.replace(/\D/g, ""), band: null })} aria-label="Minimum price" />
-          <span className="text-midnight/40">–</span>
+          <span className="text-ink/40">–</span>
           <input className="input !rounded-xl !px-3 !py-2" inputMode="numeric" placeholder="Max ₱" value={f.max} onChange={(e) => update({ max: e.target.value.replace(/\D/g, ""), band: null })} aria-label="Maximum price" />
         </div>
       </FilterGroup>
@@ -162,13 +162,13 @@ function SearchInner() {
 
   return (
     <div>
-      <nav className="mb-4 text-xs text-midnight/50">
+      <nav className="mb-4 text-xs text-ink/50">
         <Link href="/discover" className="hover:text-pink">Home</Link> <span className="mx-1.5">›</span>
         <Link href="/search" className="hover:text-pink">Search</Link>
         {f.categories.length === 1 && (
           <>
             <span className="mx-1.5">›</span>
-            <span className="text-midnight/70">{categoryById(f.categories[0]).name}</span>
+            <span className="text-ink/70">{categoryById(f.categories[0]).name}</span>
           </>
         )}
       </nav>
@@ -191,8 +191,8 @@ function SearchInner() {
         <div>
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
-              <h1 className="text-2xl font-extrabold tracking-tight">{title}</h1>
-              <p className="text-sm text-midnight/50">{results.length} results</p>
+              <h1 className="text-[26px] leading-[1.4]">{title}</h1>
+              <p className="text-sm text-ink/50">{results.length} results</p>
             </div>
             <div className="flex items-center gap-2">
               <button onClick={() => setDrawer(true)} className="btn-ghost !py-2 lg:hidden">
@@ -200,14 +200,14 @@ function SearchInner() {
               </button>
               <label className="relative">
                 <span className="sr-only">Sort by</span>
-                <select value={sort} onChange={(e) => setSort(e.target.value)} className="appearance-none rounded-full border border-line bg-white py-2 pl-4 pr-9 text-sm font-medium outline-none focus:border-pink">
+                <select value={sort} onChange={(e) => setSort(e.target.value)} className="appearance-none rounded-full border border-ink/15 bg-white py-2 pl-4 pr-9 text-sm font-medium outline-none focus:border-pink">
                   {SORTS.map((s) => (
                     <option key={s.id} value={s.id}>
                       Sort: {s.label}
                     </option>
                   ))}
                 </select>
-                <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-midnight/50" />
+                <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-ink/50" />
               </label>
             </div>
           </div>
@@ -216,7 +216,7 @@ function SearchInner() {
             <div className="card mt-6 grid place-items-center p-12 text-center">
               <span className="text-5xl">🔍</span>
               <p className="mt-3 font-bold">No matches yet</p>
-              <p className="text-sm text-midnight/60">Try fewer filters or ask Lovioo AI for ideas.</p>
+              <p className="text-sm text-ink/60">Try fewer filters or ask Lovioo AI for ideas.</p>
               <button onClick={reset} className="btn-primary mt-4">
                 Clear filters
               </button>
@@ -230,14 +230,14 @@ function SearchInner() {
           )}
 
           {results.length > shown && (
-            <div className="mt-8 flex items-center rounded-full border border-line bg-white">
+            <div className="mt-8 flex items-center rounded-full border border-ink/15 bg-white">
               <button onClick={() => setShown(shown + PAGE)} className="flex-1 py-3.5 text-sm font-semibold text-pink">
                 Show next {Math.min(PAGE, results.length - shown)} of {results.length}
               </button>
             </div>
           )}
           {results.some(isPriced) && (
-            <p className="mt-6 text-center text-xs text-midnight/40">
+            <p className="mt-6 text-center text-xs text-ink/40">
               Lowest price shown {peso(Math.min(...results.filter(isPriced).map(lowestPrice)))} · prices are set by each retailer
             </p>
           )}
@@ -271,7 +271,7 @@ function SearchInner() {
 function FilterGroup({ title, children, defaultOpen = true }: { title: string; children: React.ReactNode; defaultOpen?: boolean }) {
   const [open, setOpen] = useState(defaultOpen);
   return (
-    <div className="border-t border-line/70 py-3">
+    <div className="border-t border-ink/10 py-3">
       <button onClick={() => setOpen(!open)} className="flex w-full items-center justify-between text-sm font-semibold">
         {title}
         <ChevronDown className={cn("h-4 w-4 transition", open && "rotate-180")} />
@@ -283,11 +283,11 @@ function FilterGroup({ title, children, defaultOpen = true }: { title: string; c
 
 function Check({ label, checked, onChange, count, icon }: { label: string; checked: boolean; onChange: () => void; count?: number; icon?: React.ReactNode }) {
   return (
-    <label className="flex cursor-pointer items-center gap-2.5 rounded-lg px-1 py-1.5 text-sm text-midnight/80 hover:bg-blush/60">
+    <label className="flex cursor-pointer items-center gap-2.5 rounded-lg px-1 py-1.5 text-sm text-ink/80 hover:bg-blush/60">
       <input type="checkbox" checked={checked} onChange={onChange} className="h-4 w-4 rounded accent-pink" />
       {icon}
       <span className="flex-1">{label}</span>
-      {count !== undefined && <span className="text-xs text-midnight/40">{count}</span>}
+      {count !== undefined && <span className="text-xs text-ink/40">{count}</span>}
     </label>
   );
 }

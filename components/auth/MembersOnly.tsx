@@ -35,8 +35,8 @@ export function MembersOnly({ children }: { children: React.ReactNode }) {
         <span className="grid h-12 w-12 place-items-center rounded-full bg-pink/10 text-pink">
           <Lock className="h-5 w-5" aria-hidden />
         </span>
-        <h1 className="mt-4 text-xl font-extrabold">Create a free account to see prices</h1>
-        <p className="mt-1 max-w-xs text-sm text-midnight/60">Products, prices and swiping are for Lovioo members. It takes a minute.</p>
+        <h1 className="mt-4 text-[20px] leading-[1.5]">Create a free account to see prices</h1>
+        <p className="mt-1 max-w-xs text-sm text-ink/60">Products, prices and swiping are for Lovioo members. It takes a minute.</p>
         <Link href={authHref} className="btn-primary mt-5">
           Create free account
         </Link>
@@ -46,8 +46,8 @@ export function MembersOnly({ children }: { children: React.ReactNode }) {
   if (hydrated && status === "error")
     return (
       <Gate>
-        <h1 className="text-lg font-extrabold">Couldn&apos;t load products</h1>
-        <p className="mt-1 max-w-xs text-sm text-midnight/60">{error}</p>
+        <h1 className="text-[18px] leading-[1.5]">Couldn&apos;t load products</h1>
+        <p className="mt-1 max-w-xs text-sm text-ink/60">{error}</p>
         <button onClick={() => user?.id && loadMemberCatalog(user.id)} className="btn-primary mt-5 inline-flex items-center gap-2">
           <RotateCw className="h-4 w-4" /> Try again
         </button>
@@ -58,7 +58,7 @@ export function MembersOnly({ children }: { children: React.ReactNode }) {
     return (
       <Gate>
         <LogoMark className="h-10 w-10 animate-pulse" />
-        <p className="mt-3 text-sm text-midnight/50" role="status">
+        <p className="mt-3 text-sm text-ink/50" role="status">
           Loading your picks…
         </p>
       </Gate>

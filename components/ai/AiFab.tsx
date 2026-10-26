@@ -26,7 +26,7 @@ export function AiFab() {
           <>
             <motion.div className="fixed inset-0 z-50 bg-midnight/30 backdrop-blur-sm" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setOpen(false)} />
             <motion.aside
-              className="fixed inset-y-0 right-0 z-50 flex w-full max-w-md flex-col bg-cream shadow-2xl"
+              className="fixed inset-y-0 right-0 z-50 flex w-full max-w-md flex-col bg-ink/[0.03] shadow-2xl"
               initial={{ x: "100%" }}
               animate={{ x: 0 }}
               exit={{ x: "100%" }}
@@ -34,7 +34,7 @@ export function AiFab() {
               role="dialog"
               aria-label="Lovioo AI"
             >
-              <div className="flex items-center justify-between border-b border-line/70 px-5 py-4">
+              <div className="flex items-center justify-between border-b border-ink/10 px-5 py-4">
                 <span className="flex items-center gap-2 font-bold">
                   <Sparkles className="h-5 w-5 text-grape" /> Lovioo AI
                 </span>

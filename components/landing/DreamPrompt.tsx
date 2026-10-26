@@ -81,7 +81,7 @@ export function DreamPrompt({ className, chips = true }: { className?: string; c
         />
         <div className="flex items-center justify-between gap-2 px-2 pb-1">
           <span className="flex items-center gap-1.5 text-[11px] font-medium text-midnight/40">
-            <Sparkles className="h-3.5 w-3.5 text-pink" /> English, Tagalog or Bisaya
+            <Sparkles className="h-3.5 w-3.5 text-pink" /> English, Tagalog or Visayan
           </span>
           <button
             type="submit"

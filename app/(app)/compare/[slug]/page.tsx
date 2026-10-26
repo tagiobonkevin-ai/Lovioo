@@ -22,8 +22,8 @@ export default function CompareOffers({ params }: { params: { slug: string } }) 
     <div className="mx-auto max-w-5xl space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-extrabold tracking-tight">Compare offers</h1>
-          <p className="text-midnight/60">{product.name}</p>
+          <h1 className="text-[30px] leading-[1.35]">Compare offers</h1>
+          <p className="text-ink/60">{product.name}</p>
         </div>
         <Link href={`/product/${product.slug}`} className="flex items-center gap-3 rounded-2xl bg-white p-2 pr-4 shadow-soft">
           <ProductImage product={product} className="h-12 w-12 rounded-xl" emojiSize="text-2xl" />
@@ -48,8 +48,8 @@ export default function CompareOffers({ params }: { params: { slug: string } }) 
       )}
       {tab === "Product info" && (
         <div className="card space-y-4 p-6">
-          <p className="text-sm leading-relaxed text-midnight/70">{product.description}</p>
-          <ul className="list-inside list-disc text-sm text-midnight/70">
+          <p className="text-sm leading-relaxed text-ink/70">{product.description}</p>
+          <ul className="list-inside list-disc text-sm text-ink/70">
             {product.highlights.map((h) => (
               <li key={h}>{h}</li>
             ))}
@@ -59,7 +59,7 @@ export default function CompareOffers({ params }: { params: { slug: string } }) 
 
       <InsightCard product={product} />
 
-      <div className="flex items-start gap-3 rounded-2xl bg-signal/10 p-4 text-sm text-midnight/70">
+      <div className="flex items-start gap-3 rounded-2xl bg-signal/10 p-4 text-sm text-ink/70">
         <Info className="mt-0.5 h-5 w-5 shrink-0 text-signal" />
         Prices and availability are provided by the respective retailers and may change at any time. Please check the retailer&apos;s website for the latest information.
       </div>

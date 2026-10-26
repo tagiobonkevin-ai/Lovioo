@@ -12,7 +12,7 @@ export interface AiReply {
   followUps: string[];
 }
 
-// English, Tagalog and Bisaya words are all understood whatever reply language is picked, so Taglish works too.
+// English, Tagalog and Visayan words are all understood whatever reply language is picked, so Taglish works too.
 const CATEGORY_WORDS: Record<CategoryId, string[]> = {
   electronics: [
     "electronic", "gadget", "tech", "headphone", "earbud", "earphone", "speaker", "phone", "cellphone", "selpon", "telepono", "watch", "relo", "camera",
@@ -38,7 +38,7 @@ const CATEGORY_WORDS: Record<CategoryId, string[]> = {
   ],
 };
 
-/** Tagalog/Bisaya item words mapped to the English words product names and tags use. */
+/** Tagalog/Visayan item words mapped to the English words product names and tags use. */
 const ITEM_WORDS = new Map<string, string[]>(Object.entries({
   sapatos: ["sneaker", "shoe", "sandal", "footwear"],
   tsinelas: ["sandal", "slide", "slipper"],

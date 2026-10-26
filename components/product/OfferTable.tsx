@@ -20,9 +20,9 @@ export function OfferTable({ product }: { product: Product }) {
     <div>
       <div className="mb-3 flex items-end justify-between gap-2">
         <p className="text-sm font-bold">
-          Price list <span className="font-medium text-midnight/50">· {offers.length} store{offers.length > 1 ? "s" : ""}</span>
+          Price list <span className="font-medium text-ink/50">· {offers.length} store{offers.length > 1 ? "s" : ""}</span>
         </p>
-        <p className="text-[11px] text-midnight/50">Sorted by total with shipping</p>
+        <p className="text-[11px] text-ink/50">Sorted by total with shipping</p>
       </div>
       <ul className="space-y-2.5">
         {offers.map((o) => {
@@ -33,7 +33,7 @@ export function OfferTable({ product }: { product: Product }) {
           return (
             <li
               key={o.retailer}
-              className={cn("relative overflow-hidden rounded-2xl border bg-white p-4 transition", best ? "border-emerald-300 shadow-[0_8px_24px_-12px_rgba(16,185,129,0.5)]" : "border-line")}
+              className={cn("relative overflow-hidden rounded-2xl border bg-white p-4 transition", best ? "border-emerald-300 shadow-[0_8px_24px_-12px_rgba(16,185,129,0.5)]" : "border-ink/15")}
             >
               {best && <span className="absolute right-0 top-0 rounded-bl-2xl bg-emerald-500 px-3 py-1 text-[10px] font-bold uppercase tracking-wide text-white">Best price</span>}
               <div className="flex flex-wrap items-center gap-x-4 gap-y-3">
@@ -42,11 +42,11 @@ export function OfferTable({ product }: { product: Product }) {
                 </span>
                 <span className="min-w-[7rem]">
                   <span className="flex items-baseline gap-2">
-                    <span className="text-lg font-extrabold">{peso(o.price)}</span>
-                    {off > 0 && <span className="text-xs text-midnight/40 line-through">{peso(o.originalPrice)}</span>}
+                    <span className="text-[18px] leading-[1.5]">{peso(o.price)}</span>
+                    {off > 0 && <span className="text-xs text-ink/40 line-through">{peso(o.originalPrice)}</span>}
                     {off > 0 && <span className="rounded-full bg-emerald-50 px-1.5 py-0.5 text-[10px] font-bold text-emerald-600">-{off}%</span>}
                   </span>
-                  <span className="flex items-center gap-1 text-xs text-midnight/60">
+                  <span className="flex items-center gap-1 text-xs text-ink/60">
                     <Truck className="h-3.5 w-3.5" /> {o.shipping ? `+ ${peso(o.shipping)} shipping` : "Free shipping"}
                     <span className={cn("ml-1 font-medium", o.inStock ? "text-emerald-600" : "text-coral")}>· {o.inStock ? "In stock" : "Out of stock"}</span>
                   </span>
@@ -58,7 +58,7 @@ export function OfferTable({ product }: { product: Product }) {
                   onClick={() => trackEvent(getSupabase(), product.id, "click_out", o.retailer)}
                   className={cn(
                     "inline-flex w-full items-center justify-center gap-1.5 rounded-full px-5 py-2.5 text-sm font-semibold transition active:scale-[0.97] sm:w-auto",
-                    o.inStock ? (best ? "bg-brand text-white shadow-pop" : "bg-pink text-white") : "bg-line text-midnight/50",
+                    o.inStock ? (best ? "bg-brand text-white shadow-pop" : "bg-pink text-white") : "bg-line text-ink/50",
                   )}
                 >
                   {link.isSearch ? "Search store" : "isAffiliate" in link ? `Shop on ${retailerById(o.retailer).name}` : "View at retailer"} <ExternalLink className="h-3.5 w-3.5" />
@@ -76,8 +76,8 @@ export function OfferTable({ product }: { product: Product }) {
 /** "See prices" picks: no tracked price, so just send shoppers to each store to compare live listings. */
 function StoreLinks({ product }: { product: Product }) {
   return (
-    <div className="overflow-hidden rounded-3xl border border-line bg-white">
-      <p className="border-b border-line bg-blush/50 px-5 py-3 text-sm text-midnight/70">
+    <div className="overflow-hidden rounded-3xl border border-ink/15 bg-white">
+      <p className="border-b border-ink/15 bg-blush/50 px-5 py-3 text-sm text-ink/70">
         We don&apos;t track this pick&apos;s price yet. Compare sellers, prices and reviews on the store.
       </p>
       <ul>
@@ -85,7 +85,7 @@ function StoreLinks({ product }: { product: Product }) {
           const link = offerHref(o.retailer, o.url, product.name);
           const search = link.isSearch ? undefined : storeSearchHref(o.retailer, product.name);
           return (
-            <li key={o.retailer} className="flex flex-wrap items-center justify-between gap-3 border-b border-line/70 px-5 py-4 last:border-0">
+            <li key={o.retailer} className="flex flex-wrap items-center justify-between gap-3 border-b border-ink/10 px-5 py-4 last:border-0">
               <span className="flex flex-col gap-1">
                 <RetailerBadge id={o.retailer} size="sm" withName />
                 {search && (
@@ -94,7 +94,7 @@ function StoreLinks({ product }: { product: Product }) {
                     target="_blank"
                     rel="noopener noreferrer"
                     onClick={() => trackEvent(getSupabase(), product.id, "click_out", o.retailer)}
-                    className="text-xs font-medium text-midnight/50 underline-offset-2 hover:text-pink hover:underline"
+                    className="text-xs font-medium text-ink/50 underline-offset-2 hover:text-pink hover:underline"
                   >
                     or search “{product.name}”
                   </a>
@@ -113,7 +113,7 @@ function StoreLinks({ product }: { product: Product }) {
           );
         })}
       </ul>
-      <AffiliateNote className="border-t border-line/70 px-5 py-3" />
+      <AffiliateNote className="border-t border-ink/10 px-5 py-3" />
     </div>
   );
 }

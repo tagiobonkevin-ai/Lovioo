@@ -39,15 +39,15 @@ export default function AdminFeedback() {
       {data && (
         <Panel>
           {rows.length === 0 ? (
-            <p className="py-6 text-center text-sm text-midnight/50">{tab === "new" ? "No new feedback — inbox zero 🎉" : "Nothing here yet."}</p>
+            <p className="py-6 text-center text-sm text-ink/50">{tab === "new" ? "No new feedback — inbox zero 🎉" : "Nothing here yet."}</p>
           ) : (
-            <ul className="divide-y divide-line/70">
+            <ul className="divide-y divide-ink/10/70">
               {rows.map((f) => (
                 <li key={f.id} className="flex gap-4 py-4">
-                  <span className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl bg-cream text-xl">{f.rating ? MOODS[f.rating - 1] : "💬"}</span>
+                  <span className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl bg-ink/[0.03] text-xl">{f.rating ? MOODS[f.rating - 1] : "💬"}</span>
                   <div className="min-w-0 flex-1">
                     <p className="whitespace-pre-wrap break-words text-sm">{f.message}</p>
-                    <p className="mt-1 text-xs text-midnight/50">
+                    <p className="mt-1 text-xs text-ink/50">
                       {new Date(f.created_at).toLocaleString("en-PH", { dateStyle: "medium", timeStyle: "short" })}
                       {f.page && ` · on ${f.page}`}
                       {f.email ? ` · ${f.email}` : " · anonymous"}
@@ -58,7 +58,7 @@ export default function AdminFeedback() {
                       <Check className="h-4 w-4" /> <span className="hidden sm:inline">Handled</span>
                     </button>
                   ) : (
-                    <button onClick={() => setStatus(f.id, "new")} className="grid h-9 w-9 shrink-0 place-items-center rounded-full text-midnight/40 hover:bg-cream" aria-label="Move back to new">
+                    <button onClick={() => setStatus(f.id, "new")} className="grid h-9 w-9 shrink-0 place-items-center rounded-full text-ink/40 hover:bg-ink/[0.03]" aria-label="Move back to new">
                       <RotateCcw className="h-4 w-4" />
                     </button>
                   )}

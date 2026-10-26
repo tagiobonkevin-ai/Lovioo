@@ -60,7 +60,7 @@ export default function AdminOverview() {
       <PageHeader title="Overview" sub="How Lovioo is doing across products, stores and shoppers.">
         <div className="flex rounded-full bg-white p-1 shadow-sm">
           {RANGES.map((r) => (
-            <button key={r} onClick={() => setDays(r)} className={cn("rounded-full px-3.5 py-1.5 text-xs font-semibold", days === r ? "bg-pink text-white" : "text-midnight/60")}>
+            <button key={r} onClick={() => setDays(r)} className={cn("rounded-full px-3.5 py-1.5 text-xs font-semibold", days === r ? "bg-pink text-white" : "text-ink/60")}>
               Last {r} days
             </button>
           ))}
@@ -86,7 +86,7 @@ export default function AdminOverview() {
           </div>
 
           <div className="grid gap-6 xl:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
-            <Panel title="Price trend" action={<span className="text-xs text-midnight/50">Index by store · 100 = each item&apos;s average</span>}>
+            <Panel title="Price trend" action={<span className="text-xs text-ink/50">Index by store · 100 = each item&apos;s average</span>}>
               {trend.rows.length ? (
                 <div className="h-72">
                   <ResponsiveContainer width="100%" height="100%">
@@ -103,7 +103,7 @@ export default function AdminOverview() {
                   </ResponsiveContainer>
                 </div>
               ) : (
-                <p className="text-sm text-midnight/50">No price history in this period.</p>
+                <p className="text-sm text-ink/50">No price history in this period.</p>
               )}
             </Panel>
 
@@ -117,7 +117,7 @@ export default function AdminOverview() {
                         <span>
                           {cat.emoji} {cat.name}
                         </span>
-                        <span className="text-xs text-midnight/50">{c.score} pts</span>
+                        <span className="text-xs text-ink/50">{c.score} pts</span>
                       </div>
                       <div className="mt-1 h-2 overflow-hidden rounded-full bg-blush">
                         <div className="h-full rounded-full bg-brand" style={{ width: `${(c.score / maxCat) * 100}%` }} />
@@ -126,14 +126,14 @@ export default function AdminOverview() {
                   );
                 })}
               </ul>
-              <p className="mt-4 text-[11px] text-midnight/40">Views plus 3 points per save.</p>
+              <p className="mt-4 text-[11px] text-ink/40">Views plus 3 points per save.</p>
             </Panel>
           </div>
 
           <Panel title="Top products" action={<Link href="/admin/products" className="text-xs font-semibold text-pink">View all</Link>}>
             <div className="overflow-x-auto">
               <table className="w-full min-w-[520px] text-sm">
-                <thead className="text-left text-xs uppercase tracking-wider text-midnight/50">
+                <thead className="text-left text-xs uppercase tracking-wider text-ink/50">
                   <tr>
                     <th className="pb-2 font-semibold">#</th>
                     <th className="pb-2 font-semibold">Product</th>
@@ -145,8 +145,8 @@ export default function AdminOverview() {
                 </thead>
                 <tbody>
                   {data.top_products.map((p, i) => (
-                    <tr key={p.id} className="border-t border-line/70">
-                      <td className="py-2.5 text-midnight/50">{i + 1}</td>
+                    <tr key={p.id} className="border-t border-ink/10">
+                      <td className="py-2.5 text-ink/50">{i + 1}</td>
                       <td className="py-2.5 font-medium">
                         <span className="mr-2">{p.emoji}</span>
                         {p.name}
@@ -174,14 +174,14 @@ export default function AdminOverview() {
 function Stat({ icon: Icon, label, value, sub }: { icon: React.ElementType; label: string; value: number; sub: string }) {
   return (
     <div className="rounded-3xl bg-white p-4 shadow-soft sm:p-5">
-      <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-midnight/50">
+      <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-ink/50">
         <span className="grid h-7 w-7 place-items-center rounded-xl bg-pink/10 text-pink">
           <Icon className="h-3.5 w-3.5" />
         </span>
         {label}
       </div>
-      <p className="mt-3 text-2xl font-extrabold sm:text-3xl">{compact(value)}</p>
-      <p className="mt-0.5 text-xs text-midnight/50">{sub}</p>
+      <p className="mt-3 text-[24px] leading-[1.45] sm:text-3xl">{compact(value)}</p>
+      <p className="mt-0.5 text-xs text-ink/50">{sub}</p>
     </div>
   );
 }

@@ -27,8 +27,8 @@ export function AppHeader() {
   const [q, setQ] = useState("");
 
   return (
-    <header className="sticky top-0 z-40 border-b border-white/60 bg-cream/80 backdrop-blur-xl">
-      <div className="mx-auto flex h-16 max-w-7xl items-center gap-4 px-4 lg:px-6">
+    <header className="sticky top-0 z-40 border-b border-ink/10 bg-white/90 backdrop-blur-xl">
+      <div className="mx-auto flex h-16 max-w-[1248px] items-center gap-4 px-4 lg:px-6">
         <Link href="/discover" aria-label="Lovioo home">
           <Logo />
         </Link>
@@ -40,8 +40,8 @@ export function AppHeader() {
                 key={n.label}
                 href={n.href}
                 className={cn(
-                  "rounded-full px-3.5 py-2 text-sm font-medium transition",
-                  active ? "bg-pink/10 text-pink" : "text-midnight/70 hover:text-pink",
+                  "rounded-full px-3.5 py-2 text-sm transition",
+                  active ? "bg-pink/[0.07] font-medium text-pink" : "text-ink/60 hover:text-ink",
                 )}
               >
                 {n.label}
@@ -59,12 +59,12 @@ export function AppHeader() {
           }}
         >
           <label className="relative block">
-            <Search className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-midnight/40" />
+            <Search className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-ink/40" />
             <input
               value={q}
               onChange={(e) => setQ(e.target.value)}
               placeholder="Search products, brands or stores"
-              className="w-full rounded-full border border-line bg-white py-2 pl-10 pr-4 text-sm outline-none focus:border-pink"
+              className="w-full rounded-full border border-ink/15 bg-white py-2 pl-10 pr-4 text-sm outline-none transition focus:border-ink/40"
             />
           </label>
         </form>

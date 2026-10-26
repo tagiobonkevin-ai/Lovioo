@@ -27,7 +27,7 @@ export function DealScoreRing({ score, size = 56, label = true, className }: { s
       </svg>
       <span className="absolute text-center leading-none">
         <span className="block text-sm font-bold">{score}</span>
-        {label && <span className="block text-[8px] uppercase tracking-wide text-midnight/50">deal</span>}
+        {label && <span className="block text-[8px] uppercase tracking-wide text-ink/50">deal</span>}
       </span>
     </div>
   );

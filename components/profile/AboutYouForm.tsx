@@ -11,7 +11,7 @@ import { getSupabase } from "@/lib/supabase/client";
 import { cn } from "@/lib/utils";
 
 const MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-const field = "w-full rounded-2xl border border-line bg-white px-4 py-3 text-sm outline-none transition focus:border-pink focus:ring-4 focus:ring-pink/10";
+const field = "w-full rounded-2xl border border-ink/15 bg-white px-4 py-3 text-sm outline-none transition focus:border-pink focus:ring-4 focus:ring-pink/10";
 const label = "mb-1.5 block text-sm font-medium";
 
 /**
@@ -98,7 +98,7 @@ export function AboutYouForm({ submitLabel, onSaved, compact }: { submitLabel: s
           Full name <span className="text-pink">*</span>
         </span>
         <input
-          className={cn(field, nameLocked && "cursor-not-allowed bg-cream text-midnight/60")}
+          className={cn(field, nameLocked && "cursor-not-allowed bg-ink/[0.03] text-ink/60")}
           value={about.fullName}
           onChange={(e) => set("fullName", e.target.value)}
           autoComplete="name"
@@ -108,7 +108,7 @@ export function AboutYouForm({ submitLabel, onSaved, compact }: { submitLabel: s
           aria-readonly={nameLocked || undefined}
         />
         {nameLocked && (
-          <span className="mt-1.5 flex flex-wrap items-center gap-x-1 gap-y-0.5 text-[11px] leading-snug text-midnight/55">
+          <span className="mt-1.5 flex flex-wrap items-center gap-x-1 gap-y-0.5 text-[11px] leading-snug text-ink/55">
             <Lock className="h-3 w-3 shrink-0" aria-hidden />
             Your name has been approved by the Lovioo team, so it can&apos;t be changed here. Email
             <a href={`mailto:${CONTACT_EMAIL}`} className="font-semibold text-pink">
@@ -149,14 +149,14 @@ export function AboutYouForm({ submitLabel, onSaved, compact }: { submitLabel: s
             ))}
           </select>
         </div>
-        <p className="mt-1.5 text-[11px] text-midnight/45">
+        <p className="mt-1.5 text-[11px] text-ink/45">
           Lovioo is for adults {MIN_AGE}+. We only use your birthday to confirm that, and it&apos;s never shown to anyone.
         </p>
       </fieldset>
 
       <fieldset>
         <legend className={label}>
-          Gender <span className="font-normal text-midnight/40">(optional)</span>
+          Gender <span className="font-normal text-ink/40">(optional)</span>
         </legend>
         <div className="flex flex-wrap gap-2">
           {GENDERS.map((g) => (
@@ -176,7 +176,7 @@ export function AboutYouForm({ submitLabel, onSaved, compact }: { submitLabel: s
       <div className={cn("grid gap-3", !compact && "sm:grid-cols-2")}>
         <label className="block">
           <span className={label}>
-            Province <span className="font-normal text-midnight/40">(optional)</span>
+            Province <span className="font-normal text-ink/40">(optional)</span>
           </span>
           <select className={field} value={about.province} onChange={(e) => set("province", e.target.value)}>
             <option value="">Choose your province</option>
@@ -189,12 +189,12 @@ export function AboutYouForm({ submitLabel, onSaved, compact }: { submitLabel: s
         </label>
         <label className="block">
           <span className={label}>
-            City / municipality <span className="font-normal text-midnight/40">(optional)</span>
+            City / municipality <span className="font-normal text-ink/40">(optional)</span>
           </span>
           <input className={field} value={about.city} onChange={(e) => set("city", e.target.value)} maxLength={80} placeholder="e.g. Quezon City" autoComplete="address-level2" />
         </label>
       </div>
-      <p className="text-[11px] text-midnight/45">
+      <p className="text-[11px] text-ink/45">
         Gender and location help us pick styles and deals that suit you. See our <Link href="/privacy#collect" className="font-semibold text-pink">Privacy Policy</Link>.
       </p>
 

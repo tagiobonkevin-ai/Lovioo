@@ -18,7 +18,7 @@ const Doc = ({ href, children }: { href: string; children: React.ReactNode }) =>
   <Link
     href={href}
     target="_blank"
-    className="inline-flex items-baseline gap-0.5 font-medium text-midnight underline decoration-midnight/30 decoration-dotted underline-offset-4 hover:text-pink hover:decoration-pink"
+    className="inline-flex items-baseline gap-0.5 font-medium text-ink underline decoration-midnight/30 decoration-dotted underline-offset-4 hover:text-pink hover:decoration-pink"
   >
     {children}
     <ArrowUpRight className="h-3 w-3 shrink-0 self-center" aria-label="(opens in a new tab)" />
@@ -54,7 +54,7 @@ export function ConsentChecks({ value, onChange, showErrors }: { value: ConsentC
       {ITEMS.map(({ key, tag, body }) => {
         const missing = showErrors && !value[key];
         return (
-          <label key={key} className="flex cursor-pointer items-start gap-3 text-[13px] leading-snug text-midnight/80">
+          <label key={key} className="flex cursor-pointer items-start gap-3 text-[13px] leading-snug text-ink/80">
             <input
               type="checkbox"
               className="peer sr-only"
@@ -67,13 +67,13 @@ export function ConsentChecks({ value, onChange, showErrors }: { value: ConsentC
               aria-hidden
               className={cn(
                 "mt-px grid h-6 w-6 shrink-0 place-items-center rounded-full border-2 bg-white transition peer-focus-visible:ring-4 peer-focus-visible:ring-pink/20",
-                value[key] ? "border-pink bg-pink text-white" : missing ? "border-coral" : "border-line",
+                value[key] ? "border-pink bg-pink text-white" : missing ? "border-coral" : "border-ink/15",
               )}
             >
               {value[key] && <Check className="h-3.5 w-3.5" strokeWidth={3} />}
             </span>
             <span>
-              <b className="font-semibold text-midnight">{tag}</b> {body}
+              <b className="font-semibold text-ink">{tag}</b> {body}
             </span>
           </label>
         );

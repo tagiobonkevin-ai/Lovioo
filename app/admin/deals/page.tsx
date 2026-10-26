@@ -72,7 +72,7 @@ export default function AdminDeals() {
 
       {catalog.data && tab === "deals" && (
         <Panel>
-          <ul className="divide-y divide-line/70">
+          <ul className="divide-y divide-ink/10/70">
             {deals.slice(0, 30).map(({ p, i }) => (
               <li key={p.id} className="flex flex-wrap items-center gap-4 py-3">
                 <DealScoreRing score={i.dealScore} size={48} />
@@ -80,7 +80,7 @@ export default function AdminDeals() {
                   <Link href={`/admin/products/${p.id}`} className="font-semibold hover:text-pink">
                     {p.emoji} {p.name}
                   </Link>
-                  <p className="text-xs text-midnight/50">{i.headline} · 90-day low {peso(i.lowest90)} · avg {peso(i.avg90)}</p>
+                  <p className="text-xs text-ink/50">{i.headline} · 90-day low {peso(i.lowest90)} · avg {peso(i.avg90)}</p>
                 </div>
                 <span className="flex items-center gap-2 text-sm font-bold">
                   <RetailerBadge id={i.bestOffer.retailer} size="xs" /> {peso(i.bestOffer.price)}
@@ -94,10 +94,10 @@ export default function AdminDeals() {
       {catalog.data && tab === "alerts" && (
         <Panel>
           {alertRows.length === 0 ? (
-            <p className="text-sm text-midnight/50">No shopper has set a price alert yet.</p>
+            <p className="text-sm text-ink/50">No shopper has set a price alert yet.</p>
           ) : (
             <table className="w-full text-sm">
-              <thead className="text-left text-xs uppercase tracking-wider text-midnight/50">
+              <thead className="text-left text-xs uppercase tracking-wider text-ink/50">
                 <tr>
                   <th className="pb-3 font-semibold">Product</th>
                   <th className="pb-3 text-right font-semibold">Best price</th>
@@ -107,7 +107,7 @@ export default function AdminDeals() {
               </thead>
               <tbody>
                 {alertRows.map((r) => (
-                  <tr key={r.p!.id} className="border-t border-line/70">
+                  <tr key={r.p!.id} className="border-t border-ink/10">
                     <td className="py-2.5 font-medium">
                       {r.p!.emoji} {r.p!.name}
                     </td>
@@ -121,7 +121,7 @@ export default function AdminDeals() {
                           <BellRing className="h-3 w-3" /> {r.triggered}
                         </span>
                       ) : (
-                        <span className="text-midnight/40">0</span>
+                        <span className="text-ink/40">0</span>
                       )}
                     </td>
                   </tr>
@@ -129,7 +129,7 @@ export default function AdminDeals() {
               </tbody>
             </table>
           )}
-          <p className="mt-4 text-[11px] text-midnight/40">Sending the actual push/email notifications isn&apos;t set up yet — this shows who would be notified.</p>
+          <p className="mt-4 text-[11px] text-ink/40">Sending the actual push/email notifications isn&apos;t set up yet — this shows who would be notified.</p>
         </Panel>
       )}
     </div>

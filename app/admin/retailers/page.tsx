@@ -66,11 +66,11 @@ export default function AdminRetailers() {
                   </span>
                   <div className="min-w-0 flex-1">
                     <p className="font-bold">{r.name}</p>
-                    <p className="text-xs text-midnight/50">
+                    <p className="text-xs text-ink/50">
                       {r.id} · {offerCount(r.id)} offers
                     </p>
                   </div>
-                  <span className="flex items-center gap-2 text-xs text-midnight/60">
+                  <span className="flex items-center gap-2 text-xs text-ink/60">
                     {r.active ? "Online" : "Off"}
                     <Toggle
                       on={r.active}
@@ -90,10 +90,10 @@ export default function AdminRetailers() {
                     <input className={adminInput} maxLength={3} value={r.short} onChange={(e) => patch(r.id, { short: e.target.value })} />
                   </Field>
                   <Field label="Badge colour">
-                    <input type="color" className="h-10 w-full cursor-pointer rounded-xl border border-line bg-white" value={r.color} onChange={(e) => patch(r.id, { color: e.target.value })} />
+                    <input type="color" className="h-10 w-full cursor-pointer rounded-xl border border-ink/15 bg-white" value={r.color} onChange={(e) => patch(r.id, { color: e.target.value })} />
                   </Field>
                   <Field label="Text colour">
-                    <input type="color" className="h-10 w-full cursor-pointer rounded-xl border border-line bg-white" value={toHex(r.text_color)} onChange={(e) => patch(r.id, { text_color: e.target.value })} />
+                    <input type="color" className="h-10 w-full cursor-pointer rounded-xl border border-ink/15 bg-white" value={toHex(r.text_color)} onChange={(e) => patch(r.id, { text_color: e.target.value })} />
                   </Field>
                   <Field label="Homepage" className="col-span-2">
                     <input className={cn(adminInput, linkError("", r.homepage) && "!border-coral")} value={r.homepage ?? ""} onChange={(e) => patch(r.id, { homepage: e.target.value })} placeholder="https://…" />
@@ -119,7 +119,7 @@ export default function AdminRetailers() {
                 <input className={adminInput} value={draft.name} onChange={(e) => setDraft({ ...draft, name: e.target.value })} />
               </Field>
               <Field label="Colour">
-                <input type="color" className="h-10 w-full rounded-xl border border-line" value={draft.color} onChange={(e) => setDraft({ ...draft, color: e.target.value })} />
+                <input type="color" className="h-10 w-full rounded-xl border border-ink/15" value={draft.color} onChange={(e) => setDraft({ ...draft, color: e.target.value })} />
               </Field>
               <Field label="Homepage">
                 <input className={adminInput} value={draft.homepage} onChange={(e) => setDraft({ ...draft, homepage: e.target.value })} placeholder="https://" />

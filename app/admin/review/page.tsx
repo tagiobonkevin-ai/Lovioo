@@ -92,13 +92,13 @@ export default function ReviewQueue() {
         <div className="space-y-8">
           {total === 0 && (
             <Panel>
-              <p className="py-6 text-center text-sm text-midnight/60">🎉 All caught up — nothing waiting for review.</p>
+              <p className="py-6 text-center text-sm text-ink/60">🎉 All caught up — nothing waiting for review.</p>
             </Panel>
           )}
 
           {drafts.data.length > 0 && (
             <section>
-              <h2 className="mb-3 text-sm font-bold uppercase tracking-wider text-midnight/50">Drafts ready to publish · {drafts.data.length}</h2>
+              <h2 className="mb-3 text-sm font-bold uppercase tracking-wider text-ink/50">Drafts ready to publish · {drafts.data.length}</h2>
               <ul className="space-y-3">
                 {drafts.data.map((p) => (
                   <li key={p.id}>
@@ -106,7 +106,7 @@ export default function ReviewQueue() {
                       <Thumb image={p.image} emoji={p.emoji} />
                       <div className="min-w-0 flex-1">
                         <p className="truncate font-bold">{p.name}</p>
-                        <p className="text-xs text-midnight/50">
+                        <p className="text-xs text-ink/50">
                           {p.brand} · {p.offers.length} store
                           {p.offers.length === 1 ? "" : "s"} · submitted by {who(p.review_requested_by)}
                           {p.review_requested_at ? ` · ${shortDate(p.review_requested_at)}` : ""}
@@ -128,7 +128,7 @@ export default function ReviewQueue() {
 
           {changes.data.length > 0 && (
             <section>
-              <h2 className="mb-3 text-sm font-bold uppercase tracking-wider text-midnight/50">Changes to live products · {changes.data.length}</h2>
+              <h2 className="mb-3 text-sm font-bold uppercase tracking-wider text-ink/50">Changes to live products · {changes.data.length}</h2>
               <ul className="space-y-4">
                 {changes.data.map((r) => {
                   const c = asChangeSet(r.changes);
@@ -140,10 +140,10 @@ export default function ReviewQueue() {
                           <Thumb image={p?.image ?? ""} emoji={p?.emoji ?? "🛍️"} />
                           <div className="min-w-0 flex-1">
                             <p className="truncate font-bold">{p?.name ?? r.product_id}</p>
-                            <p className="text-xs text-midnight/50">
+                            <p className="text-xs text-ink/50">
                               {r.requested_by_email ?? "An editor"} · {shortDate(r.created_at)} · {changeLabels(c, storeName).join(", ")}
                             </p>
-                            {r.note && <p className="mt-2 rounded-xl bg-lavender px-3 py-2 text-xs text-midnight/80">“{r.note}”</p>}
+                            {r.note && <p className="mt-2 rounded-xl bg-lavender px-3 py-2 text-xs text-ink/80">“{r.note}”</p>}
                           </div>
                           {p && (
                             <Link href={`/product/${p.slug}`} target="_blank" className="btn-ghost !py-2 text-xs">
@@ -152,7 +152,7 @@ export default function ReviewQueue() {
                           )}
                         </div>
 
-                        <dl className="mt-4 divide-y divide-line/70 rounded-2xl border border-line">
+                        <dl className="mt-4 divide-y divide-ink/10/70 rounded-2xl border border-ink/15">
                           {Object.entries(c.product ?? {}).map(([k, after]) => (
                             <Diff
                               key={k}
@@ -219,9 +219,9 @@ export default function ReviewQueue() {
 
           {recent.data && recent.data.length > 0 && (
             <section>
-              <h2 className="mb-3 text-sm font-bold uppercase tracking-wider text-midnight/50">Recently reviewed</h2>
+              <h2 className="mb-3 text-sm font-bold uppercase tracking-wider text-ink/50">Recently reviewed</h2>
               <Panel>
-                <ul className="divide-y divide-line/70 text-sm">
+                <ul className="divide-y divide-ink/10/70 text-sm">
                   {recent.data.map((r) => (
                     <li key={r.id} className="flex flex-wrap items-center gap-x-3 gap-y-1 py-2">
                       <span
@@ -236,7 +236,7 @@ export default function ReviewQueue() {
                         <b>{r.products?.name ?? "Deleted product"}</b> · {changeLabels(asChangeSet(r.changes), storeName).join(", ")}
                         {r.review_note ? ` · “${r.review_note}”` : ""}
                       </span>
-                      <span className="text-xs text-midnight/50">
+                      <span className="text-xs text-ink/50">
                         {r.requested_by_email ?? "editor"} → {r.reviewed_by_email ?? "admin"}
                         {r.reviewed_at ? ` · ${shortDate(r.reviewed_at)}` : ""}
                       </span>
@@ -273,18 +273,18 @@ function Diff({ label, field, before, after }: { label: string; field: string; b
   const isImage = field === "image";
   return (
     <div className="grid gap-2 p-3 text-sm sm:grid-cols-[130px_minmax(0,1fr)_minmax(0,1fr)]">
-      <dt className="text-xs font-semibold uppercase tracking-wider text-midnight/50">{label}</dt>
+      <dt className="text-xs font-semibold uppercase tracking-wider text-ink/50">{label}</dt>
       {(["Now", "Proposed"] as const).map((tag, i) => {
         const v = i === 0 ? before : after;
         return (
-          <dd key={tag} className={cn("min-w-0 rounded-xl px-3 py-2", i === 0 ? "bg-midnight/[0.04] text-midnight/60" : "bg-pink/5 text-midnight")}>
-            <span className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-midnight/40">{tag}</span>
+          <dd key={tag} className={cn("min-w-0 rounded-xl px-3 py-2", i === 0 ? "bg-midnight/[0.04] text-ink/60" : "bg-pink/5 text-ink")}>
+            <span className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-ink/40">{tag}</span>
             {isImage && typeof v === "string" && v ? (
               <img src={v} alt="" className="aspect-square w-full max-w-[160px] rounded-lg bg-blush object-cover" />
             ) : (
               <span className="block whitespace-pre-wrap break-words">{show(field, v)}</span>
             )}
-            {(isImage || field === "url") && typeof v === "string" && v && <span className="mt-1 block truncate text-[11px] text-midnight/40">{v}</span>}
+            {(isImage || field === "url") && typeof v === "string" && v && <span className="mt-1 block truncate text-[11px] text-ink/40">{v}</span>}
           </dd>
         );
       })}

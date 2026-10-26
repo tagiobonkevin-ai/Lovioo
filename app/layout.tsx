@@ -1,8 +1,10 @@
 import type { Metadata, Viewport } from "next";
 import { Poppins } from "next/font/google";
+import { display, ui } from "@/app/fonts";
 import { Providers } from "@/components/Providers";
 import { ConsentedAnalytics } from "@/components/legal/ConsentSheet";
 import { SITE_URL } from "@/lib/site";
+import { cn } from "@/lib/utils";
 import { loadCatalog } from "@/lib/data/load-catalog";
 import "./globals.css";
 
@@ -41,7 +43,7 @@ export const revalidate = 60;
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const catalog = await loadCatalog();
   return (
-    <html lang="en" className={poppins.variable}>
+    <html lang="en" className={cn(poppins.variable, display.variable, ui.variable)}>
       <body className="font-sans">
         <Providers catalog={catalog.source === "supabase" ? catalog : null}>{children}</Providers>
         <ConsentedAnalytics />

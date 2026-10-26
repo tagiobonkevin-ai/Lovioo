@@ -78,7 +78,7 @@ export default function AffiliateDisclosurePage() {
         },
       ]}
     >
-      <p className="text-center text-sm font-semibold text-midnight/50">Lovioo — Swipe. Love. Shop.</p>
+      <p className="text-center text-sm font-semibold text-ink/50">Lovioo — Swipe. Love. Shop.</p>
     </LegalPage>
   );
 }

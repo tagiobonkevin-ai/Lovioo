@@ -21,7 +21,7 @@ export function RetailerStack({ ids, max = 4 }: { ids: RetailerId[]; max?: numbe
       {ids.slice(0, max).map((id) => (
         <RetailerBadge key={id} id={id} size="xs" />
       ))}
-      {ids.length > max && <span className="text-[10px] text-midnight/50">+{ids.length - max}</span>}
+      {ids.length > max && <span className="text-[10px] text-ink/50">+{ids.length - max}</span>}
     </span>
   );
 }

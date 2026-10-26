@@ -25,16 +25,16 @@ export function PriceHistoryChart({ product }: { product: Product }) {
   const storeData = useMemo(() => history.byStore.slice(-range), [history.byStore, range]);
   const prices = data.map((d) => d.price);
 
-  if (history.status === "loading") return <div className="h-80 animate-pulse rounded-3xl bg-cream" aria-label="Loading price history" />;
+  if (history.status === "loading") return <div className="h-80 animate-pulse rounded-3xl bg-ink/[0.03]" aria-label="Loading price history" />;
   if (history.status === "error") return <p className="rounded-2xl bg-coral/10 p-4 text-sm text-coral">Couldn&apos;t load price history: {history.error}</p>;
-  if (!prices.length) return <p className="rounded-2xl bg-cream p-4 text-sm text-midnight/60">No price history yet — it builds up as prices are tracked.</p>;
+  if (!prices.length) return <p className="rounded-2xl bg-ink/[0.03] p-4 text-sm text-ink/60">No price history yet — it builds up as prices are tracked.</p>;
 
   return (
     <div>
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex gap-1 rounded-full bg-blush p-1">
           {(["lowest", "stores"] as const).map((m) => (
-            <button key={m} onClick={() => setMode(m)} className={cn("rounded-full px-3 py-1.5 text-xs font-semibold", mode === m ? "bg-white text-pink shadow-sm" : "text-midnight/60")}>
+            <button key={m} onClick={() => setMode(m)} className={cn("rounded-full px-3 py-1.5 text-xs font-semibold", mode === m ? "bg-white text-pink shadow-sm" : "text-ink/60")}>
               {m === "lowest" ? "Lowest price" : "By store"}
             </button>
           ))}
@@ -92,15 +92,15 @@ export function PriceHistoryChart({ product }: { product: Product }) {
           ))}
         </div>
       )}
-      <p className="mt-3 text-xs text-midnight/50">90-day low {peso(insight.lowest90)} · average {peso(insight.avg90)}. {isSupabaseConfigured ? "Updated whenever a store price changes." : "Illustrative demo history."}</p>
+      <p className="mt-3 text-xs text-ink/50">90-day low {peso(insight.lowest90)} · average {peso(insight.avg90)}. {isSupabaseConfigured ? "Updated whenever a store price changes." : "Illustrative demo history."}</p>
     </div>
   );
 }
 
 function Stat({ label, value, tone }: { label: string; value: string; tone?: string }) {
   return (
-    <div className="rounded-2xl bg-cream p-3">
-      <p className="text-[11px] uppercase tracking-wider text-midnight/50">{label}</p>
+    <div className="rounded-2xl bg-ink/[0.03] p-3">
+      <p className="text-[11px] uppercase tracking-wider text-ink/50">{label}</p>
       <p className={cn("text-sm font-bold sm:text-base", tone)}>{value}</p>
     </div>
   );

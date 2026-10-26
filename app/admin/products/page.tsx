@@ -61,7 +61,7 @@ export default function AdminProducts() {
       <Panel>
         <div className="mb-4 flex flex-wrap gap-2">
           <label className="relative min-w-[200px] flex-1">
-            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-midnight/40" />
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-ink/40" />
             <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search products…" className={cn(adminInput, "pl-9")} />
           </label>
           <select value={cat} onChange={(e) => setCat(e.target.value)} className={cn(adminInput, "!w-auto")} aria-label="Category">
@@ -87,7 +87,7 @@ export default function AdminProducts() {
         {data && (
           <div className="overflow-x-auto">
             <table className="w-full min-w-[760px] text-sm">
-              <thead className="text-left text-xs uppercase tracking-wider text-midnight/50">
+              <thead className="text-left text-xs uppercase tracking-wider text-ink/50">
                 <tr>
                   <th className="pb-3 font-semibold">Product</th>
                   <th className="pb-3 font-semibold">Category</th>
@@ -100,7 +100,7 @@ export default function AdminProducts() {
                 {rows.map((p) => {
                   const lowest = p.offers.length ? Math.min(...p.offers.map((o) => o.price)) : null;
                   return (
-                    <tr key={p.id} className="border-t border-line/70 hover:bg-cream/60">
+                    <tr key={p.id} className="border-t border-ink/10 hover:bg-ink/[0.03]/60">
                       <td className="py-2.5">
                         <Link href={`/admin/products/${p.id}`} className="flex items-center gap-3">
                           <span className="grid h-10 w-10 shrink-0 place-items-center overflow-hidden rounded-xl text-xl" style={{ background: categoryById(p.category_id).tint }}>
@@ -108,7 +108,7 @@ export default function AdminProducts() {
                           </span>
                           <span className="min-w-0">
                             <span className="block truncate font-semibold hover:text-pink">{p.name}</span>
-                            <span className="text-xs text-midnight/50">
+                            <span className="text-xs text-ink/50">
                               {p.brand}
                               {p.trending && " · 🔥 trending"}
                               {p.offers.some((o) => isPlaceholderUrl(o.url)) && <span className="ml-1 rounded-full bg-sunset/20 px-1.5 py-0.5 text-[10px] font-semibold text-[#B86E00]">needs link</span>}
@@ -118,7 +118,7 @@ export default function AdminProducts() {
                           </span>
                         </Link>
                       </td>
-                      <td className="py-2.5 text-midnight/70">{categoryById(p.category_id).name}</td>
+                      <td className="py-2.5 text-ink/70">{categoryById(p.category_id).name}</td>
                       <td className="py-2.5">
                         <span className="flex gap-1">
                           {p.offers.map((o) => (
@@ -135,7 +135,7 @@ export default function AdminProducts() {
                           {canPublish ? (
                             <Toggle on={p.published} onChange={() => togglePublished(p.id, !p.published)} label={`Publish ${p.name}`} />
                           ) : (
-                            <span className={cn("rounded-full px-2 py-0.5 text-[11px] font-semibold", p.published ? "bg-emerald-50 text-emerald-600" : "bg-line text-midnight/60")}>
+                            <span className={cn("rounded-full px-2 py-0.5 text-[11px] font-semibold", p.published ? "bg-emerald-50 text-emerald-600" : "bg-line text-ink/60")}>
                               {p.published ? "Live" : "Draft"}
                             </span>
                           )}
@@ -146,7 +146,7 @@ export default function AdminProducts() {
                 })}
               </tbody>
             </table>
-            {rows.length === 0 && <p className="py-8 text-center text-sm text-midnight/50">No products match.</p>}
+            {rows.length === 0 && <p className="py-8 text-center text-sm text-ink/50">No products match.</p>}
           </div>
         )}
       </Panel>

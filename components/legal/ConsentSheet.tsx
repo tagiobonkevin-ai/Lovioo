@@ -45,11 +45,11 @@ export function ConsentSheet() {
             animate={{ y: 0 }}
             className="max-h-[92dvh] w-full max-w-md overflow-y-auto rounded-t-3xl bg-white p-6 pb-[calc(1.5rem+env(safe-area-inset-bottom))] shadow-2xl sm:rounded-3xl"
           >
-            <h2 id="consent-title" className="text-center text-xl font-extrabold">
+            <h2 id="consent-title" className="text-center text-[20px] leading-[1.5]">
               Welcome to Lovioo 💗
             </h2>
-            <p className="mt-1 text-center text-sm text-midnight/60">Before you continue, please review and accept our terms.</p>
-            <hr className="my-5 border-line" />
+            <p className="mt-1 text-center text-sm text-ink/60">Before you continue, please review and accept our terms.</p>
+            <hr className="my-5 border-ink/15" />
             <ConsentChecks value={choices} onChange={setChoices} showErrors={tried} />
             {tried && missing && <p className="mt-3 text-xs font-medium text-coral">{missing}</p>}
             <button onClick={accept} disabled={busy} className="btn-primary mt-5 w-full !py-3" aria-disabled={!!missing}>
@@ -61,7 +61,7 @@ export function ConsentSheet() {
                 signOut();
                 useConsent.setState({ needsSheet: false });
               }}
-              className="mt-3 w-full text-center text-xs font-semibold text-midnight/50 hover:text-pink"
+              className="mt-3 w-full text-center text-xs font-semibold text-ink/50 hover:text-pink"
             >
               Sign out instead
             </button>

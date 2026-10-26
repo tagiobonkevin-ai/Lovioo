@@ -65,13 +65,13 @@ export default function TeamAndRoles() {
                 (group) =>
                   group.rows.length > 0 && (
                     <div key={group.title} className="mb-4">
-                      <p className="mb-1 text-xs font-semibold uppercase tracking-wider text-midnight/50">
+                      <p className="mb-1 text-xs font-semibold uppercase tracking-wider text-ink/50">
                         {group.title} · {group.rows.length}
                       </p>
-                      <ul className="divide-y divide-line/70">
+                      <ul className="divide-y divide-ink/10/70">
                         {group.rows.map((p) => (
                           <li key={p.id} className="flex flex-wrap items-center gap-3 py-3">
-                            <span className={cn("grid h-9 w-9 place-items-center rounded-full", p.role === "customer" ? "bg-line text-midnight/50" : "bg-pink/10 text-pink")}>
+                            <span className={cn("grid h-9 w-9 place-items-center rounded-full", p.role === "customer" ? "bg-line text-ink/50" : "bg-pink/10 text-pink")}>
                               <ShieldCheck className="h-4 w-4" />
                             </span>
                             <span className="min-w-0 flex-1 text-sm">
@@ -79,7 +79,7 @@ export default function TeamAndRoles() {
                                 {p.email}
                                 {p.id === me && <span className="ml-2 rounded-full bg-lavender px-2 py-0.5 text-[10px] font-semibold">You</span>}
                               </span>
-                              <span className="block text-xs text-midnight/50">
+                              <span className="block text-xs text-ink/50">
                                 {p.full_name} · joined {fmt(p.created_at)}
                                 {!p.email_confirmed && <span className="ml-1 text-coral">· email not confirmed (role inactive until it is)</span>}
                               </span>
@@ -106,8 +106,8 @@ export default function TeamAndRoles() {
                     </div>
                   ),
               )}
-              {people.length === 0 && <p className="py-6 text-center text-sm text-midnight/50">No one matches.</p>}
-              <p className="mt-2 text-[11px] text-midnight/40">
+              {people.length === 0 && <p className="py-6 text-center text-sm text-ink/50">No one matches.</p>}
+              <p className="mt-2 text-[11px] text-ink/40">
                 To add someone, ask them to create a Lovioo account and confirm their email, then give them a role here. Lovioo always keeps at least one super admin.
               </p>
             </>
@@ -120,19 +120,19 @@ export default function TeamAndRoles() {
               {ROLES.map((r) => (
                 <li key={r}>
                   <span className="font-semibold">{ROLE_LABELS[r]}</span>
-                  <span className="block text-xs text-midnight/60">{ROLE_HELP[r]}</span>
+                  <span className="block text-xs text-ink/60">{ROLE_HELP[r]}</span>
                 </li>
               ))}
             </ul>
           </Panel>
-          <Panel title="Role changes" action={<History className="h-4 w-4 text-midnight/40" />}>
+          <Panel title="Role changes" action={<History className="h-4 w-4 text-ink/40" />}>
             {log.error && <ErrorNote message={log.error} />}
-            {log.data && log.data.length === 0 && <p className="text-sm text-midnight/50">No role changes yet.</p>}
+            {log.data && log.data.length === 0 && <p className="text-sm text-ink/50">No role changes yet.</p>}
             <ul className="space-y-2 text-xs">
               {log.data?.map((c) => (
-                <li key={c.id} className="rounded-xl bg-cream p-2.5">
+                <li key={c.id} className="rounded-xl bg-ink/[0.03] p-2.5">
                   <b>{c.user_email}</b>: {c.old_role ? ROLE_LABELS[c.old_role] : "—"} → {ROLE_LABELS[c.new_role]}
-                  <span className="block text-midnight/50">
+                  <span className="block text-ink/50">
                     by {c.changed_by_email ?? "system"} · {fmt(c.created_at)}
                   </span>
                 </li>
