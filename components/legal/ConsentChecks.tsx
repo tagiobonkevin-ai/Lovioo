@@ -4,14 +4,13 @@ import { ArrowUpRight, Check } from "lucide-react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 
+/** The two required agreements. Marketing emails and analytics are asked separately (Profile → Privacy choices, analytics bar). */
 export interface ConsentChoices {
   terms: boolean;
   privacy: boolean;
-  marketing: boolean;
-  analytics: boolean;
 }
 
-export const NO_CHOICES: ConsentChoices = { terms: false, privacy: false, marketing: false, analytics: false };
+export const NO_CHOICES: ConsentChoices = { terms: false, privacy: false };
 export const requiredMissing = (c: ConsentChoices) =>
   !c.terms ? "Tick the box to agree to the Terms & Conditions." : !c.privacy ? "Tick the box to confirm you've read the Privacy Policy." : null;
 
@@ -45,26 +44,15 @@ const ITEMS: { key: keyof ConsentChoices; tag: string; body: React.ReactNode }[]
       </>
     ),
   },
-  { key: "marketing", tag: "Optional:", body: "Email me Lovioo product discoveries, deals and launch updates. I can unsubscribe at any time." },
-  {
-    key: "analytics",
-    tag: "Optional, where applicable:",
-    body: (
-      <>
-        Allow non-essential analytics and advertising technologies as described in the <Doc href="/cookies">Cookie &amp; Tracking Notice</Doc>.
-      </>
-    ),
-  },
 ];
 
-/** The four sign-up consent boxes: two required, two optional, each a real checkbox styled as a circle. */
+/** The two required sign-up agreements, each a real checkbox styled as a circle. */
 export function ConsentChecks({ value, onChange, showErrors }: { value: ConsentChoices; onChange: (v: ConsentChoices) => void; showErrors?: boolean }) {
   return (
     <fieldset className="space-y-3.5">
       <legend className="sr-only">Agreements and choices</legend>
       {ITEMS.map(({ key, tag, body }) => {
-        const required = key === "terms" || key === "privacy";
-        const missing = showErrors && required && !value[key];
+        const missing = showErrors && !value[key];
         return (
           <label key={key} className="flex cursor-pointer items-start gap-3 text-[13px] leading-snug text-midnight/80">
             <input
@@ -72,7 +60,7 @@ export function ConsentChecks({ value, onChange, showErrors }: { value: ConsentC
               className="peer sr-only"
               checked={value[key]}
               onChange={(e) => onChange({ ...value, [key]: e.target.checked })}
-              aria-required={required}
+              aria-required
               aria-invalid={missing || undefined}
             />
             <span

@@ -1,10 +1,12 @@
 "use client";
 
-import { CheckCircle2, Eye, EyeOff } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check, Eye, EyeOff, Lock, Mail } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
+import { serif } from "@/app/fonts";
 import { Logo } from "@/components/brand/Logo";
+import { DriftRow, driftRows } from "@/components/landing/ProductDrift";
 import { ConsentChecks, NO_CHOICES, requiredMissing, type ConsentChoices } from "@/components/legal/ConsentChecks";
 import { LegalLinks } from "@/components/legal/LegalLinks";
 import { useConsent } from "@/lib/consent";
@@ -14,7 +16,9 @@ import { useLovioo } from "@/lib/store";
 import { getSupabase, isAuthProviderEnabled, isSupabaseConfigured } from "@/lib/supabase/client";
 import { cn } from "@/lib/utils";
 
-const PERKS = ["Discover better deals", "Compare across stores", "Save your favourites", "Get personalised picks"];
+const h = "font-[family-name:var(--font-serif)] font-normal tracking-[-0.01em]";
+const field =
+  "h-12 w-full rounded-2xl bg-white pl-11 pr-4 text-[15px] text-midnight shadow-[0_1px_0_rgba(15,39,66,0.04)] outline-none ring-1 ring-midnight/10 transition placeholder:text-midnight/35 focus:ring-2 focus:ring-pink/50";
 
 function GoogleIcon() {
   return (
@@ -31,7 +35,6 @@ function AuthForm() {
   const params = useSearchParams();
   const router = useRouter();
   const [mode, setMode] = useState<"signup" | "signin">(params.get("mode") === "signin" ? "signin" : "signup");
-  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [show, setShow] = useState(false);
@@ -41,25 +44,29 @@ function AuthForm() {
   const [choices, setChoices] = useState<ConsentChoices>(NO_CHOICES);
   const [triedConsent, setTriedConsent] = useState(false);
   const signIn = useLovioo((s) => s.signIn);
-  const missingConsent = mode === "signup" ? requiredMissing(choices) : null;
+  const signup = mode === "signup";
+  const missingConsent = signup ? requiredMissing(choices) : null;
   // Google stays visible but inactive until it's switched on in Supabase (Authentication → Providers).
   const [googleReady, setGoogleReady] = useState(true);
   useEffect(() => {
     isAuthProviderEnabled("google").then(setGoogleReady);
   }, []);
+  const [rowA, rowB] = driftRows();
 
-  /** Sign-up choices: applied on this device now, and saved to the account once it exists (see syncConsent). */
-  const rememberChoices = () => {
-    useConsent.getState().setChoices({ analytics: choices.analytics, marketing: choices.marketing });
-    useConsent.getState().setPending({ marketing: choices.marketing, analytics: choices.analytics, version: CONSENT_VERSION });
-  };
+  /** The required agreements are saved with the account once it exists (sign-up trigger, or syncConsent for Google). */
+  const rememberChoices = () => useConsent.getState().setPending({ version: CONSENT_VERSION });
   const next = safeNext(params.get("next"));
+  const switchMode = (m: "signup" | "signin") => {
+    setMode(m);
+    setError("");
+    setNotice("");
+  };
 
   /** Demo mode only: no backend, the "account" lives in this browser. */
   const finishDemo = (n: string, e: string) => {
     signIn({ name: n, email: e });
     const { onboarded } = useLovioo.getState();
-    router.push(mode === "signup" && !onboarded ? "/onboarding" : next);
+    router.push(signup && !onboarded ? "/onboarding" : next);
   };
 
   const submit = async (ev: React.FormEvent) => {
@@ -72,20 +79,18 @@ function AuthForm() {
     }
     setError("");
     setNotice("");
-    if (mode === "signup") rememberChoices();
+    if (signup) rememberChoices();
     const sb = getSupabase();
-    if (!sb) return finishDemo(name.trim() || email.split("@")[0].replace(/^\w/, (c) => c.toUpperCase()), email);
+    if (!sb) return finishDemo(email.split("@")[0].replace(/^\w/, (c) => c.toUpperCase()), email);
 
     setBusy(true);
     try {
-      if (mode === "signup") {
+      if (signup) {
+        // Name and the rest of the profile are asked next, in the questionnaire.
         const { data, error } = await sb.auth.signUp({
           email,
           password,
-          options: {
-            data: { full_name: name.trim() || email.split("@")[0], consent: { ...choices, version: CONSENT_VERSION } },
-            emailRedirectTo: `${window.location.origin}/onboarding`,
-          },
+          options: { data: { consent: { ...choices, version: CONSENT_VERSION } }, emailRedirectTo: `${window.location.origin}/onboarding` },
         });
         if (error) setError(friendlyAuthError(error.message, googleReady));
         else if (!data.session) setNotice(`We sent a confirmation link to ${email}. Open it to finish creating your account.`);
@@ -106,89 +111,108 @@ function AuthForm() {
       setTriedConsent(true);
       return setError(`${missingConsent} Then continue with Google.`);
     }
-    if (mode === "signup") rememberChoices();
+    if (signup) rememberChoices();
     const sb = getSupabase();
     if (!sb) return finishDemo("Marie Santos", "marie@example.com");
     // New Google accounts finish their profile first; returning ones go back to where they were.
-    const back = mode === "signup" ? `/onboarding?next=${encodeURIComponent(next)}` : next;
+    const back = signup ? `/onboarding?next=${encodeURIComponent(next)}` : next;
     const { error } = await sb.auth.signInWithOAuth({ provider: "google", options: { redirectTo: `${window.location.origin}${back}` } });
     if (error) setError(`Google sign-in isn't available yet: ${error.message}`);
   };
 
   return (
-    <div className="grid min-h-screen lg:grid-cols-2">
-      <div className="relative hidden overflow-hidden bg-brand-soft p-12 lg:flex lg:flex-col">
-        <Link href="/">
-          <Logo tagline />
-        </Link>
-        <h1 className="mt-16 text-5xl font-extrabold leading-tight tracking-tight">
-          Join Lovioo <br /> today
-        </h1>
-        <ul className="mt-8 space-y-3">
-          {PERKS.map((p) => (
-            <li key={p} className="flex items-center gap-3 text-midnight/80">
-              <CheckCircle2 className="h-5 w-5 text-pink" /> {p}
-            </li>
-          ))}
-        </ul>
-        <div className="pointer-events-none absolute -bottom-10 -right-10 text-[16rem] leading-none opacity-90">🛍️</div>
-      </div>
-
-      <div className="flex items-center justify-center p-6">
-        <div className="w-full max-w-md">
-          <Link href="/" className="lg:hidden">
-            <Logo tagline />
+    <div className={cn(serif.variable, "min-h-screen bg-[#FBF7F2] text-midnight lg:grid lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)]")}>
+      <div className="mx-auto flex min-h-screen w-full max-w-[26rem] flex-col px-5 pb-8 pt-5 lg:max-w-[28rem]">
+        <header className="flex items-center justify-between">
+          <Link href="/" aria-label="Lovioo home">
+            <Logo />
           </Link>
-          <div className="mt-8 flex rounded-full bg-white p-1 ring-1 ring-line lg:mt-0">
+          <Link href="/" className="inline-flex items-center gap-1 rounded-full px-3 py-1.5 text-sm text-midnight/60 hover:text-midnight">
+            <ArrowLeft className="h-4 w-4" /> Home
+          </Link>
+        </header>
+
+        <main className="flex flex-1 flex-col justify-center py-8">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-pink">{signup ? "Free · takes a minute" : "Good to see you"}</p>
+          <h1 className={cn(h, "mt-3 text-[2.6rem] leading-[1.02] sm:text-5xl")}>
+            {signup ? (
+              <>
+                Join Lovioo. <em className="text-pink">Shop smarter.</em>
+              </>
+            ) : (
+              <>
+                Welcome <em className="text-pink">back.</em>
+              </>
+            )}
+          </h1>
+          <p className="mt-3 text-[15px] leading-relaxed text-midnight/60">
+            {signup ? "Save the things you love, get price-drop alerts and picks made for you." : "Sign in to see your loves, alerts and picks."}
+          </p>
+
+          <div className="mt-7 grid grid-cols-2 rounded-full bg-white p-1 ring-1 ring-midnight/10" role="tablist" aria-label="Account">
             {(["signup", "signin"] as const).map((m) => (
               <button
                 key={m}
-                onClick={() => {
-                  setMode(m);
-                  setError("");
-                }}
-                className={cn("flex-1 rounded-full py-2.5 text-sm font-semibold transition", mode === m ? "bg-pink text-white shadow-pop" : "text-midnight/60")}
+                role="tab"
+                aria-selected={mode === m}
+                onClick={() => switchMode(m)}
+                className={cn("rounded-full py-2.5 text-sm font-semibold transition", mode === m ? "bg-midnight text-white shadow" : "text-midnight/55 hover:text-midnight")}
               >
-                {m === "signup" ? "Sign up" : "Sign in"}
+                {m === "signup" ? "Create account" : "Sign in"}
               </button>
             ))}
           </div>
 
-          <h2 className="mt-8 text-center text-2xl font-extrabold">{mode === "signup" ? "Welcome to Lovioo 💗" : "Welcome back"}</h2>
-          <p className="mt-1 text-center text-sm text-midnight/60">{mode === "signup" ? "Discover products. Find deals. Shop smarter." : "Sign in to continue to Lovioo."}</p>
-
-          <form onSubmit={submit} className="mt-6 space-y-4" noValidate>
-            {mode === "signup" && (
-              <label className="block">
-                <span className="mb-1.5 block text-sm font-medium">
-                  Your name <span className="font-normal text-midnight/40">(optional)</span>
-                </span>
-                <input className="input" value={name} onChange={(e) => setName(e.target.value)} placeholder="Your full name" autoComplete="name" />
-              </label>
+          <button
+            onClick={google}
+            disabled={!googleReady}
+            aria-disabled={!!missingConsent || !googleReady}
+            className={cn(
+              "mt-5 flex h-12 w-full items-center justify-center gap-3 rounded-full bg-white text-[15px] font-semibold ring-1 ring-midnight/10 transition hover:ring-midnight/25 disabled:cursor-not-allowed",
+              (missingConsent || !googleReady) && "opacity-60",
             )}
-            <label className="block">
-              <span className="mb-1.5 block text-sm font-medium">Email address</span>
-              <input className="input" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" autoComplete="email" />
+          >
+            <GoogleIcon /> {googleReady ? "Continue with Google" : "Google sign-in coming soon"}
+          </button>
+
+          <div className="my-5 flex items-center gap-3 text-xs text-midnight/40">
+            <span className="h-px flex-1 bg-midnight/10" /> or with email <span className="h-px flex-1 bg-midnight/10" />
+          </div>
+
+          <form onSubmit={submit} className="space-y-3.5" noValidate>
+            <label className="relative block">
+              <span className="sr-only">Email address</span>
+              <Mail className="pointer-events-none absolute left-4 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-midnight/35" />
+              <input className={field} type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email address" autoComplete="email" inputMode="email" />
             </label>
-            <label className="block">
-              <span className="mb-1.5 block text-sm font-medium">Password</span>
-              <span className="relative block">
-                <input
-                  className="input pr-12"
-                  type={show ? "text" : "password"}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder={mode === "signup" ? "Create a secure password" : "Your password"}
-                  autoComplete={mode === "signup" ? "new-password" : "current-password"}
-                />
-                <button type="button" onClick={() => setShow((s) => !s)} className="absolute right-3 top-1/2 -translate-y-1/2 text-midnight/40" aria-label={show ? "Hide password" : "Show password"}>
-                  {show ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
-                </button>
-              </span>
+            <label className="relative block">
+              <span className="sr-only">Password</span>
+              <Lock className="pointer-events-none absolute left-4 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-midnight/35" />
+              <input
+                className={cn(field, "pr-12")}
+                type={show ? "text" : "password"}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder={signup ? "Create a password" : "Password"}
+                autoComplete={signup ? "new-password" : "current-password"}
+              />
+              <button
+                type="button"
+                onClick={() => setShow((v) => !v)}
+                className="absolute right-3 top-1/2 grid h-8 w-8 -translate-y-1/2 place-items-center rounded-full text-midnight/40 hover:text-midnight"
+                aria-label={show ? "Hide password" : "Show password"}
+              >
+                {show ? <EyeOff className="h-[18px] w-[18px]" /> : <Eye className="h-[18px] w-[18px]" />}
+              </button>
             </label>
-            {mode === "signup" && (
-              <>
-                <hr className="!my-5 border-line" />
+            {signup && (
+              <p className={cn("flex items-center gap-1.5 pl-1 text-xs", password.length >= 6 ? "text-emerald-600" : "text-midnight/45")}>
+                <Check className="h-3.5 w-3.5" /> At least 6 characters
+              </p>
+            )}
+
+            {signup && (
+              <div className="rounded-2xl bg-white/70 p-4 ring-1 ring-midnight/5">
                 <ConsentChecks
                   value={choices}
                   onChange={(c) => {
@@ -197,41 +221,52 @@ function AuthForm() {
                   }}
                   showErrors={triedConsent}
                 />
-              </>
+              </div>
             )}
+
             {error && (
-              <p className="text-sm font-medium text-coral" role="alert">
+              <p className="rounded-2xl bg-coral/10 px-4 py-3 text-sm font-medium text-coral" role="alert">
                 {error}
               </p>
             )}
-            {notice && <p className="rounded-2xl bg-emerald-50 p-3 text-sm font-medium text-emerald-700">{notice}</p>}
-            <button className={cn("btn-primary w-full !py-3", missingConsent && "opacity-60 saturate-50")} disabled={busy} aria-disabled={!!missingConsent}>
-              {busy ? "One moment…" : mode === "signup" ? "Create account" : "Sign in"}
+            {notice && <p className="rounded-2xl bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-700">{notice}</p>}
+
+            <button
+              className={cn(
+                "flex h-12 w-full items-center justify-center gap-2 rounded-full bg-midnight text-[15px] font-semibold text-white transition hover:bg-midnight/90 active:scale-[0.99]",
+                missingConsent && "opacity-50",
+              )}
+              disabled={busy}
+              aria-disabled={!!missingConsent}
+            >
+              {busy ? "One moment…" : signup ? "Create account" : "Sign in"} {!busy && <ArrowRight className="h-4 w-4" />}
             </button>
-            {missingConsent && !triedConsent && <p className="text-center text-[11px] text-midnight/45">Tick both required boxes to create your account.</p>}
+            {missingConsent && !triedConsent && <p className="text-center text-[11px] text-midnight/45">Tick both boxes to create your account.</p>}
           </form>
 
-          <div className="my-6 flex items-center gap-3 text-xs text-midnight/40">
-            <span className="h-px flex-1 bg-line" /> or continue with <span className="h-px flex-1 bg-line" />
-          </div>
-          <button
-            onClick={google}
-            disabled={!googleReady}
-            className={cn("btn-ghost w-full !py-3", (missingConsent || !googleReady) && "opacity-60")}
-            aria-disabled={!!missingConsent || !googleReady}
-          >
-            <GoogleIcon /> {googleReady ? "Continue with Google" : "Google sign-in coming soon"}
-          </button>
           <p className="mt-6 text-center text-sm text-midnight/60">
-            {mode === "signup" ? "Already have an account? " : "Don't have an account? "}
-            <button className="font-semibold text-pink" onClick={() => setMode(mode === "signup" ? "signin" : "signup")}>
-              {mode === "signup" ? "Sign in" : "Sign up"}
+            {signup ? "Already have an account? " : "New to Lovioo? "}
+            <button className="font-semibold text-midnight underline decoration-pink decoration-2 underline-offset-4" onClick={() => switchMode(signup ? "signin" : "signup")}>
+              {signup ? "Sign in" : "Create an account"}
             </button>
           </p>
-          {!isSupabaseConfigured && <p className="mt-4 text-center text-[11px] text-midnight/40">Demo: accounts are stored only in this browser.</p>}
-          <LegalLinks className="mt-8" />
-        </div>
+          {!isSupabaseConfigured && <p className="mt-3 text-center text-[11px] text-midnight/40">Demo: accounts are stored only in this browser.</p>}
+        </main>
+
+        <LegalLinks />
       </div>
+
+      {/* Desktop: the catalog drifting by, as on the home page. */}
+      <aside className="relative hidden overflow-hidden p-4 lg:block">
+        <div className="relative flex h-full flex-col justify-center gap-6 overflow-hidden rounded-[2rem] bg-[radial-gradient(120%_80%_at_80%_0%,#FFE3F1_0%,#FBEFE6_45%,#F4ECE4_100%)] py-12">
+          <p className={cn(h, "px-12 text-4xl leading-tight xl:text-5xl")}>
+            Your next favourite thing is <em className="text-pink">one sentence</em> away.
+          </p>
+          <DriftRow products={rowA} />
+          <DriftRow products={rowB} reverse />
+          <p className="px-12 text-sm text-midnight/55">Compare Shopee, Lazada, TikTok Shop and Amazon in one place.</p>
+        </div>
+      </aside>
     </div>
   );
 }
