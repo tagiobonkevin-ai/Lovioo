@@ -27,6 +27,8 @@ export interface Product {
   subcategory: string;
   emoji: string;
   image: string;
+  /** Extra photos shown after the cover on the product page. */
+  images?: string[];
   tags: string[];
   vibes: Vibe[];
   rating: number;
