@@ -9,6 +9,7 @@ import { InsightCard } from "@/components/product/InsightCard";
 import { OfferTable } from "@/components/product/OfferTable";
 import { PriceHistoryChart } from "@/components/product/PriceHistoryChart";
 import { ProductCard } from "@/components/product/ProductCard";
+import { ProductGallery } from "@/components/product/ProductGallery";
 import { ProductImage } from "@/components/product/ProductImage";
 import { toast, useHydrated } from "@/components/Providers";
 import { brandOf } from "@/lib/data/brands";
@@ -70,19 +71,14 @@ function ProductView({ product }: { product: Product }) {
       </nav>
 
       <div className="grid gap-8 lg:grid-cols-2">
-        <div className="space-y-3">
-          <div className="relative">
-            <ProductImage product={product} className="aspect-square rounded-2xl shadow-soft" emojiSize="text-[10rem]" />
-            {product.trending && <span className="absolute left-4 top-4 rounded-full bg-white/90 px-3 py-1 text-xs font-semibold text-coral">🔥 Trending</span>}
-          </div>
-          <div className="grid grid-cols-4 gap-3">
-            {[0, 1, 2, 3].map((i) => (
-              <div key={i} className={cn("overflow-hidden rounded-2xl ring-2", i === 0 ? "ring-pink" : "ring-transparent opacity-70")}>
-                <ProductImage product={product} className="aspect-square" emojiSize="text-3xl" />
-              </div>
-            ))}
-          </div>
-        </div>
+        <ProductGallery
+          product={product}
+          badge={
+            product.trending ? (
+              <span className="pointer-events-none absolute left-4 top-4 rounded-full bg-white/90 px-3 py-1 text-xs font-semibold text-coral">🔥 Trending</span>
+            ) : null
+          }
+        />
 
         <div>
           {brandOf(product) ? (

@@ -12,6 +12,7 @@ import { RetailerBadge } from "@/components/product/RetailerBadge";
 import { CATEGORIES, VIBES } from "@/lib/data/categories";
 import { RETAILERS, retailerById } from "@/lib/data/retailers";
 import { linkError, storeLinkWarning } from "@/lib/links";
+import { MAX_EXTRA_PHOTOS, PhotoSlides } from "@/components/admin/PhotoSlides";
 import { CONTENT_KEYS, asChangeSet, changeLabels, shortDate, type ChangeSet } from "@/lib/review";
 import type { Database, Json } from "@/lib/supabase/database.types";
 import { cn, peso } from "@/lib/utils";
@@ -29,6 +30,7 @@ interface Draft {
   subcategory: string;
   emoji: string;
   image: string;
+  images: string[];
   tags: string;
   vibes: string[];
   rating: number;
@@ -50,6 +52,7 @@ const EMPTY: Draft = {
   subcategory: "",
   emoji: "🛍️",
   image: "",
+  images: [],
   tags: "",
   vibes: [],
   rating: 4.5,
@@ -64,7 +67,7 @@ const EMPTY: Draft = {
 };
 
 const slugify = (s: string) => s.toLowerCase().replace(/['"]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
-const toDraft = (p: ProductRow): Draft => ({ ...p, rating: Number(p.rating), tags: p.tags.join(", "), highlights: p.highlights.join("\n") });
+const toDraft = (p: ProductRow): Draft => ({ ...p, images: p.images ?? [], rating: Number(p.rating), tags: p.tags.join(", "), highlights: p.highlights.join("\n") });
 const list = (s: string, sep: RegExp) => s.split(sep).map((x) => x.trim()).filter(Boolean);
 const storeName = (id: string) => retailerById(id).name;
 
@@ -105,6 +108,7 @@ export default function ProductEditor({ params }: { params: { id: string } }) {
   // An editor's changes to a live product: prices and stock save directly, everything else goes to review.
   const liveLocked = !canPublish && !isNew && !!data?.published;
   const imageProblem = linkError("Image URL", draft.image);
+  const photosProblem = draft.images.map((u, i) => linkError(`Photo ${i + 2}`, u)).find(Boolean) ?? null;
   const offerProblem = (o: OfferDraft) => linkError(`${storeName(o.retailer_id)} link`, o.url);
   const set = <K extends keyof Draft>(k: K, v: Draft[K]) => setDraft((d) => ({ ...d, [k]: v }));
   const unusedStores = Object.values(RETAILERS).filter((r) => !offers.some((o) => o.retailer_id === r.id));
@@ -118,7 +122,7 @@ export default function ProductEditor({ params }: { params: { id: string } }) {
     setProblem("");
     if (!draft.name.trim() || !draft.brand.trim()) return fail("Name and brand are required.");
     if (!/^[a-z0-9]+(-[a-z0-9]+)*$/.test(draft.slug)) return fail("The URL slug can only use lowercase letters, numbers and single dashes.");
-    const badLink = imageProblem ?? offers.map(offerProblem).find(Boolean);
+    const badLink = imageProblem ?? photosProblem ?? offers.map(offerProblem).find(Boolean);
     if (badLink) return fail(badLink);
     if (draft.price_tracked && offers.some((o) => o.price <= 0))
       return fail('Every store offer needs a price above ₱0 — or turn off "Track prices" to list it as a "See prices" pick.');
@@ -133,6 +137,7 @@ export default function ProductEditor({ params }: { params: { id: string } }) {
       subcategory: draft.subcategory.trim(),
       emoji: draft.emoji.trim() || "🛍️",
       image: draft.image.trim(),
+      images: draft.images.map((u) => u.trim()).filter(Boolean).slice(0, MAX_EXTRA_PHOTOS),
       tags: list(draft.tags, /,/),
       vibes: draft.vibes,
       rating: Math.min(5, Math.max(0, draft.rating)),
@@ -519,6 +524,8 @@ export default function ProductEditor({ params }: { params: { id: string } }) {
               warning={draft.image && imageFailed ? "This image link doesn't load. Use a direct link to a .jpg, .png or .webp image." : null}
             />
             <p className="mt-2 text-[11px] text-ink/40">If the image can&apos;t load, shoppers see the emoji tile.</p>
+            <hr className="my-5 border-ink/10" />
+            <PhotoSlides cover={draft.image} photos={draft.images} onChange={(images) => set("images", images)} />
           </Panel>
 
           <Panel title="Vibes" action={<span className="text-xs text-ink/50">Swipe filters</span>}>

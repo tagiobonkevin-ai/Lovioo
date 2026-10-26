@@ -77,17 +77,17 @@ export type Database = {
       };
       products: {
         Row: {
-          brand: string; brand_id: string | null; category_id: string; created_at: string; description: string; emoji: string; highlights: string[]; id: string; image: string;
+          brand: string; brand_id: string | null; category_id: string; created_at: string; description: string; emoji: string; highlights: string[]; id: string; image: string; images: string[];
           is_new: boolean; name: string; price_tracked: boolean; published: boolean; rating: number; review_requested_at: string | null; review_requested_by: string | null; review_count: number; slug: string; sort: number; subcategory: string;
           tags: string[]; trending: boolean; updated_at: string; vibes: string[];
         };
         Insert: {
-          brand: string; brand_id?: string | null; category_id: string; created_at?: string; description?: string; emoji?: string; highlights?: string[]; id?: string; image?: string;
+          brand: string; brand_id?: string | null; category_id: string; created_at?: string; description?: string; emoji?: string; highlights?: string[]; id?: string; image?: string; images?: string[];
           is_new?: boolean; name: string; price_tracked?: boolean; published?: boolean; review_requested_at?: string | null; review_requested_by?: string | null; rating?: number; review_count?: number; slug: string; sort?: number; subcategory?: string;
           tags?: string[]; trending?: boolean; updated_at?: string; vibes?: string[];
         };
         Update: {
-          brand?: string; brand_id?: string | null; category_id?: string; created_at?: string; description?: string; emoji?: string; highlights?: string[]; id?: string; image?: string;
+          brand?: string; brand_id?: string | null; category_id?: string; created_at?: string; description?: string; emoji?: string; highlights?: string[]; id?: string; image?: string; images?: string[];
           is_new?: boolean; name?: string; price_tracked?: boolean; published?: boolean; review_requested_at?: string | null; review_requested_by?: string | null; rating?: number; review_count?: number; slug?: string; sort?: number; subcategory?: string;
           tags?: string[]; trending?: boolean; updated_at?: string; vibes?: string[];
         };

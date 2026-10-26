@@ -85,6 +85,7 @@ export function mapProduct(row: ProductRow, stats: StatsRow | undefined, activeR
     subcategory: row.subcategory,
     emoji: row.emoji,
     image: row.image,
+    images: row.images ?? [],
     tags: row.tags,
     vibes: row.vibes as Product["vibes"],
     rating: Number(row.rating),
