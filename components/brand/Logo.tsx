@@ -26,17 +26,17 @@ export function LogoMark({ className }: { className?: string }) {
   );
 }
 
-export function Logo({ className, tagline = false, light = false }: { className?: string; tagline?: boolean; light?: boolean }) {
+export function Logo({ className, tagline = false, light = false, mono = false }: { className?: string; tagline?: boolean; light?: boolean; mono?: boolean }) {
   return (
     <span className={cn("inline-flex items-center gap-1.5", className)}>
       <LogoMark />
       <span className="leading-none">
-        <span className={cn("text-[1.45rem] font-extrabold tracking-tight", light ? "text-white" : "text-midnight")}>
-          Lovi<span className="text-gradient">oo</span>
+        <span className={cn("text-[1.45rem] font-extrabold tracking-tight", light ? "text-white" : mono ? "text-ink" : "text-midnight")}>
+          Lovi<span className={mono ? undefined : "text-gradient"}>oo</span>
         </span>
         {tagline && (
-          <span className={cn("block text-[0.6rem] tracking-[0.3em]", light ? "text-white/80" : "text-midnight/70")}>
-            Swipe. <span className="text-pink">Love.</span> Shop.
+          <span className={cn("block text-[0.6rem] tracking-[0.3em]", light ? "text-white/80" : mono ? "text-ink/55" : "text-midnight/70")}>
+            Swipe. <span className={mono ? undefined : "text-pink"}>Love.</span> Shop.
           </span>
         )}
       </span>

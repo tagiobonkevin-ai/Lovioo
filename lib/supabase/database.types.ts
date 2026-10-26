@@ -184,6 +184,14 @@ export type Database = {
       admin_set_shopper_name: { Args: { target: string; new_name: string }; Returns: undefined };
       delete_shopper: { Args: { target: string; confirm_email: string }; Returns: undefined };
       product_teaser: { Args: never; Returns: { name: string; brand: string; image: string; emoji: string; category_id: string }[] };
+      public_deals: {
+        Args: { want?: number };
+        Returns: {
+          slug: string; name: string; brand: string; brand_id: string | null; category_id: string; subcategory: string; emoji: string; image: string;
+          tags: string[]; vibes: string[]; rating: number; review_count: number;
+          price: number; original_price: number; retailer_id: string; discount_pct: number;
+        }[];
+      };
       is_super_admin: { Args: never; Returns: boolean };
       list_team: {
         Args: never;

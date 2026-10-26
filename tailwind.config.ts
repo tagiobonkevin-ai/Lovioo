@@ -16,9 +16,13 @@ const config: Config = {
         signal: "#3B82F6",
         lavender: "#E7EAF6",
         line: "#E5E7EB",
+        // Front page (daydream-style): near-black text on white, the way luxury retail sets type.
+        ink: "#141414",
       },
       fontFamily: {
         sans: ["var(--font-poppins)", "ui-sans-serif", "system-ui", "sans-serif"],
+        display: ["var(--font-display)", "ui-serif", "Georgia", "serif"],
+        ui: ["var(--font-ui)", "ui-sans-serif", "system-ui", "sans-serif"],
       },
       backgroundImage: {
         brand: "linear-gradient(135deg, #FF2D9A 0%, #FF6B4A 55%, #FFB84D 100%)",

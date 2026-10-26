@@ -3,8 +3,7 @@ import { cache } from "react";
 import { createServerClient } from "@/lib/supabase/client";
 import { applyCatalog, demoCatalog, type Catalog } from "./catalog";
 import { fetchCatalog } from "./fetch-catalog";
-import { PRODUCTS } from "./products";
-import { fetchTeaser, teaserFromProducts, type Teaser } from "./teaser";
+import { demoDeals, fetchDeals, type Deal } from "./public-deals";
 
 /**
  * Loads the public part of the catalog (categories, stores, brands) once per request (pages are revalidated every 60s).
@@ -20,8 +19,8 @@ export const loadCatalog = cache(async (): Promise<Catalog> => {
   return catalog;
 });
 
-/** The home page teaser for guests: product photos and names, no prices. */
-export const loadTeaser = cache(async (): Promise<Teaser[]> => {
+/** Today's front-page deals: the only products, and the only prices, a guest can see. */
+export const loadDeals = cache(async (): Promise<Deal[]> => {
   const sb = createServerClient();
-  return sb ? fetchTeaser(sb) : teaserFromProducts(PRODUCTS);
+  return sb ? fetchDeals(sb, 24) : demoDeals(24);
 });
