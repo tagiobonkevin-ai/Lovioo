@@ -112,34 +112,34 @@ export default function PriceList() {
       <div className="grid gap-6 xl:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
         <Panel>
           <div className="mb-4 flex flex-wrap gap-2">
-            <div className="flex rounded-full bg-cream p-1">
+            <div className="flex rounded-full bg-ink/[0.03] p-1">
               {(
                 [
                   ["picks", "“See prices” picks"],
                   ["all", "All products"],
                 ] as const
               ).map(([f, label]) => (
-                <button key={f} onClick={() => setFilter(f)} className={cn("rounded-full px-3 py-1.5 text-xs font-semibold", filter === f ? "bg-pink text-white" : "text-midnight/60")}>
+                <button key={f} onClick={() => setFilter(f)} className={cn("rounded-full px-3 py-1.5 text-xs font-semibold", filter === f ? "bg-pink text-white" : "text-ink/60")}>
                   {label}
                 </button>
               ))}
             </div>
             <label className="relative min-w-[200px] flex-1">
-              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-midnight/40" />
+              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-ink/40" />
               <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search products…" className={cn(adminInput, "pl-9")} aria-label="Search products" />
             </label>
           </div>
           {error && <ErrorNote message={error} />}
           {loading && !data && <Skeleton className="h-64" />}
-          {data && rows.length === 0 && <p className="py-8 text-center text-sm text-midnight/50">{filter === "picks" ? "Every product has prices. 🎉" : "No products match."}</p>}
-          <ul className="divide-y divide-line/70">
+          {data && rows.length === 0 && <p className="py-8 text-center text-sm text-ink/50">{filter === "picks" ? "Every product has prices. 🎉" : "No products match."}</p>}
+          <ul className="divide-y divide-ink/10/70">
             {rows.slice(0, 200).map((p) => (
               <li key={p.id} className="grid gap-3 py-3 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center">
                 <Link href={`/admin/products/${p.id}`} className="flex min-w-0 items-center gap-3">
                   <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-blush text-xl">{p.emoji}</span>
                   <span className="min-w-0">
                     <span className="block truncate text-sm font-semibold hover:text-pink">{p.name}</span>
-                    <span className="text-xs text-midnight/50">
+                    <span className="text-xs text-ink/50">
                       {p.brand} · {p.price_tracked ? "prices shown" : "“See prices”"}
                       {!p.published && " · draft"}
                     </span>
@@ -152,9 +152,9 @@ export default function PriceList() {
                       const v = value(p, o);
                       const dirty = !!edits[key(p.id, o.retailer_id)];
                       return (
-                        <div key={o.retailer_id} className={cn("flex items-center gap-2 rounded-2xl border px-2.5 py-1.5", dirty ? "border-pink bg-pink/5" : "border-line")}>
+                        <div key={o.retailer_id} className={cn("flex items-center gap-2 rounded-2xl border px-2.5 py-1.5", dirty ? "border-pink bg-pink/5" : "border-ink/15")}>
                           <RetailerBadge id={o.retailer_id} size="xs" />
-                          <label className="text-[10px] text-midnight/50">
+                          <label className="text-[10px] text-ink/50">
                             ₱
                             <input
                               type="number"
@@ -163,11 +163,11 @@ export default function PriceList() {
                               value={v.price || ""}
                               placeholder="price"
                               onChange={(e) => edit(p, o, { price: Number(e.target.value) })}
-                              className="ml-0.5 w-20 rounded-lg border border-line px-1.5 py-1 text-sm text-midnight outline-none focus:border-pink"
+                              className="ml-0.5 w-20 rounded-lg border border-ink/15 px-1.5 py-1 text-sm text-ink outline-none focus:border-pink"
                               aria-label={`${o.retailer_id} price for ${p.name}`}
                             />
                           </label>
-                          <label className="text-[10px] text-midnight/50">
+                          <label className="text-[10px] text-ink/50">
                             was
                             <input
                               type="number"
@@ -176,7 +176,7 @@ export default function PriceList() {
                               value={v.original_price || ""}
                               placeholder="—"
                               onChange={(e) => edit(p, o, { original_price: Number(e.target.value) })}
-                              className="ml-1 w-16 rounded-lg border border-line px-1.5 py-1 text-xs text-midnight outline-none focus:border-pink"
+                              className="ml-1 w-16 rounded-lg border border-ink/15 px-1.5 py-1 text-xs text-ink outline-none focus:border-pink"
                               aria-label={`${o.retailer_id} original price for ${p.name}`}
                             />
                           </label>
@@ -189,11 +189,11 @@ export default function PriceList() {
               </li>
             ))}
           </ul>
-          {rows.length > 200 && <p className="pt-3 text-center text-xs text-midnight/50">Showing 200 of {rows.length}. Search to narrow down.</p>}
+          {rows.length > 200 && <p className="pt-3 text-center text-xs text-ink/50">Showing 200 of {rows.length}. Search to narrow down.</p>}
         </Panel>
 
-        <Panel title="Paste from a spreadsheet" action={<ClipboardPaste className="h-4 w-4 text-midnight/40" />}>
-          <p className="text-xs text-midnight/60">
+        <Panel title="Paste from a spreadsheet" action={<ClipboardPaste className="h-4 w-4 text-ink/40" />}>
+          <p className="text-xs text-ink/60">
             One product per line: the product&apos;s URL slug or exact name, then the Shopee price, then the Lazada price. Copy straight from Google Sheets or Excel.
           </p>
           <textarea
@@ -207,7 +207,7 @@ export default function PriceList() {
           <button onClick={applyPaste} disabled={!paste.trim() || !data} className="btn-dark mt-3 w-full !py-2">
             Fill the list
           </button>
-          <p className="mt-2 text-[11px] text-midnight/40">Nothing is saved until you press Save. Prices you fill in show up highlighted.</p>
+          <p className="mt-2 text-[11px] text-ink/40">Nothing is saved until you press Save. Prices you fill in show up highlighted.</p>
         </Panel>
       </div>
     </div>

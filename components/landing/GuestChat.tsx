@@ -10,7 +10,7 @@ import { cn, peso } from "@/lib/utils";
 import { DealCard } from "./DealCard";
 
 /**
- * The front page's Lovioo AI box. A guest asks in English, Tagalog or Bisaya and gets a real answer from the public
+ * The front page's Lovioo AI box. A guest asks in English, Tagalog or Visayan and gets a real answer from the public
  * deals — prices and all — then an invitation to create an account for the full catalogue.
  */
 export function GuestChat({ deals }: { deals: Deal[] }) {

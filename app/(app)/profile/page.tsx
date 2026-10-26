@@ -37,7 +37,7 @@ export default function ProfilePage() {
       <div className="card mx-auto max-w-md p-10 text-center">
         <span className="text-5xl">👋</span>
         <h1 className="mt-3 text-xl font-bold">Sign in to see your profile</h1>
-        <p className="mt-1 text-sm text-midnight/60">Keep your loves, alerts and preferences in one place.</p>
+        <p className="mt-1 text-sm text-ink/60">Keep your loves, alerts and preferences in one place.</p>
         <Link href="/auth?next=/profile" className="btn-primary mt-5">
           Sign in
         </Link>
@@ -56,11 +56,11 @@ export default function ProfilePage() {
         {avatarUrl && !photoFailed ? (
           <img src={avatarUrl} alt="" referrerPolicy="no-referrer" onError={() => setPhotoFailed(true)} className="h-20 w-20 rounded-full object-cover shadow-pop" />
         ) : (
-          <span className="grid h-20 w-20 place-items-center rounded-full bg-brand text-3xl font-extrabold text-white shadow-pop">{user.name[0]?.toUpperCase()}</span>
+          <span className="grid h-20 w-20 place-items-center rounded-full bg-brand text-[30px] leading-[1.35] text-white shadow-pop">{user.name[0]?.toUpperCase()}</span>
         )}
         <div className="flex-1">
-          <h1 className="text-2xl font-extrabold">{user.name}</h1>
-          <p className="text-sm text-midnight/60">{user.email}</p>
+          <h1 className="text-[24px] leading-[1.45]">{user.name}</h1>
+          <p className="text-sm text-ink/60">{user.email}</p>
         </div>
         <div className="grid grid-cols-3 gap-3 text-center">
           {[
@@ -69,8 +69,8 @@ export default function ProfilePage() {
             ["Swipes", swipes.length],
           ].map(([l, v]) => (
             <div key={l} className="rounded-2xl bg-blush px-4 py-2">
-              <p className="text-xl font-extrabold text-pink">{v}</p>
-              <p className="text-[11px] text-midnight/60">{l}</p>
+              <p className="text-[20px] leading-[1.5] text-pink">{v}</p>
+              <p className="text-[11px] text-ink/60">{l}</p>
             </div>
           ))}
         </div>
@@ -116,7 +116,7 @@ export default function ProfilePage() {
             ["digest", "Weekly deals digest from Lovioo AI"],
           ] as const
         ).map(([k, label]) => (
-          <div key={k} className="flex items-center justify-between border-b border-line/70 py-3 last:border-0">
+          <div key={k} className="flex items-center justify-between border-b border-ink/10 py-3 last:border-0">
             <span className="text-sm">{label}</span>
             <button
               role="switch"
@@ -133,7 +133,7 @@ export default function ProfilePage() {
 
       <PrivacyChoices />
 
-      <div className="card divide-y divide-line/70">
+      <div className="card divide-y divide-ink/10/70">
         {[
           ...(isStaff ? [{ icon: BarChart3, label: "Open Lovioo Business", href: "/admin" }] : []),
           { icon: Sparkles, label: "Redo onboarding", href: "/onboarding" },
@@ -141,7 +141,7 @@ export default function ProfilePage() {
           { icon: HelpCircle, label: "Terms & Conditions", href: "/terms" },
         ].map((row) => (
           <Link key={row.label} href={row.href} className="flex items-center gap-3 p-4 text-sm font-medium hover:bg-blush/40">
-            <row.icon className="h-5 w-5 text-pink" /> <span className="flex-1">{row.label}</span> <ChevronRight className="h-4 w-4 text-midnight/30" />
+            <row.icon className="h-5 w-5 text-pink" /> <span className="flex-1">{row.label}</span> <ChevronRight className="h-4 w-4 text-ink/30" />
           </Link>
         ))}
         <button
@@ -168,7 +168,7 @@ function Section({ icon: Icon, title, sub, children }: { icon: React.ElementType
         </span>
         <div>
           <h2 className="font-bold">{title}</h2>
-          <p className="text-xs text-midnight/50">{sub}</p>
+          <p className="text-xs text-ink/50">{sub}</p>
         </div>
       </div>
       {children}

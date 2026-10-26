@@ -1,12 +1,12 @@
 import type { CategoryId, Insight } from "@/lib/types";
 
-/** Languages Lovioo AI can reply in. "ceb" is Bisaya (Cebuano). */
+/** Languages Lovioo AI can reply in. "ceb" is Visayan (Cebuano). */
 export type AiLang = "en" | "tl" | "ceb";
 
 export const AI_LANGS: { id: AiLang; label: string; short: string }[] = [
   { id: "en", label: "English", short: "EN" },
   { id: "tl", label: "Tagalog", short: "TL" },
-  { id: "ceb", label: "Bisaya", short: "BIS" },
+  { id: "ceb", label: "Visayan", short: "VIS" },
 ];
 
 type Verdict = Insight["verdict"] | "seePrices";

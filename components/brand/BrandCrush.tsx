@@ -15,8 +15,8 @@ export function BrandCrush({ className }: { className?: string }) {
     <section className={className}>
       <div className="flex items-end justify-between gap-3">
         <div className="min-w-0">
-          <h2 className="text-xl font-extrabold">Brand Crush 💘</h2>
-          <p className="text-xs text-midnight/60">{featured ? "Featured partner stores — tap one to shop its picks" : "Top brands on Lovioo — tap one to see all its products"}</p>
+          <h2 className="text-[20px] leading-[1.5]">Brand Crush 💘</h2>
+          <p className="text-xs text-ink/60">{featured ? "Featured partner stores — tap one to shop its picks" : "Top brands on Lovioo — tap one to see all its products"}</p>
         </div>
         <Link href="/brands" className="shrink-0 whitespace-nowrap text-sm font-semibold text-pink">
           All brands

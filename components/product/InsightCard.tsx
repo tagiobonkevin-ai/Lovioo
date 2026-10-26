@@ -22,9 +22,9 @@ export function InsightCard({ product }: { product: Product }) {
           <p className="mt-1 text-lg font-bold" style={{ color: i.priced ? scoreColor(i.dealScore) : "#A855F7" }}>
             {i.headline}
           </p>
-          <p className="mt-1 text-sm text-midnight/70">{i.reason}</p>
+          <p className="mt-1 text-sm text-ink/70">{i.reason}</p>
           {i.priced && (
-            <p className="mt-2 text-xs text-midnight/60">
+            <p className="mt-2 text-xs text-ink/60">
               Best offer: <b>{retailerById(i.bestOffer.retailer).name}</b> at {peso(i.bestOffer.price)}
               {i.bestOffer.shipping ? ` + ${peso(i.bestOffer.shipping)} shipping` : " with free shipping"}.
             </p>

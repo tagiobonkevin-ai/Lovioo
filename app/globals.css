@@ -11,13 +11,15 @@ html {
 }
 
 body {
-  @apply bg-cream text-midnight antialiased;
+  @apply bg-white text-ink antialiased;
   overscroll-behavior-y: none;
 }
 
-/* The front page and sign-up are set on white, so the overscroll area matches instead of showing cream. */
-body:has(.lovioo-paper) {
-  @apply bg-white;
+/* Headings are set in the serif, at daydream's sizes and tracking. */
+h1,
+h2,
+h3 {
+  @apply font-display font-medium tracking-[-0.012em];
 }
 
 /* Installed app: keep content clear of the notch / status bar. */
@@ -29,31 +31,32 @@ body:has(.lovioo-paper) {
 
 @layer components {
   .btn {
-    @apply inline-flex items-center justify-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold transition active:scale-[0.97] disabled:opacity-50;
+    @apply inline-flex min-h-[40px] items-center justify-center gap-2 rounded-full px-5 py-2.5 text-sm font-medium transition active:scale-[0.97] disabled:opacity-50;
   }
+  /* Black is the workhorse; the brand pink is kept for the playful moments (saves, alerts, the AI). */
   .btn-primary {
-    @apply btn bg-pink text-white shadow-pop hover:brightness-105;
+    @apply btn bg-ink text-white hover:opacity-85;
   }
   .btn-gradient {
-    @apply btn bg-brand text-white shadow-pop hover:brightness-105;
+    @apply btn bg-brand text-white hover:brightness-105;
   }
   .btn-dark {
-    @apply btn bg-midnight text-white hover:bg-midnight/90;
+    @apply btn bg-ink text-white hover:opacity-85;
   }
   .btn-ghost {
-    @apply btn border border-line bg-white text-midnight hover:border-pink/40 hover:text-pink;
+    @apply btn border border-ink/15 bg-white text-ink hover:border-ink/40;
   }
   .chip {
-    @apply inline-flex items-center gap-1.5 rounded-full border border-line bg-white px-3.5 py-1.5 text-xs font-medium text-midnight/80 transition hover:border-pink/40;
+    @apply inline-flex min-h-[36px] items-center gap-1.5 rounded-full border border-ink/15 bg-white px-4 text-[13px] text-ink/70 transition hover:border-ink/40 hover:text-ink;
   }
   .chip-active {
-    @apply border-pink bg-pink/10 text-pink;
+    @apply border-pink bg-pink/[0.07] font-medium text-pink;
   }
   .card {
-    @apply rounded-3xl border border-white/60 bg-white shadow-soft;
+    @apply rounded-2xl border border-ink/10 bg-white;
   }
   .input {
-    @apply w-full rounded-2xl border border-line bg-white px-4 py-3 text-sm outline-none transition placeholder:text-midnight/40 focus:border-pink focus:ring-4 focus:ring-pink/10;
+    @apply w-full rounded-xl border border-ink/15 bg-white px-4 py-3 text-sm outline-none transition placeholder:text-ink/35 focus:border-ink/50;
   }
   .text-gradient {
     @apply bg-brand bg-clip-text text-transparent;

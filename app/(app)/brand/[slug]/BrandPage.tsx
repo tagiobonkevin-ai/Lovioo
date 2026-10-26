@@ -31,12 +31,12 @@ export function BrandPage({ slug }: { slug: string }) {
 
   return (
     <div className="space-y-6">
-      <Link href="/brands" className="inline-flex items-center gap-1 text-sm text-midnight/60 hover:text-pink">
+      <Link href="/brands" className="inline-flex items-center gap-1 text-sm text-ink/60 hover:text-pink">
         <ArrowLeft className="h-4 w-4" /> All brands
       </Link>
 
       <div
-        className="relative overflow-hidden rounded-[2rem] p-6 text-white sm:p-8"
+        className="relative overflow-hidden rounded-2xl p-6 text-white sm:p-8"
         style={{ background: brand.cover ? undefined : `linear-gradient(140deg, ${brand.color} 0%, ${brand.color}bb 50%, #0F2742 150%)` }}
       >
         {brand.cover && <img src={brand.cover} alt="" className="absolute inset-0 h-full w-full object-cover" />}
@@ -50,14 +50,14 @@ export function BrandPage({ slug }: { slug: string }) {
                 <BadgeCheck className="h-3.5 w-3.5" /> Featured partner
               </span>
             )}
-            <h1 className="mt-1 text-3xl font-extrabold tracking-tight">{brand.name}</h1>
+            <h1 className="mt-1 text-[30px] leading-[1.35]">{brand.name}</h1>
             <p className="text-sm text-white/85">
               {brand.tagline || `${products.length} product${products.length === 1 ? "" : "s"} on Lovioo`}
               {from !== null && ` · from ${peso(from)}`}
             </p>
           </div>
           {storeHref && (
-            <a href={storeHref} target="_blank" rel="noopener noreferrer sponsored" className="btn bg-white text-midnight shadow-pop">
+            <a href={storeHref} target="_blank" rel="noopener noreferrer sponsored" className="btn bg-white text-ink shadow-pop">
               Visit {brand.retailer ? `${brand.name} on ${retailerById(brand.retailer).name}` : "official store"} <ExternalLink className="h-4 w-4" />
             </a>
           )}
@@ -79,13 +79,13 @@ export function BrandPage({ slug }: { slug: string }) {
               role="radio"
               aria-checked={view === v}
               onClick={() => setView(v)}
-              className={cn("inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-xs font-semibold transition", view === v ? "bg-pink text-white" : "text-midnight/60")}
+              className={cn("inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-xs font-semibold transition", view === v ? "bg-pink text-white" : "text-ink/60")}
             >
               <Icon className="h-3.5 w-3.5" /> {label}
             </button>
           ))}
         </div>
-        <select value={sort} onChange={(e) => setSort(e.target.value as keyof typeof SORTS)} className="ml-auto rounded-full border border-line bg-white px-3 py-2 text-xs font-medium" aria-label="Sort">
+        <select value={sort} onChange={(e) => setSort(e.target.value as keyof typeof SORTS)} className="ml-auto rounded-full border border-ink/15 bg-white px-3 py-2 text-xs font-medium" aria-label="Sort">
           {Object.entries(SORTS).map(([k, s]) => (
             <option key={k} value={k}>
               {s.label}
@@ -95,7 +95,7 @@ export function BrandPage({ slug }: { slug: string }) {
       </div>
 
       {products.length === 0 ? (
-        <div className="card p-10 text-center text-sm text-midnight/60">No products from {brand.name} yet — check back soon.</div>
+        <div className="card p-10 text-center text-sm text-ink/60">No products from {brand.name} yet — check back soon.</div>
       ) : view === "grid" ? (
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
           {products.map((p) => (
@@ -111,27 +111,27 @@ export function BrandPage({ slug }: { slug: string }) {
 
 function PriceList({ products }: { products: Product[] }) {
   return (
-    <div className="overflow-hidden rounded-3xl border border-line bg-white">
-      <div className="hidden grid-cols-[1fr_120px_140px] gap-4 border-b border-line bg-blush/50 px-5 py-3 text-xs font-semibold uppercase tracking-wider text-midnight/50 sm:grid">
+    <div className="overflow-hidden rounded-3xl border border-ink/15 bg-white">
+      <div className="hidden grid-cols-[1fr_120px_140px] gap-4 border-b border-ink/15 bg-blush/50 px-5 py-3 text-xs font-semibold uppercase tracking-wider text-ink/50 sm:grid">
         <span>Product</span>
         <span className="text-right">Best price</span>
         <span className="text-right">Store</span>
       </div>
-      <ul className="divide-y divide-line/70">
+      <ul className="divide-y divide-ink/10/70">
         {products.map((p) => {
           const best = bestOffer(p);
           return (
             <li key={p.id}>
-              <Link href={`/product/${p.slug}`} className="grid grid-cols-[1fr_auto] items-center gap-x-4 gap-y-1 px-4 py-3 transition hover:bg-cream/70 sm:grid-cols-[1fr_120px_140px] sm:px-5">
+              <Link href={`/product/${p.slug}`} className="grid grid-cols-[1fr_auto] items-center gap-x-4 gap-y-1 px-4 py-3 transition hover:bg-ink/[0.03]/70 sm:grid-cols-[1fr_120px_140px] sm:px-5">
                 <span className="flex min-w-0 items-center gap-3">
                   <ProductImage product={p} className="h-12 w-12 shrink-0 rounded-xl" emojiSize="text-2xl" />
                   <span className="min-w-0">
                     <span className="line-clamp-2 text-sm font-semibold leading-snug">{p.name}</span>
-                    <span className="text-xs text-midnight/50">{p.subcategory}</span>
+                    <span className="text-xs text-ink/50">{p.subcategory}</span>
                   </span>
                 </span>
                 <span className="text-right text-sm font-extrabold">{isPriced(p) ? peso(best.price) : <span className="text-pink">See prices</span>}</span>
-                <span className="col-span-2 flex items-center justify-end gap-1.5 text-xs text-midnight/60 sm:col-span-1">
+                <span className="col-span-2 flex items-center justify-end gap-1.5 text-xs text-ink/60 sm:col-span-1">
                   <RetailerBadge id={best.retailer} size="xs" /> {isPriced(p) ? retailerById(best.retailer).name : `${p.offers.length} stores`}
                 </span>
               </Link>

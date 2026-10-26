@@ -31,7 +31,7 @@ export function HeartButton({ productId, className, size = "md" }: { productId: 
       className={cn(className?.includes("absolute") ? "" : "relative", "grid place-items-center rounded-full bg-white/90 shadow-sm backdrop-blur transition hover:scale-110", dims, className)}
     >
       <motion.span key={burst} initial={{ scale: burst ? 0.4 : 1 }} animate={{ scale: 1 }} transition={{ type: "spring", stiffness: 500, damping: 12 }}>
-        <Heart className={cn("h-[18px] w-[18px] transition", saved ? "fill-pink text-pink" : "text-midnight/60")} />
+        <Heart className={cn("h-[18px] w-[18px] transition", saved ? "fill-pink text-pink" : "text-ink/60")} />
       </motion.span>
       <AnimatePresence>
         {burst > 0 && saved && (

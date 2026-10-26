@@ -9,8 +9,8 @@ export const metadata = {
 };
 
 const Row = ({ name, purpose, kind, keep }: { name: string; purpose: string; kind: string; keep: string }) => (
-  <tr className="border-t border-line/70 align-top">
-    <td className="py-2 pr-3 font-mono text-[12px] text-midnight">{name}</td>
+  <tr className="border-t border-ink/10 align-top">
+    <td className="py-2 pr-3 font-mono text-[12px] text-ink">{name}</td>
     <td className="py-2 pr-3">{purpose}</td>
     <td className="py-2 pr-3 whitespace-nowrap">{kind}</td>
     <td className="py-2">{keep}</td>
@@ -48,7 +48,7 @@ export default function CookiesPage() {
               <p>These are needed for Lovioo to work and are kept in your browser&apos;s local storage, not in cookies.</p>
               <div className="mt-3 overflow-x-auto rounded-2xl bg-white p-3 shadow-soft">
                 <table className="w-full min-w-[520px] text-left text-[13px]">
-                  <thead className="text-[11px] uppercase tracking-wider text-midnight/45">
+                  <thead className="text-[11px] uppercase tracking-wider text-ink/45">
                     <tr>
                       <th className="pb-1 pr-3 font-semibold">Name</th>
                       <th className="pb-1 pr-3 font-semibold">Purpose</th>

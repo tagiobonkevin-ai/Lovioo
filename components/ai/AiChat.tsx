@@ -42,7 +42,7 @@ function RichText({ text }: { text: string }) {
 function MiniProduct({ p }: { p: Product }) {
   const i = getInsight(p);
   return (
-    <Link href={`/product/${p.slug}`} className="flex w-40 shrink-0 flex-col overflow-hidden rounded-2xl border border-line bg-white transition hover:-translate-y-0.5 hover:shadow-soft">
+    <Link href={`/product/${p.slug}`} className="flex w-40 shrink-0 flex-col overflow-hidden rounded-2xl border border-ink/15 bg-white transition hover:-translate-y-0.5 hover:shadow-soft">
       <ProductImage product={p} className="aspect-[4/3]" emojiSize="text-4xl" />
       <div className="p-2.5">
         <p className="line-clamp-2 text-xs font-semibold leading-snug">{p.name}</p>
@@ -119,7 +119,7 @@ export function AiChat({ compact = false, initialQuery }: { compact?: boolean; i
                   role="radio"
                   aria-checked={lang === l.id}
                   onClick={() => setAiLang(l.id)}
-                  className={cn("rounded-full px-2.5 py-1 transition", lang === l.id ? "bg-grape text-white" : "text-midnight/60 hover:text-grape")}
+                  className={cn("rounded-full px-2.5 py-1 transition", lang === l.id ? "bg-grape text-white" : "text-ink/60 hover:text-grape")}
                 >
                   {l.label}
                 </button>
@@ -127,7 +127,7 @@ export function AiChat({ compact = false, initialQuery }: { compact?: boolean; i
             </div>
           </div>
           <p className="mt-2 text-lg font-bold">{t.hi(name)}</p>
-          <p className="text-sm text-midnight/70">{t.intro}</p>
+          <p className="text-sm text-ink/70">{t.intro}</p>
           {msgs.length === 0 && (
             <div className="mt-3 flex flex-wrap gap-2">
               {t.starters.map((s) => (
@@ -145,7 +145,7 @@ export function AiChat({ compact = false, initialQuery }: { compact?: boolean; i
               <div
                 className={cn(
                   "max-w-[85%] rounded-3xl px-4 py-2.5 text-sm",
-                  m.role === "user" ? "rounded-br-md bg-pink text-white" : "rounded-bl-md bg-white text-midnight shadow-sm ring-1 ring-line",
+                  m.role === "user" ? "rounded-br-md bg-pink text-white" : "rounded-bl-md bg-white text-ink shadow-sm ring-1 ring-line",
                 )}
               >
                 <RichText text={m.text} />
@@ -182,7 +182,7 @@ export function AiChat({ compact = false, initialQuery }: { compact?: boolean; i
           e.preventDefault();
           send(input);
         }}
-        className="flex items-center gap-2 border-t border-line/70 bg-white p-3"
+        className="flex items-center gap-2 border-t border-ink/10 bg-white p-3"
       >
         <input value={input} onChange={(e) => setInput(e.target.value)} placeholder={t.placeholder} className="input !rounded-full !py-2.5" aria-label="Message Lovioo AI" />
         <button type="submit" className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-pink text-white shadow-pop disabled:opacity-40" disabled={!input.trim()} aria-label="Send">

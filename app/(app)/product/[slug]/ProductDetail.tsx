@@ -63,16 +63,16 @@ function ProductView({ product }: { product: Product }) {
 
   return (
     <div className="space-y-10 pb-16 lg:pb-0">
-      <nav className="text-xs text-midnight/50">
+      <nav className="text-xs text-ink/50">
         <Link href="/discover" className="hover:text-pink">Home</Link> <span className="mx-1.5">›</span>
         <Link href={`/search?category=${cat.id}`} className="hover:text-pink">{cat.name}</Link> <span className="mx-1.5">›</span>
-        <span className="text-midnight/70">{product.name}</span>
+        <span className="text-ink/70">{product.name}</span>
       </nav>
 
       <div className="grid gap-8 lg:grid-cols-2">
         <div className="space-y-3">
           <div className="relative">
-            <ProductImage product={product} className="aspect-square rounded-[2rem] shadow-soft" emojiSize="text-[10rem]" />
+            <ProductImage product={product} className="aspect-square rounded-2xl shadow-soft" emojiSize="text-[10rem]" />
             {product.trending && <span className="absolute left-4 top-4 rounded-full bg-white/90 px-3 py-1 text-xs font-semibold text-coral">🔥 Trending</span>}
           </div>
           <div className="grid grid-cols-4 gap-3">
@@ -90,9 +90,9 @@ function ProductView({ product }: { product: Product }) {
               {product.brand} · see all {product.brand} products →
             </Link>
           ) : (
-            <p className="text-sm font-medium text-midnight/50">{product.brand}</p>
+            <p className="text-sm font-medium text-ink/50">{product.brand}</p>
           )}
-          <h1 className="mt-1 text-3xl font-extrabold leading-tight tracking-tight">{product.name}</h1>
+          <h1 className="mt-1 text-[30px] leading-[1.35]">{product.name}</h1>
           {product.reviewCount > 0 && (
             <div className="mt-2 flex items-center gap-2 text-sm">
               <span className="flex">
@@ -101,12 +101,12 @@ function ProductView({ product }: { product: Product }) {
                 ))}
               </span>
               <span className="font-semibold">{product.rating}</span>
-              <span className="text-midnight/50">({compact(product.reviewCount)} reviews)</span>
+              <span className="text-ink/50">({compact(product.reviewCount)} reviews)</span>
             </div>
           )}
           <div className="mt-3 flex flex-wrap gap-1.5">
             {product.tags.map((t) => (
-              <span key={t} className="rounded-full bg-lavender px-2.5 py-1 text-[11px] font-medium capitalize text-midnight/70">
+              <span key={t} className="rounded-full bg-lavender px-2.5 py-1 text-[11px] font-medium capitalize text-ink/70">
                 {t}
               </span>
             ))}
@@ -116,17 +116,17 @@ function ProductView({ product }: { product: Product }) {
             <>
               <div className="mt-6 flex items-end gap-3">
                 <span className="text-4xl font-extrabold">{peso(best.price)}</span>
-                {best.originalPrice > best.price && <span className="pb-1 text-midnight/40 line-through">{peso(best.originalPrice)}</span>}
+                {best.originalPrice > best.price && <span className="pb-1 text-ink/40 line-through">{peso(best.originalPrice)}</span>}
                 <DiscountBadge pct={pct} className="mb-1.5" />
               </div>
-              <p className="mt-1 text-sm text-midnight/60">
+              <p className="mt-1 text-sm text-ink/60">
                 Lowest price on <b>{retailerById(best.retailer).name}</b> · compared across {product.offers.length} stores
               </p>
             </>
           ) : (
             <>
-              <p className="mt-6 text-3xl font-extrabold">See prices</p>
-              <p className="mt-1 text-sm text-midnight/60">
+              <p className="mt-6 text-[30px] leading-[1.35]">See prices</p>
+              <p className="mt-1 text-sm text-ink/60">
                 {insight.headline} — compare sellers in <button onClick={() => setTab("Compare offers")} className="font-semibold text-pink">Where to buy</button> below.
               </p>
             </>
@@ -166,14 +166,14 @@ function ProductView({ product }: { product: Product }) {
           <div className="mt-6">
             <InsightCard product={product} />
           </div>
-          <p className="mt-5 text-sm leading-relaxed text-midnight/70">{product.description}</p>
+          <p className="mt-5 text-sm leading-relaxed text-ink/70">{product.description}</p>
         </div>
       </div>
 
       <section id="offers" className="card scroll-mt-20 p-5 sm:p-6">
-        <div className="no-scrollbar flex gap-6 overflow-x-auto border-b border-line">
+        <div className="no-scrollbar flex gap-6 overflow-x-auto border-b border-ink/15">
           {tabs.map((t) => (
-            <button key={t} onClick={() => setTab(t)} className={cn("-mb-px shrink-0 border-b-2 pb-3 text-sm font-semibold transition", tab === t ? "border-pink text-pink" : "border-transparent text-midnight/50")}>
+            <button key={t} onClick={() => setTab(t)} className={cn("-mb-px shrink-0 border-b-2 pb-3 text-sm font-semibold transition", tab === t ? "border-pink text-pink" : "border-transparent text-ink/50")}>
               {t === "Compare offers" && !priced ? "Where to buy" : t}
             </button>
           ))}
@@ -182,7 +182,7 @@ function ProductView({ product }: { product: Product }) {
           {tab === "Compare offers" && (
             <>
               <OfferTable product={product} />
-              <p className="mt-3 text-xs text-midnight/50">
+              <p className="mt-3 text-xs text-ink/50">
                 {priced && lastChecked(product.offers)}Prices and availability are set by each retailer and may change — check the store before you buy.
               </p>
             </>
@@ -198,7 +198,7 @@ function ProductView({ product }: { product: Product }) {
                   {h}
                 </li>
               ))}
-              <li className="text-sm text-midnight/60">Category: {cat.name} › {product.subcategory}</li>
+              <li className="text-sm text-ink/60">Category: {cat.name} › {product.subcategory}</li>
             </ul>
           )}
         </div>
@@ -207,7 +207,7 @@ function ProductView({ product }: { product: Product }) {
       <StickyBuyBar product={product} priced={priced} onCompare={() => setTab("Compare offers")} />
 
       <section>
-        <h2 className="text-xl font-extrabold">You might also love</h2>
+        <h2 className="text-[20px] leading-[1.5]">You might also love</h2>
         <div className="mt-4 grid grid-cols-2 gap-4 lg:grid-cols-4">
           {similarProducts(product).map((p) => (
             <ProductCard key={p.id} product={p} />

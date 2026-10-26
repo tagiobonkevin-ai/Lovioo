@@ -48,14 +48,17 @@ export default function Discover() {
   return (
     <div className="space-y-10">
       <div className="relative">
-        <div className="pointer-events-none absolute -left-10 -top-10 h-40 w-40 rounded-full bg-pink/20 blur-3xl" />
-        <div className="pointer-events-none absolute -top-6 right-0 h-32 w-32 rounded-full bg-sunset/25 blur-3xl" />
+        <div className="pointer-events-none absolute -left-10 -top-10 h-40 w-40 rounded-full bg-pink/[0.09] blur-3xl" />
+        <div className="pointer-events-none absolute -top-6 right-0 h-32 w-32 rounded-full bg-sunset/[0.12] blur-3xl" />
         <div className="relative flex items-center justify-between gap-3">
-          <p className="text-sm text-midnight/60">{hydrated && user ? `Hey ${user.name.split(" ")[0]} 👋` : "Welcome to Lovioo 👋"}</p>
-          {hydrated && streak > 0 && <span className="rounded-full bg-white px-3 py-1 text-xs font-bold text-coral shadow-soft">🔥 {streak}-day streak</span>}
+          <p className="text-sm text-ink/60">{hydrated && user ? `Hey ${user.name.split(" ")[0]} 👋` : "Welcome to Lovioo 👋"}</p>
+          {hydrated && streak > 0 && <span className="rounded-full border border-ink/10 bg-white px-3 py-1 text-xs font-medium text-coral">🔥 {streak}-day streak</span>}
         </div>
-        <h1 className="relative mt-1 text-3xl font-extrabold leading-tight tracking-tight sm:text-4xl">
-          What are you <span className="text-gradient">loving</span> today? <span className="inline-block animate-wiggle">💘</span>
+        <h1 className="relative mt-1 text-[30px] leading-[1.35] sm:text-[38px] sm:leading-[1.35]">
+          What are you <span className="text-gradient">loving</span>{" "}
+          <span className="whitespace-nowrap">
+            today? <span className="inline-block animate-wiggle">💘</span>
+          </span>
         </h1>
         <div className="no-scrollbar relative -mx-4 mt-4 flex gap-2 overflow-x-auto px-4 pb-1">
           {VIBES.map((v) => (
@@ -74,19 +77,19 @@ export default function Discover() {
       <div className="grid gap-4 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
         {topDeals.length > 0 && <DealCarousel products={topDeals} />}
         <div className="grid gap-4">
-          <Link href="/swipe" className="group relative overflow-hidden rounded-[2rem] bg-midnight p-6 text-white">
+          <Link href="/swipe" className="group relative overflow-hidden rounded-2xl bg-ink p-6 text-white">
             <div className="absolute -right-6 -top-6 h-32 w-32 rounded-full bg-pink/40 blur-2xl" />
             <Layers className="h-8 w-8 text-pink" />
-            <p className="mt-3 text-xl font-bold">Swipe mode 💘</p>
+            <p className="mt-3 font-display text-[20px] font-medium leading-[1.5]">Swipe mode 💘</p>
             <p className="mt-1 text-sm text-white/70">Love or pass — your feed learns your vibe with every swipe.</p>
             <span className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-pink transition group-hover:gap-2">
               Start swiping <ArrowRight className="h-4 w-4" />
             </span>
           </Link>
-          <Link href="/ai" className="group relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-grape/15 to-pink/15 p-6">
+          <Link href="/ai" className="group relative overflow-hidden rounded-2xl border border-ink/10 bg-gradient-to-br from-grape/[0.07] to-pink/[0.07] p-6">
             <Sparkles className="h-8 w-8 text-grape" />
-            <p className="mt-3 text-xl font-bold">Ask Lovioo AI</p>
-            <p className="mt-1 text-sm text-midnight/70">“Skincare under ₱1,000” · “Should I buy now or wait?”</p>
+            <p className="mt-3 font-display text-[20px] font-medium leading-[1.5]">Ask Lovioo AI</p>
+            <p className="mt-1 text-sm text-ink/70">“Skincare under ₱1,000” · “Should I buy now or wait?”</p>
           </Link>
         </div>
       </div>
@@ -95,7 +98,7 @@ export default function Discover() {
 
       <section>
         <div className="flex items-end justify-between gap-3">
-          <h2 className="text-xl font-extrabold">Recommended for you</h2>
+          <h2 className="text-[20px] leading-[1.5]">Recommended for you</h2>
           <Link href="/search" className="shrink-0 whitespace-nowrap text-sm font-semibold text-pink">
             See all
           </Link>
@@ -110,7 +113,7 @@ export default function Discover() {
       {budget.length > 0 && (
         <section>
           <div className="flex items-end justify-between gap-3">
-            <h2 className="text-xl font-extrabold">Under ₱500 💸</h2>
+            <h2 className="text-[20px] leading-[1.5]">Under ₱500 💸</h2>
             <Link href="/search?max=500" className="shrink-0 whitespace-nowrap text-sm font-semibold text-pink">
               See all
             </Link>
@@ -125,7 +128,7 @@ export default function Discover() {
 
       <section>
         <div className="flex items-end justify-between gap-3">
-          <h2 className="text-xl font-extrabold">Trending deals 🔥</h2>
+          <h2 className="text-[20px] leading-[1.5]">Trending deals 🔥</h2>
           <Link href="/search?sort=trending" className="shrink-0 whitespace-nowrap text-sm font-semibold text-pink">
             See all
           </Link>
@@ -150,13 +153,13 @@ function DealCarousel({ products }: { products: typeof PRODUCTS }) {
   const ins = getInsight(p);
 
   return (
-    <div className="relative overflow-hidden rounded-[2rem] bg-brand-soft">
+    <div className="relative overflow-hidden rounded-2xl bg-brand-soft">
       <AnimatePresence mode="wait">
         <motion.div key={p.id} initial={{ opacity: 0, x: 40 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -40 }} className="grid min-h-[280px] items-center gap-4 p-6 sm:grid-cols-2 sm:p-8">
           <div>
             <span className="chip border-none bg-white/80 text-pink">Top deal just for you</span>
-            <h2 className="mt-3 text-2xl font-extrabold leading-tight sm:text-3xl">{p.name}</h2>
-            <p className="mt-2 text-sm text-midnight/70">
+            <h2 className="mt-3 text-[24px] leading-[1.45] leading-tight sm:text-3xl">{p.name}</h2>
+            <p className="mt-2 text-sm text-ink/70">
               {peso(ins.bestOffer.price)} on {retailerById(ins.bestOffer.retailer).name} · {ins.headline}
             </p>
             <div className="mt-5 flex items-center gap-3">

@@ -263,7 +263,7 @@ export default function ProductEditor({ params }: { params: { id: string } }) {
 
   return (
     <div>
-      <Link href="/admin/products" className="mb-3 inline-flex items-center gap-1 text-sm text-midnight/60 hover:text-pink">
+      <Link href="/admin/products" className="mb-3 inline-flex items-center gap-1 text-sm text-ink/60 hover:text-pink">
         <ArrowLeft className="h-4 w-4" /> Products
       </Link>
       <PageHeader title={isNew ? "Add product" : draft.name || "Edit product"}>
@@ -290,7 +290,7 @@ export default function ProductEditor({ params }: { params: { id: string } }) {
       <ReviewStatus canPublish={canPublish} pending={pending} latest={latest} submittedAt={data?.published ? null : data?.review_requested_at ?? null} />
       {liveLocked && (
         <Panel className="mb-6">
-          <p className="text-sm text-midnight/70">
+          <p className="text-sm text-ink/70">
             <b>This product is live.</b> Prices, stock and price tracking save straight away. Changes to anything else are sent to an admin for review
             first — shoppers keep seeing the current version until it&apos;s approved.
           </p>
@@ -401,7 +401,7 @@ export default function ProductEditor({ params }: { params: { id: string } }) {
             }
           >
             {offers.length === 0 ? (
-              <p className="flex items-center gap-2 text-sm text-midnight/50">
+              <p className="flex items-center gap-2 text-sm text-ink/50">
                 <Plus className="h-4 w-4" /> Add the stores that sell this product.
               </p>
             ) : (
@@ -411,7 +411,7 @@ export default function ProductEditor({ params }: { params: { id: string } }) {
                   return (
                     <div
                       key={o.retailer_id}
-                      className={cn("grid gap-3 rounded-2xl border border-line p-3 sm:items-end", draft.price_tracked ? "sm:grid-cols-[150px_1fr_1fr_1fr_auto]" : "sm:grid-cols-[1fr_auto]")}
+                      className={cn("grid gap-3 rounded-2xl border border-ink/15 p-3 sm:items-end", draft.price_tracked ? "sm:grid-cols-[150px_1fr_1fr_1fr_auto]" : "sm:grid-cols-[1fr_auto]")}
                     >
                       <div className="flex items-center gap-2 pb-2">
                         <RetailerBadge id={o.retailer_id} withName size="sm" />
@@ -430,11 +430,11 @@ export default function ProductEditor({ params }: { params: { id: string } }) {
                         </>
                       )}
                       <div className="flex items-center gap-3 pb-1.5">
-                        <span className="flex items-center gap-2 text-xs text-midnight/60">
+                        <span className="flex items-center gap-2 text-xs text-ink/60">
                           <Toggle on={o.in_stock} onChange={() => update({ in_stock: !o.in_stock })} label="In stock" /> In stock
                         </span>
                         {!liveLocked && (
-                          <button onClick={() => setOffers((all) => all.filter((_, j) => j !== i))} className="text-midnight/40 hover:text-coral" aria-label={`Remove ${o.retailer_id}`}>
+                          <button onClick={() => setOffers((all) => all.filter((_, j) => j !== i))} className="text-ink/40 hover:text-coral" aria-label={`Remove ${o.retailer_id}`}>
                             <Trash2 className="h-4 w-4" />
                           </button>
                         )}
@@ -456,8 +456,8 @@ export default function ProductEditor({ params }: { params: { id: string } }) {
                     </div>
                   );
                 })}
-                {liveLocked && <p className="text-[11px] text-midnight/50">Adding or removing a store on a live product is done by an admin.</p>}
-                <p className="text-[11px] text-midnight/40">
+                {liveLocked && <p className="text-[11px] text-ink/50">Adding or removing a store on a live product is done by an admin.</p>}
+                <p className="text-[11px] text-ink/40">
                   {draft.price_tracked
                     ? "Each price change is recorded in the price history for today."
                     : 'Price tracking is off: shoppers see "See prices" and compare live listings on each store.'}
@@ -471,7 +471,7 @@ export default function ProductEditor({ params }: { params: { id: string } }) {
           <Panel title="Visibility">
             <div className="space-y-3 text-sm">
               {!canPublish && (
-                <p className="rounded-2xl bg-lavender p-3 text-xs text-midnight/70">
+                <p className="rounded-2xl bg-lavender p-3 text-xs text-ink/70">
                   {draft.published
                     ? "Live on the shopper site. Price and stock edits show up within a minute; other edits after an admin approves them."
                     : "Draft: when it's ready, tap Submit for review and an admin will publish it."}
@@ -518,10 +518,10 @@ export default function ProductEditor({ params }: { params: { id: string } }) {
               error={imageProblem}
               warning={draft.image && imageFailed ? "This image link doesn't load. Use a direct link to a .jpg, .png or .webp image." : null}
             />
-            <p className="mt-2 text-[11px] text-midnight/40">If the image can&apos;t load, shoppers see the emoji tile.</p>
+            <p className="mt-2 text-[11px] text-ink/40">If the image can&apos;t load, shoppers see the emoji tile.</p>
           </Panel>
 
-          <Panel title="Vibes" action={<span className="text-xs text-midnight/50">Swipe filters</span>}>
+          <Panel title="Vibes" action={<span className="text-xs text-ink/50">Swipe filters</span>}>
             <div className="flex flex-wrap gap-2">
               {VIBES.map((v) => {
                 const on = draft.vibes.includes(v.id);
@@ -536,7 +536,7 @@ export default function ProductEditor({ params }: { params: { id: string } }) {
 
           {offers.length > 0 && draft.price_tracked && (
             <Panel title="Summary">
-              <p className="text-sm text-midnight/70">
+              <p className="text-sm text-ink/70">
                 Lowest price <b>{peso(Math.min(...offers.map((o) => o.price)))}</b> across {offers.length} store{offers.length > 1 ? "s" : ""}.
               </p>
             </Panel>
@@ -562,7 +562,7 @@ function ReviewStatus({ canPublish, pending, latest, submittedAt }: { canPublish
   if (canPublish) {
     if (!pending.length && !submittedAt) return null;
     return (
-      <p className={cn(box, "bg-lavender text-midnight/80")}>
+      <p className={cn(box, "bg-lavender text-ink/80")}>
         <Clock className="mt-0.5 h-4 w-4 shrink-0 text-pink" />
         <span>
           {submittedAt ? `An editor submitted this draft for review (${shortDate(submittedAt)}). ` : ""}
@@ -576,7 +576,7 @@ function ReviewStatus({ canPublish, pending, latest, submittedAt }: { canPublish
   }
   if (pending.length) {
     return (
-      <p className={cn(box, "bg-lavender text-midnight/80")}>
+      <p className={cn(box, "bg-lavender text-ink/80")}>
         <Clock className="mt-0.5 h-4 w-4 shrink-0 text-pink" />
         <span>
           <b>Waiting for review:</b> {pending.flatMap((r) => changeLabels(asChangeSet(r.changes), storeName)).join(", ")} · sent {shortDate(pending[0].created_at)}
@@ -597,7 +597,7 @@ function ReviewStatus({ canPublish, pending, latest, submittedAt }: { canPublish
   }
   if (submittedAt) {
     return (
-      <p className={cn(box, "bg-lavender text-midnight/80")}>
+      <p className={cn(box, "bg-lavender text-ink/80")}>
         <Clock className="mt-0.5 h-4 w-4 shrink-0 text-pink" />
         <span>
           <b>Submitted for review</b> {shortDate(submittedAt)}. An admin will publish it.

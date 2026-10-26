@@ -38,7 +38,7 @@ const COPY: Record<StepId, { emoji: string; title: React.ReactNode; hint: string
 
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 const h = "font-[family-name:var(--font-serif)] font-normal tracking-[-0.01em]";
-const pill = "h-14 w-full rounded-2xl bg-white px-4 text-base text-midnight outline-none ring-1 ring-midnight/10 transition focus:ring-2 focus:ring-pink/50";
+const pill = "h-14 w-full rounded-2xl bg-white px-4 text-base text-ink outline-none ring-1 ring-midnight/10 transition focus:ring-2 focus:ring-pink/50";
 
 /** One question per screen: name and birthday are required for accounts; everything else can be skipped. */
 export default function Onboarding() {
@@ -179,7 +179,7 @@ export default function Onboarding() {
   const optionalOnly = aboutPending === false;
 
   return (
-    <div className={cn(serif.variable, "flex min-h-[100dvh] flex-col bg-[#FBF7F2] text-midnight")}>
+    <div className={cn(serif.variable, "flex min-h-[100dvh] flex-col bg-[#FBF7F2] text-ink")}>
       <header className="mx-auto flex w-full max-w-xl items-center gap-3 px-5 pt-5">
         {step > 0 ? (
           <button onClick={() => go(-1)} className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-white ring-1 ring-midnight/10" aria-label="Back">
@@ -194,13 +194,13 @@ export default function Onboarding() {
         </div>
         {aboutPending !== null &&
           (required ? (
-            <span className="w-12 text-right text-xs text-midnight/40">
+            <span className="w-12 text-right text-xs text-ink/40">
               {step + 1}/{steps.length}
             </span>
           ) : (
             <button
               onClick={() => (optionalOnly && step === 0 ? finish(false) : last ? finish(true) : advance(true))}
-              className="rounded-full px-3 py-2 text-sm font-medium text-midnight/55 hover:text-midnight"
+              className="rounded-full px-3 py-2 text-sm font-medium text-ink/55 hover:text-ink"
             >
               Skip
             </button>
@@ -224,7 +224,7 @@ export default function Onboarding() {
                 {COPY[id].emoji}
               </span>
               <h1 className={cn(h, "mt-5 text-[2.4rem] leading-[1.05] sm:text-5xl")}>{COPY[id].title}</h1>
-              <p className="mt-2 text-[15px] text-midnight/55">{COPY[id].hint}</p>
+              <p className="mt-2 text-[15px] text-ink/55">{COPY[id].hint}</p>
 
               <div className="mt-8 flex-1">
                 {id === "name" && (
@@ -237,7 +237,7 @@ export default function Onboarding() {
                     autoComplete="name"
                     placeholder="Your name"
                     aria-label="Your name"
-                    className="w-full border-b-2 border-midnight/15 bg-transparent pb-3 text-3xl outline-none transition placeholder:text-midnight/25 focus:border-pink"
+                    className="w-full border-b-2 border-midnight/15 bg-transparent pb-3 text-3xl outline-none transition placeholder:text-ink/25 focus:border-pink"
                   />
                 )}
 

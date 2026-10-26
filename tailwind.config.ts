@@ -20,7 +20,8 @@ const config: Config = {
         ink: "#141414",
       },
       fontFamily: {
-        sans: ["var(--font-poppins)", "ui-sans-serif", "system-ui", "sans-serif"],
+        sans: ["var(--font-ui)", "ui-sans-serif", "system-ui", "sans-serif"],
+        poppins: ["var(--font-poppins)", "ui-sans-serif", "system-ui", "sans-serif"],
         display: ["var(--font-display)", "ui-serif", "Georgia", "serif"],
         ui: ["var(--font-ui)", "ui-sans-serif", "system-ui", "sans-serif"],
       },

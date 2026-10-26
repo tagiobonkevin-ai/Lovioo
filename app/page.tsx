@@ -52,7 +52,7 @@ export default async function Landing() {
             Shop every store in the Philippines through one chat.
           </h1>
           <p className="mx-auto mt-4 max-w-[46ch] text-[15px] leading-relaxed text-ink/60">
-            Tell Lovioo AI what you want in English, Tagalog or Bisaya. We compare Shopee, Lazada, TikTok Shop and Amazon and show you
+            Tell Lovioo AI what you want in English, Tagalog or Visayan. We compare Shopee, Lazada, TikTok Shop and Amazon and show you
             what&apos;s actually worth it.
           </p>
         </div>
@@ -131,7 +131,7 @@ export default async function Landing() {
           <Heading className="max-w-[20ch]">Say it the way you&apos;d say it to a friend.</Heading>
           <ol className="mt-8 grid gap-8 sm:grid-cols-3">
             {[
-              ["01", "Ask in your language", "“Pang-regalo kay mama, mga ₱1,500 lang.” English, Tagalog and Bisaya all work."],
+              ["01", "Ask in your language", "“Pang-regalo kay mama, mga ₱1,500 lang.” English, Tagalog and Visayan all work."],
               ["02", "Swipe what you love", "Love it or pass. Every swipe teaches your feed what feels like you."],
               ["03", "Shop the best price", "We compare the stores, then send you across to check out."],
             ].map(([n, title, body]) => (

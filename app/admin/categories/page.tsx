@@ -40,7 +40,7 @@ export default function AdminCategories() {
         <Panel>
           <div className="overflow-x-auto">
             <table className="w-full min-w-[640px] text-sm">
-              <thead className="text-left text-xs uppercase tracking-wider text-midnight/50">
+              <thead className="text-left text-xs uppercase tracking-wider text-ink/50">
                 <tr>
                   <th className="pb-3 font-semibold">Icon</th>
                   <th className="pb-3 font-semibold">Name</th>
@@ -52,16 +52,16 @@ export default function AdminCategories() {
               </thead>
               <tbody>
                 {data.map((r) => (
-                  <tr key={r.id} className="border-t border-line/70">
+                  <tr key={r.id} className="border-t border-ink/10">
                     <td className="py-2 pr-3">
                       <input className={cn(adminInput, "w-14 text-center text-lg")} value={r.emoji} onChange={(e) => patch(r.id, { emoji: e.target.value })} aria-label="Emoji" />
                     </td>
                     <td className="py-2 pr-3">
                       <input className={adminInput} value={r.name} onChange={(e) => patch(r.id, { name: e.target.value })} aria-label="Name" />
                     </td>
-                    <td className="py-2 pr-3 text-midnight/50">{r.id}</td>
+                    <td className="py-2 pr-3 text-ink/50">{r.id}</td>
                     <td className="py-2 pr-3">
-                      <input type="color" className="h-9 w-14 cursor-pointer rounded-lg border border-line" value={r.tint} onChange={(e) => patch(r.id, { tint: e.target.value })} aria-label="Tint" />
+                      <input type="color" className="h-9 w-14 cursor-pointer rounded-lg border border-ink/15" value={r.tint} onChange={(e) => patch(r.id, { tint: e.target.value })} aria-label="Tint" />
                     </td>
                     <td className="py-2 pr-3 text-right">{count(r.id)}</td>
                     <td className="py-2">
@@ -73,7 +73,7 @@ export default function AdminCategories() {
                           onClick={() => remove(r)}
                           disabled={count(r.id) > 0}
                           title={count(r.id) > 0 ? "Move or delete its products first" : "Delete"}
-                          className="grid h-8 w-8 place-items-center rounded-full text-midnight/40 hover:text-coral disabled:opacity-30"
+                          className="grid h-8 w-8 place-items-center rounded-full text-ink/40 hover:text-coral disabled:opacity-30"
                           aria-label={`Delete ${r.name}`}
                         >
                           <Trash2 className="h-4 w-4" />
@@ -85,7 +85,7 @@ export default function AdminCategories() {
               </tbody>
             </table>
           </div>
-          <div className="mt-5 flex flex-wrap items-end gap-2 border-t border-line/70 pt-5">
+          <div className="mt-5 flex flex-wrap items-end gap-2 border-t border-ink/10 pt-5">
             <input className={cn(adminInput, "w-14 text-center text-lg")} value={draft.emoji} onChange={(e) => setDraft({ ...draft, emoji: e.target.value })} aria-label="New category emoji" />
             <input className={cn(adminInput, "w-40")} placeholder="id (e.g. pets)" value={draft.id} onChange={(e) => setDraft({ ...draft, id: e.target.value })} aria-label="New category id" />
             <input className={cn(adminInput, "w-56")} placeholder="Name" value={draft.name} onChange={(e) => setDraft({ ...draft, name: e.target.value })} aria-label="New category name" />

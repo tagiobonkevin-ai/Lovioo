@@ -84,7 +84,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
       </Gate>
     );
   }
-  if (access.state === "loading") return <div className="grid min-h-screen place-items-center bg-cream text-sm text-midnight/50">Checking access…</div>;
+  if (access.state === "loading") return <div className="grid min-h-screen place-items-center bg-ink/[0.03] text-sm text-ink/50">Checking access…</div>;
   if (access.state === "signed-out")
     return (
       <Gate title="Sign in to Lovioo Business" emoji="🔐" action={{ href: "/auth?mode=signin&next=/admin", label: "Sign in" }}>
@@ -98,7 +98,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
       </Gate>
     );
   if (access.state === "error") return <Gate title="Couldn't check admin access" emoji="⚠️">{access.message}</Gate>;
-  if (!pageAllowed) return <div className="grid min-h-screen place-items-center bg-cream text-sm text-midnight/50">Opening products…</div>;
+  if (!pageAllowed) return <div className="grid min-h-screen place-items-center bg-ink/[0.03] text-sm text-ink/50">Opening products…</div>;
 
   const nav = (
     <nav className="space-y-1">
@@ -145,13 +145,13 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="min-h-screen bg-[#F6F3F7]">
-      <aside className="fixed inset-y-0 left-0 z-30 hidden w-64 flex-col gap-8 bg-midnight p-5 lg:flex">
+      <aside className="fixed inset-y-0 left-0 z-30 hidden w-64 flex-col gap-8 bg-ink p-5 lg:flex">
         <BusinessLogo />
         <div className="flex-1">{nav}</div>
         {footer}
       </aside>
 
-      <header className="sticky top-0 z-30 flex items-center justify-between bg-midnight px-4 py-3 lg:hidden">
+      <header className="sticky top-0 z-30 flex items-center justify-between bg-ink px-4 py-3 lg:hidden">
         <BusinessLogo />
         <button onClick={() => setMenu(true)} className="grid h-10 w-10 place-items-center rounded-full text-white" aria-label="Open menu">
           <Menu className="h-5 w-5" />
@@ -159,8 +159,8 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
       </header>
       {menu && (
         <div className="fixed inset-0 z-50 lg:hidden">
-          <div className="absolute inset-0 bg-midnight/40" onClick={() => setMenu(false)} />
-          <div className="absolute inset-y-0 left-0 flex w-72 flex-col gap-6 bg-midnight p-5">
+          <div className="absolute inset-0 bg-ink/40" onClick={() => setMenu(false)} />
+          <div className="absolute inset-y-0 left-0 flex w-72 flex-col gap-6 bg-ink p-5">
             <div className="flex items-center justify-between">
               <BusinessLogo />
               <button onClick={() => setMenu(false)} className="text-white" aria-label="Close menu">
@@ -218,8 +218,8 @@ function Gate({ title, emoji, children, action }: { title: string; emoji: string
       <div className="card max-w-md p-8 text-center">
         <Logo tagline />
         <p className="mt-6 text-5xl">{emoji}</p>
-        <h1 className="mt-3 text-xl font-extrabold">{title}</h1>
-        <p className="mt-2 text-sm text-midnight/70">{children}</p>
+        <h1 className="mt-3 text-[20px] leading-[1.5]">{title}</h1>
+        <p className="mt-2 text-sm text-ink/70">{children}</p>
         {action && (
           <Link href={action.href} className="btn-primary mt-6">
             {action.label}

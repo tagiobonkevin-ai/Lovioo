@@ -32,7 +32,7 @@ export function CompareTray() {
             {items.map((p) => (
               <div key={p.id} className="relative">
                 <ProductImage product={p} className="h-12 w-12 rounded-xl" emojiSize="text-2xl" />
-                <button onClick={() => toggle(p.id)} className="absolute -right-1.5 -top-1.5 grid h-5 w-5 place-items-center rounded-full bg-white text-midnight" aria-label={`Remove ${p.name}`}>
+                <button onClick={() => toggle(p.id)} className="absolute -right-1.5 -top-1.5 grid h-5 w-5 place-items-center rounded-full bg-white text-ink" aria-label={`Remove ${p.name}`}>
                   <X className="h-3 w-3" />
                 </button>
               </div>

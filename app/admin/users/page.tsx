@@ -80,7 +80,7 @@ export default function AdminUsers() {
       <Panel>
         <div className="mb-4 flex flex-wrap items-center gap-2">
           <label className="relative min-w-[200px] max-w-sm flex-1">
-            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-midnight/40" />
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-ink/40" />
             <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search name, email or place…" className={cn(adminInput, "pl-9")} />
           </label>
           <div className="flex flex-wrap gap-1.5" role="radiogroup" aria-label="Filter shoppers">
@@ -91,13 +91,13 @@ export default function AdminUsers() {
             ))}
           </div>
         </div>
-        <p className="mb-3 text-[11px] text-midnight/45">Personal details are visible to admins only. Don&apos;t copy them outside Lovioo.</p>
+        <p className="mb-3 text-[11px] text-ink/45">Personal details are visible to admins only. Don&apos;t copy them outside Lovioo.</p>
         {error && <ErrorNote message={error} />}
         {loading && !data && <Skeleton className="h-64" />}
         {data && (
           <div className="overflow-x-auto">
             <table className="w-full min-w-[860px] text-sm">
-              <thead className="text-left text-xs uppercase tracking-wider text-midnight/50">
+              <thead className="text-left text-xs uppercase tracking-wider text-ink/50">
                 <tr>
                   <th className="pb-3 font-semibold">Shopper</th>
                   <th className="pb-3 font-semibold">Age · Gender</th>
@@ -117,7 +117,7 @@ export default function AdminUsers() {
                 })}
               </tbody>
             </table>
-            {rows.length === 0 && <p className="py-8 text-center text-sm text-midnight/50">No shoppers match.</p>}
+            {rows.length === 0 && <p className="py-8 text-center text-sm text-ink/50">No shoppers match.</p>}
           </div>
         )}
       </Panel>
@@ -129,7 +129,7 @@ function ShopperRow({ u, open, onToggle, onChanged }: { u: Shopper; open: boolea
   const [photoFailed, setPhotoFailed] = useState(false);
   return (
     <>
-      <tr className={cn("cursor-pointer border-t border-line/70 hover:bg-cream/60", open && "bg-cream/60")} onClick={onToggle}>
+      <tr className={cn("cursor-pointer border-t border-ink/10 hover:bg-ink/[0.03]/60", open && "bg-ink/[0.03]/60")} onClick={onToggle}>
         <td className="py-2.5">
           <span className="flex items-center gap-3">
             {u.avatar_url && !photoFailed ? (
@@ -142,14 +142,14 @@ function ShopperRow({ u, open, onToggle, onChanged }: { u: Shopper; open: boolea
                 <span className="truncate">{u.full_name || "—"}</span>
                 {u.name_approved_at && <BadgeCheck className="h-4 w-4 shrink-0 text-emerald-600" aria-label="Name approved" />}
               </span>
-              <span className="block truncate text-xs text-midnight/50">{u.email}</span>
+              <span className="block truncate text-xs text-ink/50">{u.email}</span>
             </span>
           </span>
         </td>
-        <td className="py-2.5 text-midnight/80">
+        <td className="py-2.5 text-ink/80">
           {u.birthdate ? ageOn(u.birthdate) : "—"} · {genderLabel(u.gender)}
         </td>
-        <td className="max-w-[180px] truncate py-2.5 text-midnight/80">{place(u)}</td>
+        <td className="max-w-[180px] truncate py-2.5 text-ink/80">{place(u)}</td>
         <td className="py-2.5">
           {u.profile_completed_at ? (
             <span className="rounded-full bg-emerald-50 px-2 py-0.5 text-[11px] font-semibold text-emerald-700">Complete</span>
@@ -157,18 +157,18 @@ function ShopperRow({ u, open, onToggle, onChanged }: { u: Shopper; open: boolea
             <span className="rounded-full bg-sunset/20 px-2 py-0.5 text-[11px] font-semibold text-[#9A5B00]">Missing birthday</span>
           )}
         </td>
-        <td className="py-2.5 text-right tabular-nums text-midnight/70">
+        <td className="py-2.5 text-right tabular-nums text-ink/70">
           {u.saves} · {u.alerts} · {u.swipes}
         </td>
-        <td className="py-2.5 text-right text-midnight/60">{date(u.created_at)}</td>
+        <td className="py-2.5 text-right text-ink/60">{date(u.created_at)}</td>
         <td className="py-2.5 text-right">
-          <button aria-label={open ? `Hide ${u.full_name}` : `Show ${u.full_name}`} aria-expanded={open} className="text-midnight/40">
+          <button aria-label={open ? `Hide ${u.full_name}` : `Show ${u.full_name}`} aria-expanded={open} className="text-ink/40">
             <ChevronDown className={cn("h-4 w-4 transition", open && "rotate-180")} />
           </button>
         </td>
       </tr>
       {open && (
-        <tr className="bg-cream/60">
+        <tr className="bg-ink/[0.03]/60">
           <td colSpan={7} className="px-3 pb-4">
             <ShopperDetails u={u} onChanged={onChanged} />
           </td>
@@ -183,14 +183,14 @@ function ShopperDetails({ u, onChanged }: { u: Shopper; onChanged: () => void })
   const budget = BUDGETS.find((b) => b.id === u.budget)?.label ?? "—";
   const item = (label: string, value: React.ReactNode) => (
     <div>
-      <dt className="text-[10px] font-semibold uppercase tracking-wider text-midnight/45">{label}</dt>
-      <dd className="mt-0.5 text-sm text-midnight/85">{value}</dd>
+      <dt className="text-[10px] font-semibold uppercase tracking-wider text-ink/45">{label}</dt>
+      <dd className="mt-0.5 text-sm text-ink/85">{value}</dd>
     </div>
   );
   return (
     <div className="grid gap-4 rounded-2xl bg-white p-4 shadow-soft lg:grid-cols-3">
       <section>
-        <h3 className="mb-2 text-xs font-bold text-midnight">Profile</h3>
+        <h3 className="mb-2 text-xs font-bold text-ink">Profile</h3>
         <dl className="grid grid-cols-2 gap-3">
           {item("Full name", u.full_name || "—")}
           {item("Email", <span className="break-all">{u.email ?? "—"}</span>)}
@@ -204,7 +204,7 @@ function ShopperDetails({ u, onChanged }: { u: Shopper; onChanged: () => void })
         </dl>
       </section>
       <section>
-        <h3 className="mb-2 text-xs font-bold text-midnight">Shopping preferences</h3>
+        <h3 className="mb-2 text-xs font-bold text-ink">Shopping preferences</h3>
         <dl className="grid gap-3">
           {item(
             "Interests",
@@ -224,22 +224,22 @@ function ShopperDetails({ u, onChanged }: { u: Shopper; onChanged: () => void })
         </dl>
       </section>
       <section>
-        <h3 className="mb-2 text-xs font-bold text-midnight">Consents</h3>
+        <h3 className="mb-2 text-xs font-bold text-ink">Consents</h3>
         <dl className="grid grid-cols-2 gap-3">
           {item("Terms accepted", u.terms_accepted_at ? `${date(u.terms_accepted_at)} · v${u.terms_version}` : "Not yet")}
           {item("Privacy read", date(u.privacy_ack_at))}
           {item("Marketing emails", u.marketing_opt_in ? "✅ Opted in" : "No")}
           {item("Analytics", u.analytics_opt_in ? "✅ Allowed" : "No")}
         </dl>
-        <h4 className="mb-1 mt-4 text-[10px] font-semibold uppercase tracking-wider text-midnight/45">History</h4>
+        <h4 className="mb-1 mt-4 text-[10px] font-semibold uppercase tracking-wider text-ink/45">History</h4>
         {consents.error && <p className="text-xs text-coral">{consents.error}</p>}
-        <ul className="max-h-40 space-y-1 overflow-y-auto text-xs text-midnight/70">
+        <ul className="max-h-40 space-y-1 overflow-y-auto text-xs text-ink/70">
           {consents.data?.map((e) => (
             <li key={e.id}>
-              {date(e.created_at, true)} · {e.kind} {e.granted ? "✓" : "✗"} <span className="text-midnight/40">({e.source.replace("_", " ")})</span>
+              {date(e.created_at, true)} · {e.kind} {e.granted ? "✓" : "✗"} <span className="text-ink/40">({e.source.replace("_", " ")})</span>
             </li>
           ))}
-          {consents.data?.length === 0 && <li className="text-midnight/40">No consent records yet.</li>}
+          {consents.data?.length === 0 && <li className="text-ink/40">No consent records yet.</li>}
         </ul>
       </section>
       <section className="lg:col-span-3">
@@ -276,18 +276,18 @@ function AccountActions({ u, onChanged }: { u: Shopper; onChanged: () => void })
   const emailMatches = confirm.trim().toLowerCase() === (u.email ?? "").toLowerCase();
 
   return (
-    <div className="rounded-2xl border border-line/70 bg-white p-4">
-      <h3 className="mb-3 text-xs font-bold text-midnight">Account actions</h3>
+    <div className="rounded-2xl border border-ink/10 bg-white p-4">
+      <h3 className="mb-3 text-xs font-bold text-ink">Account actions</h3>
       <div className="grid gap-4 lg:grid-cols-3">
         <div>
-          <p className="text-[10px] font-semibold uppercase tracking-wider text-midnight/45">Name approval</p>
-          <p className="mt-1 text-xs text-midnight/60">
+          <p className="text-[10px] font-semibold uppercase tracking-wider text-ink/45">Name approval</p>
+          <p className="mt-1 text-xs text-ink/60">
             {approved ? "Approved — the shopper can no longer change their name." : "Not approved — the shopper can still change their own name."}
           </p>
           <button
             onClick={() => run("approve", adminDb().rpc("approve_shopper_name", { target: u.id, approved: !approved }), approved ? "Approval removed" : "Name approved and locked")}
             disabled={busy === "approve"}
-            className={cn("mt-2 inline-flex items-center gap-1.5 rounded-full px-3 py-2 text-xs font-semibold transition", approved ? "bg-cream text-midnight/70 hover:bg-line/60" : "bg-emerald-600 text-white hover:bg-emerald-700")}
+            className={cn("mt-2 inline-flex items-center gap-1.5 rounded-full px-3 py-2 text-xs font-semibold transition", approved ? "bg-ink/[0.03] text-ink/70 hover:bg-line/60" : "bg-emerald-600 text-white hover:bg-emerald-700")}
           >
             {approved ? <Lock className="h-3.5 w-3.5" /> : <BadgeCheck className="h-3.5 w-3.5" />}
             {busy === "approve" ? "Saving…" : approved ? "Remove approval" : "Approve name"}
@@ -295,8 +295,8 @@ function AccountActions({ u, onChanged }: { u: Shopper; onChanged: () => void })
         </div>
 
         <div>
-          <p className="text-[10px] font-semibold uppercase tracking-wider text-midnight/45">Correct the name</p>
-          <p className="mt-1 text-xs text-midnight/60">Admins can fix a name at any time, approved or not.</p>
+          <p className="text-[10px] font-semibold uppercase tracking-wider text-ink/45">Correct the name</p>
+          <p className="mt-1 text-xs text-ink/60">Admins can fix a name at any time, approved or not.</p>
           <div className="mt-2 flex gap-2">
             <input value={name} onChange={(e) => setName(e.target.value)} maxLength={80} aria-label={`Name for ${u.email}`} className={cn(adminInput, "!py-2 text-sm")} />
             <button
@@ -311,7 +311,7 @@ function AccountActions({ u, onChanged }: { u: Shopper; onChanged: () => void })
 
         <div>
           <p className="text-[10px] font-semibold uppercase tracking-wider text-coral">Delete account</p>
-          <p className="mt-1 text-xs text-midnight/60">
+          <p className="mt-1 text-xs text-ink/60">
             Removes the sign-in, profile, saves, alerts, swipes and consent records for good. Type <b className="break-all">{u.email}</b> to confirm.
           </p>
           <div className="mt-2 flex gap-2">
@@ -336,12 +336,12 @@ function AccountActions({ u, onChanged }: { u: Shopper; onChanged: () => void })
 
       {!!history.data?.length && (
         <>
-          <h4 className="mb-1 mt-4 text-[10px] font-semibold uppercase tracking-wider text-midnight/45">Admin history</h4>
-          <ul className="space-y-1 text-xs text-midnight/70">
+          <h4 className="mb-1 mt-4 text-[10px] font-semibold uppercase tracking-wider text-ink/45">Admin history</h4>
+          <ul className="space-y-1 text-xs text-ink/70">
             {history.data.map((a) => (
               <li key={a.id}>
-                {date(a.created_at, true)} · {a.action.replace("_", " ")} {a.detail && <span className="text-midnight/50">({a.detail})</span>}{" "}
-                <span className="text-midnight/40">by {a.actor_email || "unknown"}</span>
+                {date(a.created_at, true)} · {a.action.replace("_", " ")} {a.detail && <span className="text-ink/50">({a.detail})</span>}{" "}
+                <span className="text-ink/40">by {a.actor_email || "unknown"}</span>
               </li>
             ))}
           </ul>

@@ -16,7 +16,7 @@ export function LegalLinks({ className, light }: { className?: string; light?: b
   const router = useRouter();
   const signedIn = useLovioo((s) => !!s.user);
   return (
-    <nav aria-label="Legal" className={cn("flex flex-wrap items-center justify-center gap-x-0.5 text-[11px] leading-none", light ? "text-white/45" : "text-midnight/45", className)}>
+    <nav aria-label="Legal" className={cn("flex flex-wrap items-center justify-center gap-x-0.5 text-[11px] leading-none", light ? "text-white/45" : "text-ink/45", className)}>
       {LEGAL_PAGES.map((p) => (
         <span key={p.href} className="flex items-center gap-x-1">
           <Link href={p.href} className={link}>
@@ -37,7 +37,7 @@ export function LegalFooter({ className }: { className?: string }) {
   return (
     <footer className={cn("mt-12 border-t border-line/60 pt-4", className)}>
       <LegalLinks />
-      <p className="mt-2 text-center text-[10px] text-midnight/35">© {new Date().getFullYear()} Lovioo · Prices and availability are set by each retailer and may change.</p>
+      <p className="mt-2 text-center text-[10px] text-ink/35">© {new Date().getFullYear()} Lovioo · Prices and availability are set by each retailer and may change.</p>
     </footer>
   );
 }

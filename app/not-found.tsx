@@ -8,8 +8,8 @@ export default function NotFound() {
       <div>
         <Logo tagline />
         <p className="mt-10 text-7xl">💔</p>
-        <h1 className="mt-4 text-3xl font-extrabold">We couldn&apos;t find that one</h1>
-        <p className="mt-2 text-midnight/60">It may have sold out of the internet. Let&apos;s find you something new to love.</p>
+        <h1 className="mt-4 text-[30px] leading-[1.35]">We couldn&apos;t find that one</h1>
+        <p className="mt-2 text-ink/60">It may have sold out of the internet. Let&apos;s find you something new to love.</p>
         <Link href="/swipe" className="btn-gradient mt-6">
           Start swiping
         </Link>

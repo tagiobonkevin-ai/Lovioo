@@ -83,7 +83,7 @@ export default function AdminBrands() {
           <Panel>
             <div className="flex flex-wrap gap-2">
               <label className="relative min-w-[200px] flex-1">
-                <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-midnight/40" />
+                <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-ink/40" />
                 <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search brands…" className={cn(adminInput, "pl-9")} aria-label="Search brands" />
               </label>
               <input value={newName} onChange={(e) => setNewName(e.target.value)} placeholder="New brand or store name" className={cn(adminInput, "!w-60")} aria-label="New brand name" />
@@ -91,7 +91,7 @@ export default function AdminBrands() {
                 <Plus className="h-4 w-4" /> Add
               </button>
             </div>
-            <p className="mt-2 text-[11px] text-midnight/50">
+            <p className="mt-2 text-[11px] text-ink/50">
               {data.filter((b) => b.featured).length} featured · {data.length} brands. Link products to a brand from the product editor.
             </p>
           </Panel>
@@ -107,21 +107,21 @@ export default function AdminBrands() {
                       </span>
                       <span className="min-w-0">
                         <span className="block truncate font-bold">{b.name}</span>
-                        <span className="text-xs text-midnight/50">
+                        <span className="text-xs text-ink/50">
                           /brand/{b.id} · {productCount(b.id)} products{b.store_url ? " · store link" : ""}
                         </span>
                       </span>
                     </button>
-                    <span className="flex items-center gap-2 text-xs text-midnight/60">
+                    <span className="flex items-center gap-2 text-xs text-ink/60">
                       Featured <Toggle on={b.featured} onChange={() => toggle(b, "featured")} label={`Feature ${b.name}`} />
                     </span>
-                    <span className="flex items-center gap-2 text-xs text-midnight/60">
+                    <span className="flex items-center gap-2 text-xs text-ink/60">
                       Visible <Toggle on={b.published} onChange={() => toggle(b, "published")} label={`Show ${b.name}`} />
                     </span>
                   </div>
 
                   {openId === b.id && (
-                    <div className="mt-4 grid gap-5 border-t border-line/70 pt-4 lg:grid-cols-[minmax(0,1fr)_180px]">
+                    <div className="mt-4 grid gap-5 border-t border-ink/10 pt-4 lg:grid-cols-[minmax(0,1fr)_180px]">
                       <div className="grid gap-3 sm:grid-cols-2">
                         <Field label="Name">
                           <input className={adminInput} value={b.name} onChange={(e) => patch(b.id, { name: e.target.value })} />
@@ -149,7 +149,7 @@ export default function AdminBrands() {
                           </select>
                         </Field>
                         <Field label="Brand colour">
-                          <input type="color" className="h-10 w-full cursor-pointer rounded-xl border border-line bg-white" value={b.color} onChange={(e) => patch(b.id, { color: e.target.value })} />
+                          <input type="color" className="h-10 w-full cursor-pointer rounded-xl border border-ink/15 bg-white" value={b.color} onChange={(e) => patch(b.id, { color: e.target.value })} />
                         </Field>
                         <Field label="Order" hint="Lower shows first">
                           <input type="number" className={adminInput} value={b.sort} onChange={(e) => patch(b.id, { sort: Number(e.target.value) })} />
@@ -167,7 +167,7 @@ export default function AdminBrands() {
                         </div>
                       </div>
                       <div>
-                        <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-midnight/50">Preview</p>
+                        <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-ink/50">Preview</p>
                         <BrandCard brand={mapBrand(b)} className="pointer-events-none w-full" />
                       </div>
                     </div>
@@ -176,7 +176,7 @@ export default function AdminBrands() {
               </li>
             ))}
           </ul>
-          {rows.length === 0 && <p className="py-8 text-center text-sm text-midnight/50">No brands match.</p>}
+          {rows.length === 0 && <p className="py-8 text-center text-sm text-ink/50">No brands match.</p>}
         </div>
       )}
     </div>

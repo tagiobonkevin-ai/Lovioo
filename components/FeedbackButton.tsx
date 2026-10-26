@@ -57,7 +57,7 @@ export function FeedbackButton({ className }: { className?: string }) {
           // On phones the swipe page needs the space above the tab bar for its action buttons.
           pathname === "/swipe" || pathname.startsWith("/product/") ? "hidden lg:inline-flex" : "inline-flex",
           bottomPrompt && "hidden lg:inline-flex",
-          "fixed bottom-24 left-4 z-40 items-center gap-1.5 rounded-full bg-white px-3.5 py-2 text-xs font-semibold text-midnight shadow-soft ring-1 ring-line transition hover:scale-105 lg:bottom-6 lg:left-6 lg:px-4 lg:py-2.5 lg:text-sm",
+          "fixed bottom-24 left-4 z-40 items-center gap-1.5 rounded-full bg-white px-3.5 py-2 text-xs font-semibold text-ink shadow-soft ring-1 ring-line transition hover:scale-105 lg:bottom-6 lg:left-6 lg:px-4 lg:py-2.5 lg:text-sm",
           className,
         )}
       >
@@ -72,16 +72,16 @@ export function FeedbackButton({ className }: { className?: string }) {
               initial={{ y: 40, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               exit={{ y: 40, opacity: 0 }}
-              className="w-full max-w-md rounded-t-[2rem] bg-white p-6 shadow-2xl sm:rounded-[2rem]"
+              className="w-full max-w-md rounded-t-[2rem] bg-white p-6 shadow-2xl sm:rounded-2xl"
               role="dialog"
               aria-label="Send feedback"
             >
               <div className="flex items-start justify-between">
                 <div>
                   <p className="text-lg font-bold">Help shape Lovioo 💖</p>
-                  <p className="text-sm text-midnight/60">Bug, idea or love note — we read everything.</p>
+                  <p className="text-sm text-ink/60">Bug, idea or love note — we read everything.</p>
                 </div>
-                <button type="button" onClick={() => setOpen(false)} className="grid h-9 w-9 place-items-center rounded-full hover:bg-cream" aria-label="Close">
+                <button type="button" onClick={() => setOpen(false)} className="grid h-9 w-9 place-items-center rounded-full hover:bg-ink/[0.03]" aria-label="Close">
                   <X className="h-5 w-5" />
                 </button>
               </div>
@@ -94,7 +94,7 @@ export function FeedbackButton({ className }: { className?: string }) {
                     aria-checked={rating === i + 1}
                     aria-label={`${i + 1} of 5`}
                     onClick={() => setRating(rating === i + 1 ? null : i + 1)}
-                    className={cn("grid h-12 flex-1 place-items-center rounded-2xl text-2xl transition", rating === i + 1 ? "bg-pink/15 ring-2 ring-pink" : "bg-cream hover:bg-blush")}
+                    className={cn("grid h-12 flex-1 place-items-center rounded-2xl text-2xl transition", rating === i + 1 ? "bg-pink/15 ring-2 ring-pink" : "bg-ink/[0.03] hover:bg-blush")}
                   >
                     {m}
                   </button>
