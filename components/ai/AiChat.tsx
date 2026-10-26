@@ -55,7 +55,8 @@ function MiniProduct({ p }: { p: Product }) {
   );
 }
 
-export function AiChat({ compact = false }: { compact?: boolean }) {
+/** `initialQuery` (from /ai?q=…, e.g. the landing page prompt) is asked once the chat is ready. */
+export function AiChat({ compact = false, initialQuery }: { compact?: boolean; initialQuery?: string }) {
   const hydrated = useHydrated();
   const user = useLovioo((s) => s.user);
   const saved = useLovioo((s) => s.saved);
@@ -74,6 +75,14 @@ export function AiChat({ compact = false }: { compact?: boolean }) {
   useEffect(() => {
     scroller.current?.scrollTo({ top: scroller.current.scrollHeight, behavior: "smooth" });
   }, [msgs, typing]);
+
+  const asked = useRef(false);
+  useEffect(() => {
+    if (!hydrated || asked.current || !initialQuery?.trim()) return;
+    asked.current = true;
+    send(initialQuery.slice(0, 300));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hydrated, initialQuery]);
 
   const send = (text: string) => {
     const q = text.trim();
