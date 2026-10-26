@@ -3,7 +3,7 @@
 import { CheckCircle2, Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Suspense, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { Logo } from "@/components/brand/Logo";
 import { ConsentChecks, NO_CHOICES, requiredMissing, type ConsentChoices } from "@/components/legal/ConsentChecks";
 import { LegalLinks } from "@/components/legal/LegalLinks";
@@ -11,7 +11,7 @@ import { useConsent } from "@/lib/consent";
 import { CONSENT_VERSION } from "@/lib/site";
 import { safeNext } from "@/lib/safe-redirect";
 import { useLovioo } from "@/lib/store";
-import { getSupabase, isSupabaseConfigured } from "@/lib/supabase/client";
+import { getSupabase, isAuthProviderEnabled, isSupabaseConfigured } from "@/lib/supabase/client";
 import { cn } from "@/lib/utils";
 
 const PERKS = ["Discover better deals", "Compare across stores", "Save your favourites", "Get personalised picks"];
@@ -42,6 +42,11 @@ function AuthForm() {
   const [triedConsent, setTriedConsent] = useState(false);
   const signIn = useLovioo((s) => s.signIn);
   const missingConsent = mode === "signup" ? requiredMissing(choices) : null;
+  // Google stays visible but inactive until it's switched on in Supabase (Authentication → Providers).
+  const [googleReady, setGoogleReady] = useState(true);
+  useEffect(() => {
+    isAuthProviderEnabled("google").then(setGoogleReady);
+  }, []);
 
   /** Sign-up choices: applied on this device now, and saved to the account once it exists (see syncConsent). */
   const rememberChoices = () => {
@@ -82,12 +87,12 @@ function AuthForm() {
             emailRedirectTo: `${window.location.origin}/onboarding`,
           },
         });
-        if (error) setError(friendlyAuthError(error.message));
+        if (error) setError(friendlyAuthError(error.message, googleReady));
         else if (!data.session) setNotice(`We sent a confirmation link to ${email}. Open it to finish creating your account.`);
         else router.push("/onboarding");
       } else {
         const { error } = await sb.auth.signInWithPassword({ email, password });
-        if (error) setError(friendlyAuthError(error.message));
+        if (error) setError(friendlyAuthError(error.message, googleReady));
         else router.push(next);
       }
     } finally {
@@ -96,6 +101,7 @@ function AuthForm() {
   };
 
   const google = async () => {
+    if (!googleReady) return;
     if (missingConsent) {
       setTriedConsent(true);
       return setError(`${missingConsent} Then continue with Google.`);
@@ -208,8 +214,13 @@ function AuthForm() {
           <div className="my-6 flex items-center gap-3 text-xs text-midnight/40">
             <span className="h-px flex-1 bg-line" /> or continue with <span className="h-px flex-1 bg-line" />
           </div>
-          <button onClick={google} className={cn("btn-ghost w-full !py-3", missingConsent && "opacity-60")} aria-disabled={!!missingConsent}>
-            <GoogleIcon /> Continue with Google
+          <button
+            onClick={google}
+            disabled={!googleReady}
+            className={cn("btn-ghost w-full !py-3", (missingConsent || !googleReady) && "opacity-60")}
+            aria-disabled={!!missingConsent || !googleReady}
+          >
+            <GoogleIcon /> {googleReady ? "Continue with Google" : "Google sign-in coming soon"}
           </button>
           <p className="mt-6 text-center text-sm text-midnight/60">
             {mode === "signup" ? "Already have an account? " : "Don't have an account? "}
@@ -234,8 +245,9 @@ export default function AuthPage() {
 }
 
 /** Turns Supabase auth errors testers are likely to hit into plain language. */
-function friendlyAuthError(message: string) {
-  if (/email rate limit/i.test(message)) return "We can't send more confirmation emails right now. Please try again later, or continue with Google.";
+function friendlyAuthError(message: string, googleReady = true) {
+  if (/email rate limit/i.test(message))
+    return `We can't send more confirmation emails right now. Please try again in a little while${googleReady ? ", or continue with Google" : ""}.`;
   if (/rate limit|too many/i.test(message)) return "Lots of people are signing up right now — please try again in a few minutes.";
   if (/email not confirmed/i.test(message)) return "Please confirm your email first — check your inbox (and spam) for the link we sent.";
   if (/invalid login credentials/i.test(message)) return "That email and password don't match. Try again or create an account.";
