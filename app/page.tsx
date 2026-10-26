@@ -1,185 +1,189 @@
-import { ArrowRight, ArrowUpRight } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import Link from "next/link";
+import { display, ui } from "@/app/fonts";
 import { Logo } from "@/components/brand/Logo";
-import { FeedbackButton } from "@/components/FeedbackButton";
-import { DreamPrompt } from "@/components/landing/DreamPrompt";
-import { DriftRow, driftRows } from "@/components/landing/ProductDrift";
+import { DealCard } from "@/components/landing/DealCard";
+import { DealSummary, GuestChat } from "@/components/landing/GuestChat";
 import { LegalLinks } from "@/components/legal/LegalLinks";
-import { RetailerBadge } from "@/components/product/RetailerBadge";
-import { serif } from "@/app/fonts";
-import { VIBES } from "@/lib/data/categories";
-import { loadCatalog, loadTeaser } from "@/lib/data/load-catalog";
+import { CATEGORIES } from "@/lib/data/categories";
+import { loadCatalog, loadDeals } from "@/lib/data/load-catalog";
+import { brandDeals } from "@/lib/data/public-deals";
 import { MAIN_RETAILERS, retailerById } from "@/lib/data/retailers";
 import { cn } from "@/lib/utils";
 
-const MOOD_ART: Record<string, string> = {
-  cozy: "from-[#F6D9C6] via-[#F9E7DA] to-[#FDF4EC]",
-  glowup: "from-[#FFD6EC] via-[#FBE3F0] to-[#FFF4F9]",
-  gamer: "from-[#D9D3FF] via-[#E6E1FF] to-[#F4F2FF]",
-  sporty: "from-[#CDEFE0] via-[#E0F6EC] to-[#F2FBF7]",
-  street: "from-[#E4E1DA] via-[#EEECE6] to-[#F8F7F3]",
-  workfromhome: "from-[#D6E8F7] via-[#E5F0FA] to-[#F4F9FD]",
-};
-const MOOD_LINE: Record<string, string> = {
-  cozy: "Candles, blankets, slow Sundays",
-  glowup: "Skincare, make-up, a little sparkle",
-  gamer: "Headsets, keyboards, late-night ranked",
-  sporty: "Gear for the 5am run",
-  street: "Sneakers and fits that turn heads",
-  workfromhome: "A desk you'll actually like",
-};
+export const revalidate = 300;
 
-const STEPS = [
-  { n: "01", title: "Say it like you'd say it", body: "“Something for my sister's birthday, mga ₱1,000.” Lovioo AI understands budgets, moods and Taglish." },
-  { n: "02", title: "Swipe what you love", body: "Love it or pass. Every swipe teaches your feed what feels like you." },
-  { n: "03", title: "Shop the best price", body: "We compare Shopee, Lazada, TikTok Shop and Amazon, then send you to the store to check out." },
-];
+/** Small uppercase label above each section — the quiet signpost daydream uses. */
+const Eyebrow = ({ children }: { children: React.ReactNode }) => (
+  <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-ink/40">{children}</p>
+);
 
+const Heading = ({ children, className }: { children: React.ReactNode; className?: string }) => (
+  <h2 className={cn("mt-1 font-display text-[24px] font-medium leading-[1.5] tracking-[-0.009em] text-ink", className)}>{children}</h2>
+);
+
+/**
+ * The front page: a calm, editorial shop window. Serif headings, small sans labels, white space, and the real
+ * numbers people came for — today's discounts, with prices. The catalogue behind it needs an account.
+ */
 export default async function Landing() {
-  const [, teaser] = await Promise.all([loadCatalog(), loadTeaser()]);
-  const [rowA, rowB] = driftRows(teaser);
-  const h = "font-[family-name:var(--font-serif)] font-normal tracking-[-0.01em]";
+  const [, deals] = await Promise.all([loadCatalog(), loadDeals()]);
+  const brands = brandDeals(deals, 8);
+  const grid = deals.slice(0, 12);
 
   return (
-    <div className={cn(serif.variable, "min-h-screen overflow-x-hidden bg-[#FBF7F2] text-midnight")}>
-      <header className="mx-auto flex h-16 max-w-6xl items-center gap-6 px-4 sm:px-6">
-        <Logo />
-        <nav className="hidden gap-6 text-sm text-midnight/60 md:flex">
-          <Link href="/discover" className="hover:text-midnight">Discover</Link>
-          <Link href="/brands" className="hover:text-midnight">Brands</Link>
-          <a href="#how" className="hover:text-midnight">How it works</a>
-        </nav>
-        <div className="ml-auto flex items-center gap-1">
-          <Link href="/auth?mode=signin" className="rounded-full px-4 py-2 text-sm text-midnight/70 hover:text-midnight">
+    <div className={cn(display.variable, ui.variable, "lovioo-paper min-h-screen overflow-x-hidden bg-white font-ui text-ink antialiased")}>
+      <header className="mx-auto flex h-16 max-w-[1248px] items-center gap-6 px-4 lg:px-6">
+        <Logo mono />
+        <nav className="ml-auto flex items-center gap-1 text-sm">
+          <Link href="/auth?mode=signin" className="px-4 py-2 text-ink/60 transition hover:text-ink">
             Sign in
           </Link>
-          <Link href="/auth?next=/swipe" className="rounded-full bg-midnight px-4 py-2 text-sm font-semibold text-white transition hover:bg-midnight/90">
+          <Link href="/auth?next=/swipe" className="bg-ink px-4 py-2 font-medium text-white transition hover:opacity-85">
             Join free
           </Link>
-        </div>
+        </nav>
       </header>
 
-      {/* Hero */}
-      <section className="relative px-4 pb-10 pt-12 text-center sm:pt-20">
-        <div className="pointer-events-none absolute left-1/2 top-0 -z-0 h-[28rem] w-[46rem] -translate-x-1/2 rounded-full bg-[radial-gradient(closest-side,rgba(255,45,154,0.12),transparent)]" />
-        <div className="relative mx-auto max-w-3xl">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-pink">Your shopping daydreams, found</p>
-          <h1 className={cn(h, "mt-5 text-[2.9rem] leading-[1.02] sm:text-7xl")}>
-            Describe it. <em className="text-pink">Love it.</em>
-            <br />
-            We&apos;ll find the best price.
+      {/* Hero + Lovioo AI */}
+      <section className="mx-auto max-w-[1248px] px-4 pb-16 pt-8 lg:px-6 lg:pb-24 lg:pt-16">
+        <div className="mx-auto max-w-[760px] text-center">
+          <h1 className="font-display text-[42px] font-medium leading-[1.43] tracking-[-0.012em] text-ink sm:text-[52px] lg:text-[56px] lg:leading-[1.357] lg:tracking-[-0.015em]">
+            Shop every store in the Philippines through one chat.
           </h1>
-          <p className="mx-auto mt-5 max-w-xl text-[15px] leading-relaxed text-midnight/60 sm:text-base">
-            Tell Lovioo what you&apos;re after in your own words. We search Shopee, Lazada, TikTok Shop and more, and show you what&apos;s worth it.
+          <p className="mx-auto mt-4 max-w-[46ch] text-[15px] leading-relaxed text-ink/60">
+            Tell Lovioo AI what you want in English, Tagalog or Bisaya. We compare Shopee, Lazada, TikTok Shop and Amazon and show you
+            what&apos;s actually worth it.
           </p>
-          <DreamPrompt className="mx-auto mt-8 max-w-2xl text-left" />
+        </div>
+        <div className="mx-auto mt-10 max-w-[720px]">
+          <GuestChat deals={deals} />
+        </div>
+        <div className="mx-auto mt-8 max-w-[720px] text-center">
+          <DealSummary deals={deals} />
         </div>
       </section>
 
-      {/* Drifting picks */}
-      <section aria-label="Popular on Lovioo" className="space-y-5 py-8">
-        <p className="text-center text-xs text-midnight/50">
-          Prices and stores are for members.{" "}
-          <Link href="/auth?next=/swipe" className="font-semibold text-pink hover:underline">
-            Create a free account
+      {/* Brand discounts */}
+      {!!brands.length && (
+        <section className="mx-auto max-w-[1248px] px-4 pb-16 lg:px-6 lg:pb-24">
+          <Eyebrow>Today&apos;s discounts</Eyebrow>
+          <Heading>Best of sale</Heading>
+          <div className="mt-6 grid grid-cols-2 gap-x-4 gap-y-6 sm:grid-cols-3 lg:grid-cols-4">
+            {brands.map((b) => (
+              <Link
+                key={b.name}
+                href={b.id ? `/auth?next=${encodeURIComponent(`/brand/${b.id}`)}` : "/auth?next=/discover"}
+                className="group flex items-center justify-between border-b border-ink/10 pb-4 transition hover:border-ink/40"
+              >
+                <span className="min-w-0">
+                  <span className="block truncate font-display text-[20px] font-medium leading-[1.5] tracking-[-0.009em]">{b.name}</span>
+                  <span className="block text-[13px] text-ink/50">
+                    Up to {b.off}% off · {b.count} {b.count === 1 ? "pick" : "picks"}
+                  </span>
+                </span>
+                <ArrowRight className="h-4 w-4 shrink-0 text-ink/25 transition group-hover:translate-x-0.5 group-hover:text-ink" />
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* Today's deals, with prices */}
+      {!!grid.length && (
+        <section className="mx-auto max-w-[1248px] px-4 pb-16 lg:px-6 lg:pb-24">
+          <Eyebrow>Prices today</Eyebrow>
+          <Heading>What&apos;s dropped in price</Heading>
+          <div className="mt-6 grid grid-cols-2 gap-x-4 gap-y-10 sm:grid-cols-3 lg:grid-cols-4">
+            {grid.map((d) => (
+              <DealCard key={d.slug} deal={d} />
+            ))}
+          </div>
+          <Link
+            href="/auth?next=/discover"
+            className="mt-10 inline-flex h-11 items-center gap-2 bg-ink px-6 text-sm font-medium text-white transition hover:opacity-85"
+          >
+            See every price <ArrowRight className="h-4 w-4" />
           </Link>
-        </p>
-        <DriftRow items={rowA} />
-        <DriftRow items={rowB} reverse />
-      </section>
+        </section>
+      )}
 
-      {/* How it works */}
-      <section id="how" className="mx-auto max-w-6xl scroll-mt-8 px-4 py-16 sm:px-6 sm:py-24">
-        <h2 className={cn(h, "max-w-2xl text-4xl leading-tight sm:text-5xl")}>
-          Shopping that starts with <em>a feeling</em>, not a filter.
-        </h2>
-        <div className="mt-10 grid gap-8 sm:grid-cols-3">
-          {STEPS.map((s) => (
-            <div key={s.n} className="border-t border-midnight/15 pt-5">
-              <span className={cn(h, "text-3xl text-pink")}>{s.n}</span>
-              <h3 className="mt-3 text-lg font-semibold">{s.title}</h3>
-              <p className="mt-2 text-sm leading-relaxed text-midnight/60">{s.body}</p>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* Moods */}
-      <section className="mx-auto max-w-6xl px-4 pb-16 sm:px-6">
-        <div className="flex items-end justify-between gap-4">
-          <h2 className={cn(h, "text-4xl sm:text-5xl")}>Shop by mood</h2>
-          <Link href="/swipe" className="hidden items-center gap-1 text-sm font-semibold text-midnight/70 hover:text-pink sm:inline-flex">
-            Start swiping <ArrowRight className="h-4 w-4" />
-          </Link>
-        </div>
-        <div className="mt-8 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-3">
-          {VIBES.map((v, i) => (
-            <Link
-              key={v.id}
-              href={`/swipe?vibe=${v.id}`}
-              className={cn(
-                "group relative flex flex-col justify-between overflow-hidden rounded-3xl bg-gradient-to-br p-5 transition hover:-translate-y-0.5 sm:p-6",
-                MOOD_ART[v.id],
-                i === 0 ? "row-span-2 min-h-[18rem] lg:min-h-[22rem]" : "min-h-[8.5rem] lg:min-h-[10.5rem]",
-                // The last mood fills its row as a wide banner instead of sitting alone.
-                i === VIBES.length - 1 && "col-span-2 !min-h-[7.5rem] lg:col-span-3",
-              )}
-            >
-              <span className={cn("transition duration-500 group-hover:scale-110 group-hover:rotate-6", i === 0 ? "text-7xl" : "text-4xl")} aria-hidden>
-                {v.emoji}
+      {/* Categories */}
+      <section className="mx-auto max-w-[1248px] px-4 pb-16 lg:px-6 lg:pb-24">
+        <Eyebrow>Categories</Eyebrow>
+        <Heading>What are you shopping for?</Heading>
+        <div className="mt-6 grid grid-cols-2 gap-x-4 gap-y-6 sm:grid-cols-3 lg:grid-cols-6">
+          {CATEGORIES.map((c) => (
+            <Link key={c.id} href={`/auth?next=${encodeURIComponent(`/search?category=${c.id}`)}`} className="group">
+              <span className="grid aspect-[4/3] place-items-center text-4xl transition duration-500 group-hover:scale-105" style={{ background: c.tint }} aria-hidden>
+                {c.emoji}
               </span>
-              <span>
-                <span className={cn(h, "block leading-none", i === 0 ? "text-4xl" : "text-2xl sm:text-3xl")}>{v.label}</span>
-                <span className="mt-1 block text-xs text-midnight/55">{MOOD_LINE[v.id]}</span>
-              </span>
-              <ArrowUpRight className="absolute right-4 top-4 h-5 w-5 text-midnight/30 transition group-hover:text-pink" />
+              <span className="mt-2 block font-display text-[16px] font-medium leading-[1.5] tracking-[-0.009em] lg:text-[20px]">{c.name}</span>
             </Link>
           ))}
         </div>
       </section>
 
-      {/* Every store */}
-      <section className="border-y border-midnight/10 bg-white/50">
-        <div className="mx-auto flex max-w-6xl flex-col items-center gap-6 px-4 py-10 sm:flex-row sm:justify-between sm:px-6">
-          <p className={cn(h, "text-center text-2xl sm:text-left sm:text-3xl")}>
-            Every store. <em>One</em> Lovioo.
-          </p>
-          <ul className="flex flex-wrap justify-center gap-5">
-            {MAIN_RETAILERS.map((r) => (
-              <li key={r} className="flex items-center gap-2 text-sm text-midnight/70">
-                <RetailerBadge id={r} size="sm" /> {retailerById(r).name}
+      {/* How it works */}
+      <section className="border-t border-ink/10">
+        <div className="mx-auto max-w-[1248px] px-4 py-16 lg:px-6 lg:py-24">
+          <Eyebrow>How it works</Eyebrow>
+          <Heading className="max-w-[20ch]">Say it the way you&apos;d say it to a friend.</Heading>
+          <ol className="mt-8 grid gap-8 sm:grid-cols-3">
+            {[
+              ["01", "Ask in your language", "“Pang-regalo kay mama, mga ₱1,500 lang.” English, Tagalog and Bisaya all work."],
+              ["02", "Swipe what you love", "Love it or pass. Every swipe teaches your feed what feels like you."],
+              ["03", "Shop the best price", "We compare the stores, then send you across to check out."],
+            ].map(([n, title, body]) => (
+              <li key={n} className="border-t border-ink/15 pt-4">
+                <span className="font-display text-[20px] text-ink/35">{n}</span>
+                <h3 className="mt-2 font-display text-[20px] font-medium leading-[1.5] tracking-[-0.009em]">{title}</h3>
+                <p className="mt-1.5 text-[13px] leading-[1.6] text-ink/55">{body}</p>
               </li>
+            ))}
+          </ol>
+        </div>
+      </section>
+
+      {/* Stores */}
+      <section className="border-t border-ink/10">
+        <div className="mx-auto flex max-w-[1248px] flex-col gap-4 px-4 py-10 sm:flex-row sm:items-center sm:justify-between lg:px-6">
+          <p className="font-display text-[20px] font-medium leading-[1.5] tracking-[-0.009em]">Every store. One Lovioo.</p>
+          <ul className="flex flex-wrap gap-x-6 gap-y-2 text-[13px] text-ink/55">
+            {MAIN_RETAILERS.map((r) => (
+              <li key={r}>{retailerById(r).name}</li>
             ))}
           </ul>
         </div>
       </section>
 
       {/* Closing */}
-      <section className="px-4 py-20 text-center sm:py-28">
-        <h2 className={cn(h, "mx-auto max-w-3xl text-[2.6rem] leading-[1.05] sm:text-6xl")}>
-          Your next favourite thing is <em className="text-pink">one sentence</em> away.
-        </h2>
-        <DreamPrompt className="mx-auto mt-8 max-w-xl text-left" chips={false} />
-        <div className="mt-6 flex flex-wrap justify-center gap-3 text-sm">
-          <Link href="/auth?next=/swipe" className="rounded-full bg-midnight px-5 py-2.5 font-semibold text-white hover:bg-midnight/90">
-            Create free account
-          </Link>
-          <Link href="/auth?mode=signin" className="rounded-full px-5 py-2.5 font-semibold text-midnight/70 ring-1 ring-midnight/15 hover:text-midnight">
-            Sign in
-          </Link>
+      <section className="border-t border-ink/10">
+        <div className="mx-auto max-w-[1248px] px-4 py-16 text-center lg:px-6 lg:py-24">
+          <h2 className="mx-auto max-w-[18ch] font-display text-[32px] font-medium leading-[1.5] tracking-[-0.012em] sm:text-[42px] sm:leading-[1.43]">
+            Your next favourite thing is one sentence away.
+          </h2>
+          <div className="mt-8 flex flex-wrap justify-center gap-3 text-sm">
+            <Link href="/auth?next=/swipe" className="inline-flex h-11 items-center bg-ink px-6 font-medium text-white transition hover:opacity-85">
+              Create free account
+            </Link>
+            <Link href="/auth?mode=signin" className="inline-flex h-11 items-center border border-ink/20 px-6 font-medium text-ink/70 transition hover:border-ink/50 hover:text-ink">
+              Sign in
+            </Link>
+          </div>
         </div>
       </section>
 
-      <footer className="mx-auto max-w-6xl border-t border-midnight/10 px-4 py-8 sm:px-6">
-        <div className="flex flex-col items-center justify-between gap-4 sm:flex-row">
-          <Logo tagline />
+      <footer className="border-t border-ink/10">
+        <div className="mx-auto flex max-w-[1248px] flex-col items-center gap-4 px-4 py-10 sm:flex-row sm:justify-between lg:px-6">
+          <Logo tagline mono />
           <LegalLinks />
         </div>
-        <p className="mt-4 text-center text-[10px] text-midnight/35 sm:text-left">
-          Some store links are affiliate links. Prices and availability are set by each retailer and may change.
+        <p className="mx-auto max-w-[1248px] px-4 pb-10 text-center text-[11px] leading-[1.6] text-ink/35 sm:text-left lg:px-6">
+          Some store links are affiliate links. Prices and availability are set by each retailer and may change. Prices shown here are today&apos;s
+          front-page deals; the full catalogue is for members.
         </p>
       </footer>
-      <FeedbackButton />
     </div>
   );
 }

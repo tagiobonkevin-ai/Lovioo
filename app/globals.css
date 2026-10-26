@@ -15,6 +15,11 @@ body {
   overscroll-behavior-y: none;
 }
 
+/* The front page and sign-up are set on white, so the overscroll area matches instead of showing cream. */
+body:has(.lovioo-paper) {
+  @apply bg-white;
+}
+
 /* Installed app: keep content clear of the notch / status bar. */
 @media (display-mode: standalone) {
   body {

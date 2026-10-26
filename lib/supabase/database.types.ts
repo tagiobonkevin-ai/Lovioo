@@ -99,6 +99,7 @@ export type Database = {
           platforms: string[]; role: Database["public"]["Enums"]["app_role"]; streak: number; streak_day: string | null; updated_at: string;
           terms_accepted_at: string | null; terms_version: string | null; privacy_ack_at: string | null; marketing_opt_in: boolean; analytics_opt_in: boolean;
           birthdate: string | null; gender: Gender | null; city: string | null; province: string | null; avatar_url: string | null; profile_completed_at: string | null;
+          name_approved_at: string | null; name_approved_by: string | null;
         };
         Insert: {
           budget?: string | null; created_at?: string; email?: string | null; full_name?: string; id: string; interests?: string[]; onboarded?: boolean;
@@ -124,6 +125,15 @@ export type Database = {
         Row: {
           created_at: string; granted: boolean; id: number; kind: "terms" | "privacy" | "marketing" | "analytics"; source: "signup" | "consent_sheet" | "settings";
           user_id: string; version: string;
+        };
+        Insert: never;
+        Update: never;
+        Relationships: [];
+      };
+      account_actions: {
+        Row: {
+          action: "approve_name" | "unapprove_name" | "rename" | "delete"; actor: string | null; actor_email: string; created_at: string; detail: string;
+          id: number; target_email: string; target_user: string;
         };
         Insert: never;
         Update: never;
@@ -170,7 +180,18 @@ export type Database = {
       current_app_role: { Args: never; Returns: Database["public"]["Enums"]["app_role"] | null };
       is_admin: { Args: never; Returns: boolean };
       is_editor: { Args: never; Returns: boolean };
+      approve_shopper_name: { Args: { target: string; approved?: boolean }; Returns: undefined };
+      admin_set_shopper_name: { Args: { target: string; new_name: string }; Returns: undefined };
+      delete_shopper: { Args: { target: string; confirm_email: string }; Returns: undefined };
       product_teaser: { Args: never; Returns: { name: string; brand: string; image: string; emoji: string; category_id: string }[] };
+      public_deals: {
+        Args: { want?: number };
+        Returns: {
+          slug: string; name: string; brand: string; brand_id: string | null; category_id: string; subcategory: string; emoji: string; image: string;
+          tags: string[]; vibes: string[]; rating: number; review_count: number;
+          price: number; original_price: number; retailer_id: string; discount_pct: number;
+        }[];
+      };
       is_super_admin: { Args: never; Returns: boolean };
       list_team: {
         Args: never;

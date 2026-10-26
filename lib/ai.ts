@@ -89,12 +89,17 @@ function categoryLabel(c: CategoryId, lang: AiLang) {
 /** "Should I buy now or wait?" in any of the three languages. */
 export const isBuyOrWait = (q: string) => /buy now or wait|should i buy|buy or wait|bilhin (ko )?na ba|hintayin|paliton na ba|hulaton/i.test(q);
 
-export function askLovioo(input: string, name = "there", lang: AiLang = "en"): AiReply {
+/**
+ * Answers a shopping question from the catalogue. `pool` defaults to the full catalogue; the front page passes the
+ * public deals instead, so guests get a real answer before they have an account.
+ */
+export function askLovioo(input: string, name = "there", lang: AiLang = "en", catalogue: Product[] = PRODUCTS): AiReply {
   const s = AI_STRINGS[lang];
   const q = input.toLowerCase();
   const budget = parseBudget(q);
   const cats = (Object.keys(CATEGORY_WORDS) as CategoryId[]).filter((c) => CATEGORY_WORDS[c].some((w) => hasWord(q, w)));
-  const brand = BRANDS.find((b) => q.includes(b.toLowerCase()));
+  const brands = catalogue === PRODUCTS ? BRANDS : Array.from(new Set(catalogue.map((p) => p.brand)));
+  const brand = brands.find((b) => q.includes(b.toLowerCase()));
   const retailer = ALL_RETAILERS.find(
     (r: RetailerId) => q.includes(retailerById(r).name.toLowerCase()) || (r === "tiktok" && q.includes("tiktok")),
   );
@@ -110,7 +115,7 @@ export function askLovioo(input: string, name = "there", lang: AiLang = "en"): A
     return { text: s.greeting(name), products: [], followUps: s.greetingChips };
   }
 
-  let pool = PRODUCTS.filter((p) => {
+  let pool = catalogue.filter((p) => {
     if (cats.length && !cats.includes(p.category)) return false;
     if (brand && p.brand !== brand) return false;
     if (retailer && !p.offers.some((o) => o.retailer === retailer)) return false;

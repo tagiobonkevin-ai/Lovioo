@@ -15,9 +15,11 @@ interface ProfileStatus {
   /** Signed in, but name + birthday haven't been filled in yet (set after sign-in sync). */
   needsProfile: boolean;
   avatarUrl: string | null;
+  /** An admin approved the name, so only the Lovioo team can change it now. */
+  nameLocked: boolean;
 }
 
-export const useProfileStatus = create<ProfileStatus>(() => ({ needsProfile: false, avatarUrl: null }));
+export const useProfileStatus = create<ProfileStatus>(() => ({ needsProfile: false, avatarUrl: null, nameLocked: false }));
 
 export const GENDERS: { id: Gender; label: string }[] = [
   { id: "female", label: "Female" },
