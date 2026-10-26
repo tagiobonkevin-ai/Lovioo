@@ -137,7 +137,7 @@ function AuthForm() {
       <div className="mx-auto flex min-h-screen w-full max-w-[26rem] flex-col px-4 pb-8 pt-5 lg:max-w-[28rem] lg:px-6">
         <header className="flex items-center justify-between">
           <Link href="/" aria-label="Lovioo home">
-            <Logo mono />
+            <Logo />
           </Link>
           <Link href="/" className="inline-flex items-center gap-1 px-3 py-1.5 text-sm text-ink/55 transition hover:text-ink">
             <ArrowLeft className="h-4 w-4" /> Home
