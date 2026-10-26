@@ -53,8 +53,9 @@ export default function PrivacyPage() {
               </ul>
               <p>Lovioo should not request payment-card details or third-party shopping account passwords for its planned affiliate-based discovery service.</p>
               <LegalNote>
-                Lovioo stores your account email and name, your saved products, price alerts, swipes and preferences, your consent choices, and feedback you
-                send. Product views and store clicks are counted only if you allow analytics. Lovioo never asks for card details or store passwords.
+                Lovioo stores your account email and name, your birthday (to confirm you&apos;re 18 or over), and, if you add them, your gender, city and
+                province. If you sign up with Google, we also keep your Google name and profile photo. We store your saved products, price alerts, swipes and
+                preferences, your consent choices, and feedback you send. Product views and store clicks are counted only if you allow analytics. Lovioo never asks for card details or store passwords.
               </LegalNote>
             </>
           ),
