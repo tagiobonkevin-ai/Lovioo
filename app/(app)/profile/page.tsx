@@ -1,14 +1,16 @@
 "use client";
 
-import { BarChart3, Bell, ChevronRight, HelpCircle, LogOut, Shield, ShoppingBag, Sparkles, Store } from "lucide-react";
+import { BarChart3, Bell, ChevronRight, HelpCircle, LogOut, Shield, ShoppingBag, Sparkles, Store, UserRound } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { PrivacyChoices } from "@/components/legal/PrivacyChoices";
+import { AboutYouForm } from "@/components/profile/AboutYouForm";
 import { RetailerBadge } from "@/components/product/RetailerBadge";
-import { useHydrated } from "@/components/Providers";
+import { toast, useHydrated } from "@/components/Providers";
 import { BUDGETS, CATEGORIES } from "@/lib/data/categories";
 import { ALL_RETAILERS, retailerById } from "@/lib/data/retailers";
+import { useProfileStatus } from "@/lib/profile";
 import { useLovioo } from "@/lib/store";
 import { getSupabase } from "@/lib/supabase/client";
 import type { CategoryId, RetailerId } from "@/lib/types";
@@ -20,6 +22,8 @@ export default function ProfilePage() {
   const { user, prefs, saved, alerts, swipes, streak, setPrefs, signOut } = useLovioo();
   const [notify, setNotify] = useState({ drops: true, restock: true, digest: false });
   const [isStaff, setIsStaff] = useState(false);
+  const avatarUrl = useProfileStatus((s) => s.avatarUrl);
+  const [photoFailed, setPhotoFailed] = useState(false);
 
   useEffect(() => {
     const sb = getSupabase();
@@ -49,7 +53,11 @@ export default function ProfilePage() {
   return (
     <div className="mx-auto max-w-4xl space-y-6">
       <div className="card flex flex-wrap items-center gap-5 overflow-hidden p-6">
-        <span className="grid h-20 w-20 place-items-center rounded-full bg-brand text-3xl font-extrabold text-white shadow-pop">{user.name[0]?.toUpperCase()}</span>
+        {avatarUrl && !photoFailed ? (
+          <img src={avatarUrl} alt="" referrerPolicy="no-referrer" onError={() => setPhotoFailed(true)} className="h-20 w-20 rounded-full object-cover shadow-pop" />
+        ) : (
+          <span className="grid h-20 w-20 place-items-center rounded-full bg-brand text-3xl font-extrabold text-white shadow-pop">{user.name[0]?.toUpperCase()}</span>
+        )}
         <div className="flex-1">
           <h1 className="text-2xl font-extrabold">{user.name}</h1>
           <p className="text-sm text-midnight/60">{user.email}</p>
@@ -68,6 +76,10 @@ export default function ProfilePage() {
         </div>
         <p className="w-full text-sm text-coral">🔥 {streak}-day swipe streak — keep it going!</p>
       </div>
+
+      <Section icon={UserRound} title="About you" sub="Your name, birthday and where you shop from">
+        <AboutYouForm submitLabel="Save changes" onSaved={() => toast({ title: "Profile saved", kind: "ok" })} />
+      </Section>
 
       <Section icon={ShoppingBag} title="Shopping interests" sub="Shapes your swipe deck and recommendations">
         <div className="flex flex-wrap gap-2">

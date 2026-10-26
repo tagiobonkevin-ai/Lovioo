@@ -1,4 +1,6 @@
 // Generated from the Supabase schema (supabase gen types). Regenerate after schema changes.
+export type Gender = "female" | "male" | "nonbinary" | "prefer_not_to_say";
+
 export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[];
 
 export type Database = {
@@ -96,6 +98,7 @@ export type Database = {
           budget: string | null; created_at: string; email: string | null; full_name: string; id: string; interests: string[]; onboarded: boolean;
           platforms: string[]; role: Database["public"]["Enums"]["app_role"]; streak: number; streak_day: string | null; updated_at: string;
           terms_accepted_at: string | null; terms_version: string | null; privacy_ack_at: string | null; marketing_opt_in: boolean; analytics_opt_in: boolean;
+          birthdate: string | null; gender: Gender | null; city: string | null; province: string | null; avatar_url: string | null; profile_completed_at: string | null;
         };
         Insert: {
           budget?: string | null; created_at?: string; email?: string | null; full_name?: string; id: string; interests?: string[]; onboarded?: boolean;
@@ -104,6 +107,7 @@ export type Database = {
         Update: {
           budget?: string | null; created_at?: string; email?: string | null; full_name?: string; id?: string; interests?: string[]; onboarded?: boolean;
           platforms?: string[]; streak?: number; streak_day?: string | null; updated_at?: string;
+          birthdate?: string | null; gender?: Gender | null; city?: string | null; province?: string | null;
         };
         Relationships: [];
       };

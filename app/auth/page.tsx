@@ -103,7 +103,9 @@ function AuthForm() {
     if (mode === "signup") rememberChoices();
     const sb = getSupabase();
     if (!sb) return finishDemo("Marie Santos", "marie@example.com");
-    const { error } = await sb.auth.signInWithOAuth({ provider: "google", options: { redirectTo: `${window.location.origin}${next}` } });
+    // New Google accounts finish their profile first; returning ones go back to where they were.
+    const back = mode === "signup" ? `/onboarding?next=${encodeURIComponent(next)}` : next;
+    const { error } = await sb.auth.signInWithOAuth({ provider: "google", options: { redirectTo: `${window.location.origin}${back}` } });
     if (error) setError(`Google sign-in isn't available yet: ${error.message}`);
   };
 
@@ -233,6 +235,7 @@ export default function AuthPage() {
 
 /** Turns Supabase auth errors testers are likely to hit into plain language. */
 function friendlyAuthError(message: string) {
+  if (/email rate limit/i.test(message)) return "We can't send more confirmation emails right now. Please try again later, or continue with Google.";
   if (/rate limit|too many/i.test(message)) return "Lots of people are signing up right now — please try again in a few minutes.";
   if (/email not confirmed/i.test(message)) return "Please confirm your email first — check your inbox (and spam) for the link we sent.";
   if (/invalid login credentials/i.test(message)) return "That email and password don't match. Try again or create an account.";

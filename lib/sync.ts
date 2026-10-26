@@ -81,7 +81,7 @@ export async function pullAndMerge(sb: Supabase, userId: string, onError: (msg: 
   } finally {
     applyingRemote = false;
   }
-  return { fullName: p.full_name, consent: p };
+  return { fullName: p.full_name, consent: p, profileComplete: !!p.profile_completed_at, avatarUrl: p.avatar_url };
 }
 
 function profilePatch(s: Pick<State, "prefs" | "onboarded" | "streak" | "streakDay">) {

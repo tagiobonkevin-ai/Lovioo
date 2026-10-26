@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { create } from "zustand";
 import { ConsentBar, useConsentBarVisible } from "@/components/legal/ConsentBar";
 import { ConsentSheet } from "@/components/legal/ConsentSheet";
+import { ProfileGate } from "@/components/profile/ProfileGate";
 import { hydrateConsent } from "@/lib/consent";
 import { applyCatalog, type Catalog } from "@/lib/data/catalog";
 import { useLovioo } from "@/lib/store";
@@ -54,6 +55,7 @@ export function Providers({ children, catalog }: { children: React.ReactNode; ca
       <AuthSync />
       <BottomPrompts />
       <ConsentSheet />
+      <ProfileGate />
       <ToastViewport />
     </>
   );
