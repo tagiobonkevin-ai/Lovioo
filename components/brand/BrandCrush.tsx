@@ -13,12 +13,12 @@ export function BrandCrush({ className }: { className?: string }) {
   if (!brands.length) return null;
   return (
     <section className={className}>
-      <div className="flex items-end justify-between">
-        <div>
+      <div className="flex items-end justify-between gap-3">
+        <div className="min-w-0">
           <h2 className="text-xl font-extrabold">Brand Crush 💘</h2>
           <p className="text-xs text-midnight/60">{featured ? "Featured partner stores — tap one to shop its picks" : "Top brands on Lovioo — tap one to see all its products"}</p>
         </div>
-        <Link href="/brands" className="text-sm font-semibold text-pink">
+        <Link href="/brands" className="shrink-0 whitespace-nowrap text-sm font-semibold text-pink">
           All brands
         </Link>
       </div>

@@ -3,6 +3,7 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { MessageCircleHeart, X } from "lucide-react";
 import { usePathname } from "next/navigation";
+import { useConsentBarVisible } from "@/components/legal/ConsentBar";
 import { useState } from "react";
 import { useLovioo } from "@/lib/store";
 import { getSupabase } from "@/lib/supabase/client";
@@ -15,6 +16,8 @@ const MOODS = ["😞", "😕", "😐", "🙂", "😍"];
 export function FeedbackButton({ className }: { className?: string }) {
   const pathname = usePathname();
   const user = useLovioo((s) => s.user);
+  // The analytics bar and the install sheet sit in the same corner on phones and tablets.
+  const bottomPrompt = useConsentBarVisible();
   const [open, setOpen] = useState(false);
   const [message, setMessage] = useState("");
   const [rating, setRating] = useState<number | null>(null);
@@ -52,8 +55,9 @@ export function FeedbackButton({ className }: { className?: string }) {
         onClick={() => setOpen(true)}
         className={cn(
           // On phones the swipe page needs the space above the tab bar for its action buttons.
-          pathname === "/swipe" || pathname.startsWith("/product/") ? "hidden md:inline-flex" : "inline-flex",
-          "fixed bottom-24 left-4 z-40 items-center gap-1.5 rounded-full bg-white px-3.5 py-2 text-xs font-semibold text-midnight shadow-soft ring-1 ring-line transition hover:scale-105 md:bottom-6 md:left-6 md:px-4 md:py-2.5 md:text-sm",
+          pathname === "/swipe" || pathname.startsWith("/product/") ? "hidden lg:inline-flex" : "inline-flex",
+          bottomPrompt && "hidden lg:inline-flex",
+          "fixed bottom-24 left-4 z-40 items-center gap-1.5 rounded-full bg-white px-3.5 py-2 text-xs font-semibold text-midnight shadow-soft ring-1 ring-line transition hover:scale-105 lg:bottom-6 lg:left-6 lg:px-4 lg:py-2.5 lg:text-sm",
           className,
         )}
       >

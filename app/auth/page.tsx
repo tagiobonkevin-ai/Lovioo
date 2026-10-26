@@ -263,7 +263,10 @@ function AuthForm() {
 
           <p className="mt-6 text-center text-sm text-midnight/60">
             {signup ? "Already have an account? " : "New to Lovioo? "}
-            <button className="font-semibold text-midnight underline decoration-pink decoration-2 underline-offset-4" onClick={() => switchMode(signup ? "signin" : "signup")}>
+            <button
+              className="inline-flex min-h-[40px] items-center px-1 font-semibold text-midnight underline decoration-pink decoration-2 underline-offset-4"
+              onClick={() => switchMode(signup ? "signin" : "signup")}
+            >
               {signup ? "Sign in" : "Create an account"}
             </button>
           </p>

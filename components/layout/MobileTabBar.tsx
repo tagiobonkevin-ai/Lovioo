@@ -16,7 +16,7 @@ const TABS = [
 export function MobileTabBar() {
   const pathname = usePathname();
   return (
-    <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-line/70 bg-white/90 pb-[env(safe-area-inset-bottom)] backdrop-blur-xl md:hidden">
+    <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-line/70 bg-white/90 pb-[env(safe-area-inset-bottom)] backdrop-blur-xl lg:hidden">
       <div className="mx-auto flex max-w-md items-end justify-around px-2 pt-1.5">
         {TABS.map(({ href, label, icon: Icon, center, to }) => {
           const active = pathname.startsWith(href);

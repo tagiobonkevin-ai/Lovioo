@@ -26,7 +26,7 @@ export function CompareTray() {
           initial={{ y: 100, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           exit={{ y: 100, opacity: 0 }}
-          className="fixed inset-x-3 bottom-24 z-40 mx-auto flex max-w-xl items-center gap-3 rounded-3xl bg-midnight p-3 text-white shadow-2xl md:bottom-6"
+          className="fixed inset-x-3 bottom-24 z-40 mx-auto flex max-w-xl items-center gap-3 rounded-3xl bg-midnight p-3 text-white shadow-2xl lg:bottom-6"
         >
           <div className="flex flex-1 gap-2">
             {items.map((p) => (

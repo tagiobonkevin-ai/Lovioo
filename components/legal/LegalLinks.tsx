@@ -7,14 +7,16 @@ import { LEGAL_PAGES } from "@/lib/site";
 import { useLovioo } from "@/lib/store";
 import { cn } from "@/lib/utils";
 
-const link = "rounded px-1 py-1 transition hover:text-pink focus-visible:text-pink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink/40";
+// Small print, but the padding keeps each link a comfortable thumb target on a phone.
+const link =
+  "inline-flex min-h-[32px] items-center rounded px-1.5 transition hover:text-pink focus-visible:text-pink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink/40";
 
 /** The small row of legal links every page carries. "Privacy choices" opens the profile settings or the analytics bar. */
 export function LegalLinks({ className, light }: { className?: string; light?: boolean }) {
   const router = useRouter();
   const signedIn = useLovioo((s) => !!s.user);
   return (
-    <nav aria-label="Legal" className={cn("flex flex-wrap items-center justify-center gap-x-1 text-[11px] leading-none", light ? "text-white/45" : "text-midnight/45", className)}>
+    <nav aria-label="Legal" className={cn("flex flex-wrap items-center justify-center gap-x-0.5 text-[11px] leading-none", light ? "text-white/45" : "text-midnight/45", className)}>
       {LEGAL_PAGES.map((p) => (
         <span key={p.href} className="flex items-center gap-x-1">
           <Link href={p.href} className={link}>

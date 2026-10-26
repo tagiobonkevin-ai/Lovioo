@@ -34,7 +34,7 @@ export function ProductCard({ product, showCompare = true, className }: { produc
 
       <div className="flex flex-1 flex-col gap-1 p-3.5">
         {brand ? (
-          <Link href={`/brand/${brand.id}`} className="w-fit truncate text-[11px] font-bold uppercase tracking-wide text-pink/90 hover:text-pink">
+          <Link href={`/brand/${brand.id}`} className="inline-flex w-fit min-h-[24px] max-w-full items-center truncate text-[11px] font-bold uppercase tracking-wide text-pink/90 hover:text-pink">
             {brand.name}
           </Link>
         ) : (
@@ -69,7 +69,7 @@ export function ProductCard({ product, showCompare = true, className }: { produc
               type="button"
               onClick={() => toggleCompare(product.id)}
               className={cn(
-                "inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold transition",
+                "inline-flex min-h-[32px] items-center gap-1 rounded-full px-3 py-1.5 text-[11px] font-semibold transition",
                 inCompare ? "bg-pink text-white" : "bg-pink/10 text-pink hover:bg-pink/15",
               )}
             >

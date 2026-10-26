@@ -10,7 +10,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-screen bg-cream">
       <AppHeader />
-      <main className="mx-auto max-w-7xl px-4 pb-32 pt-6 md:pb-16 lg:px-6">
+      <main className="mx-auto max-w-7xl px-4 pb-32 pt-6 lg:px-6 lg:pb-16">
         <MembersOnly>{children}</MembersOnly>
         <LegalFooter />
       </main>
