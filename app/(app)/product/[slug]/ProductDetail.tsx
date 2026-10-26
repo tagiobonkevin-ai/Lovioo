@@ -2,6 +2,7 @@
 
 import { Bell, BellRing, Check, GitCompareArrows, Heart, Share2, Star } from "lucide-react";
 import Link from "next/link";
+import { notFound } from "next/navigation";
 import { useEffect, useState } from "react";
 import { DiscountBadge } from "@/components/product/DealScore";
 import { InsightCard } from "@/components/product/InsightCard";
@@ -17,14 +18,21 @@ import { offerHref, retailerById } from "@/lib/data/retailers";
 import { getInsight } from "@/lib/insights";
 import { similarProducts } from "@/lib/recommend";
 import { useLovioo } from "@/lib/store";
+import type { Product } from "@/lib/types";
 import { getSupabase } from "@/lib/supabase/client";
 import { trackEvent } from "@/lib/sync";
 import { cn, compact, peso } from "@/lib/utils";
 
 const TABS = ["Compare offers", "Price history", "Details"] as const;
 
+/** Products load in the browser for members (members-only catalog), so an unknown slug is detected here. */
 export function ProductDetail({ slug }: { slug: string }) {
-  const product = productBySlug(slug)!;
+  const product = productBySlug(slug);
+  if (!product) notFound();
+  return <ProductView product={product} />;
+}
+
+function ProductView({ product }: { product: Product }) {
   const hydrated = useHydrated();
   const saved = useLovioo((s) => s.saved.includes(product.id)) && hydrated;
   const alert = useLovioo((s) => s.alerts.find((a) => a.productId === product.id));

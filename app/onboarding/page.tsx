@@ -104,11 +104,11 @@ export default function Onboarding() {
   const required = REQUIRED.includes(id);
   const last = step === steps.length - 1;
 
-  const nextParam = () => new URLSearchParams(window.location.search).get("next");
   const finish = (savePrefs: boolean) => {
     if (savePrefs) setPrefs({ interests, budget, platforms });
     completeOnboarding();
-    router.push(nextParam() ? safeNext(nextParam()) : savePrefs ? "/swipe" : "/discover");
+    // Where they were heading before signing up, otherwise straight into Swipe.
+    router.push(safeNext(new URLSearchParams(window.location.search).get("next"), "/swipe"));
   };
 
   /** Saves the "about you" answers as they're given, so leaving halfway keeps what was entered. */

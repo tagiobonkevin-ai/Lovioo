@@ -170,6 +170,7 @@ export type Database = {
       current_app_role: { Args: never; Returns: Database["public"]["Enums"]["app_role"] | null };
       is_admin: { Args: never; Returns: boolean };
       is_editor: { Args: never; Returns: boolean };
+      product_teaser: { Args: never; Returns: { name: string; brand: string; image: string; emoji: string; category_id: string }[] };
       is_super_admin: { Args: never; Returns: boolean };
       list_team: {
         Args: never;

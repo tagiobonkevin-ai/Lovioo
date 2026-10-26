@@ -1,7 +1,7 @@
 "use client";
 
 import { canTrack } from "@/lib/consent";
-import { productById } from "@/lib/data/products";
+import { PRODUCTS, productById } from "@/lib/data/products";
 import { useLovioo, type SwipeRecord } from "@/lib/store";
 import type { Supabase } from "@/lib/supabase/client";
 import type { PriceAlert, Preferences } from "@/lib/types";
@@ -28,7 +28,9 @@ export async function pullAndMerge(sb: Supabase, userId: string, onError: (msg: 
   const p = profile.data;
 
   const local = useLovioo.getState();
-  const known = (id: string) => !!productById(id);
+  // If the members-only catalog couldn't load, keep everything rather than dropping saves for "unknown" products.
+  const catalogLoaded = PRODUCTS.length > 0;
+  const known = (id: string) => !catalogLoaded || !!productById(id);
 
   const remoteSaved = saved.data.map((r) => r.product_id);
   const localOnlySaved = local.saved.filter((id) => !remoteSaved.includes(id) && known(id));
