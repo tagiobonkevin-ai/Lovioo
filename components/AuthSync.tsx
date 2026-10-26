@@ -30,7 +30,7 @@ export function AuthSync() {
         activeUserId = null;
         resetConsentSession();
         clearMemberCatalog();
-        useProfileStatus.setState({ needsProfile: false, avatarUrl: null });
+        useProfileStatus.setState({ needsProfile: false, avatarUrl: null, nameLocked: false });
         // Also clears a leftover demo-mode login or an expired session; guests (no user) keep their data.
         if (useLovioo.getState().user) useLovioo.getState().signOut();
         return;
@@ -49,7 +49,7 @@ export function AuthSync() {
         if (activeUserId !== u.id) return;
         if (res?.fullName) useLovioo.getState().signIn({ id: u.id, email: u.email ?? "", name: res.fullName });
         if (res) {
-          useProfileStatus.setState({ needsProfile: !res.profileComplete, avatarUrl: res.avatarUrl });
+          useProfileStatus.setState({ needsProfile: !res.profileComplete, avatarUrl: res.avatarUrl, nameLocked: res.nameLocked });
           await syncConsent(sb, res.consent);
         }
         stopSync = startWriteThrough(sb, u.id, onError);

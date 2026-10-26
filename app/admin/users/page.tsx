@@ -1,8 +1,10 @@
 "use client";
 
-import { ChevronDown, Search } from "lucide-react";
+import { BadgeCheck, ChevronDown, Lock, Search, Trash2 } from "lucide-react";
 import { useMemo, useState } from "react";
-import { useAdminQuery } from "@/components/admin/useAdmin";
+import { useAdminRole, isAdminRole } from "@/components/admin/AdminShell";
+import { adminDb, useAdminQuery } from "@/components/admin/useAdmin";
+import { toast } from "@/components/Providers";
 import { ErrorNote, PageHeader, Panel, Skeleton, adminInput } from "@/components/admin/ui";
 import { RetailerBadge } from "@/components/product/RetailerBadge";
 import { BUDGETS, categoryById } from "@/lib/data/categories";
@@ -13,6 +15,7 @@ import { cn } from "@/lib/utils";
 type Profile = Database["public"]["Tables"]["profiles"]["Row"];
 type Shopper = Profile & { saves: number; alerts: number; swipes: number };
 type ConsentEvent = Database["public"]["Tables"]["consent_events"]["Row"];
+type AccountAction = Database["public"]["Tables"]["account_actions"]["Row"];
 
 const date = (iso: string | null, withTime = false) =>
   iso ? new Date(iso).toLocaleDateString("en-PH", { month: "short", day: "numeric", year: "numeric", ...(withTime ? { hour: "numeric", minute: "2-digit" } : {}) }) : "—";
@@ -25,6 +28,7 @@ const FILTERS = [
   { id: "complete", label: "Profile complete" },
   { id: "incomplete", label: "Missing birthday" },
   { id: "marketing", label: "Emails opted in" },
+  { id: "unapproved", label: "Name not approved" },
 ] as const;
 
 /** Shopper accounts with their profile details, preferences, consents and activity (admins only; also enforced by RLS). */
@@ -32,7 +36,7 @@ export default function AdminUsers() {
   const [q, setQ] = useState("");
   const [filter, setFilter] = useState<(typeof FILTERS)[number]["id"]>("all");
   const [openId, setOpenId] = useState<string | null>(null);
-  const { data, error, loading } = useAdminQuery<Shopper[]>(async (sb) => {
+  const { data, error, loading, reload } = useAdminQuery<Shopper[]>(async (sb) => {
     const [profiles, saved, alerts, swipes] = await Promise.all([
       sb.from("profiles").select("*").order("created_at", { ascending: false }),
       sb.from("saved_items").select("user_id"),
@@ -56,7 +60,8 @@ export default function AdminUsers() {
           (filter === "all" ||
             (filter === "complete" && !!u.profile_completed_at) ||
             (filter === "incomplete" && !u.profile_completed_at) ||
-            (filter === "marketing" && u.marketing_opt_in)),
+            (filter === "marketing" && u.marketing_opt_in) ||
+            (filter === "unapproved" && !u.name_approved_at)),
       ),
     [data, q, filter],
   );
@@ -107,7 +112,7 @@ export default function AdminUsers() {
                 {rows.map((u) => {
                   const open = openId === u.id;
                   return (
-                    <ShopperRow key={u.id} u={u} open={open} onToggle={() => setOpenId(open ? null : u.id)} />
+                    <ShopperRow key={u.id} u={u} open={open} onToggle={() => setOpenId(open ? null : u.id)} onChanged={reload} />
                   );
                 })}
               </tbody>
@@ -120,7 +125,7 @@ export default function AdminUsers() {
   );
 }
 
-function ShopperRow({ u, open, onToggle }: { u: Shopper; open: boolean; onToggle: () => void }) {
+function ShopperRow({ u, open, onToggle, onChanged }: { u: Shopper; open: boolean; onToggle: () => void; onChanged: () => void }) {
   const [photoFailed, setPhotoFailed] = useState(false);
   return (
     <>
@@ -133,7 +138,10 @@ function ShopperRow({ u, open, onToggle }: { u: Shopper; open: boolean; onToggle
               <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-brand text-sm font-bold text-white">{(u.full_name || u.email || "?")[0]?.toUpperCase()}</span>
             )}
             <span className="min-w-0">
-              <span className="block truncate font-semibold">{u.full_name || "—"}</span>
+              <span className="flex items-center gap-1 truncate font-semibold">
+                <span className="truncate">{u.full_name || "—"}</span>
+                {u.name_approved_at && <BadgeCheck className="h-4 w-4 shrink-0 text-emerald-600" aria-label="Name approved" />}
+              </span>
               <span className="block truncate text-xs text-midnight/50">{u.email}</span>
             </span>
           </span>
@@ -162,7 +170,7 @@ function ShopperRow({ u, open, onToggle }: { u: Shopper; open: boolean; onToggle
       {open && (
         <tr className="bg-cream/60">
           <td colSpan={7} className="px-3 pb-4">
-            <ShopperDetails u={u} />
+            <ShopperDetails u={u} onChanged={onChanged} />
           </td>
         </tr>
       )}
@@ -170,7 +178,7 @@ function ShopperRow({ u, open, onToggle }: { u: Shopper; open: boolean; onToggle
   );
 }
 
-function ShopperDetails({ u }: { u: Shopper }) {
+function ShopperDetails({ u, onChanged }: { u: Shopper; onChanged: () => void }) {
   const consents = useAdminQuery<ConsentEvent[]>((sb) => sb.from("consent_events").select("*").eq("user_id", u.id).order("created_at", { ascending: false }), [u.id]);
   const budget = BUDGETS.find((b) => b.id === u.budget)?.label ?? "—";
   const item = (label: string, value: React.ReactNode) => (
@@ -192,6 +200,7 @@ function ShopperDetails({ u }: { u: Shopper }) {
           {item("Province", u.province ?? "—")}
           {item("Profile completed", date(u.profile_completed_at))}
           {item("Account role", (u.role ?? "customer").replace("_", " "))}
+          {item("Name approved", u.name_approved_at ? date(u.name_approved_at, true) : "Not yet")}
         </dl>
       </section>
       <section>
@@ -233,6 +242,111 @@ function ShopperDetails({ u }: { u: Shopper }) {
           {consents.data?.length === 0 && <li className="text-midnight/40">No consent records yet.</li>}
         </ul>
       </section>
+      <section className="lg:col-span-3">
+        <AccountActions u={u} onChanged={onChanged} />
+      </section>
+    </div>
+  );
+}
+
+/** Approve (and lock) a shopper's name, correct it, or delete the account. Admins and the super admin only. */
+function AccountActions({ u, onChanged }: { u: Shopper; onChanged: () => void }) {
+  const role = useAdminRole();
+  const [name, setName] = useState(u.full_name);
+  const [confirm, setConfirm] = useState("");
+  const [busy, setBusy] = useState<string | null>(null);
+  const history = useAdminQuery<AccountAction[]>(
+    (sb) => sb.from("account_actions").select("*").eq("target_user", u.id).order("created_at", { ascending: false }).limit(10),
+    [u.id],
+  );
+  if (!role || !isAdminRole(role)) return null;
+
+  const run = async (what: string, p: PromiseLike<{ error: { message: string } | null }>, ok: string) => {
+    setBusy(what);
+    const { error } = await p;
+    setBusy(null);
+    if (error) return toast({ title: "Couldn't do that", body: error.message, kind: "error" });
+    toast({ title: ok, kind: "ok" });
+    setConfirm("");
+    history.reload();
+    onChanged();
+  };
+
+  const approved = !!u.name_approved_at;
+  const emailMatches = confirm.trim().toLowerCase() === (u.email ?? "").toLowerCase();
+
+  return (
+    <div className="rounded-2xl border border-line/70 bg-white p-4">
+      <h3 className="mb-3 text-xs font-bold text-midnight">Account actions</h3>
+      <div className="grid gap-4 lg:grid-cols-3">
+        <div>
+          <p className="text-[10px] font-semibold uppercase tracking-wider text-midnight/45">Name approval</p>
+          <p className="mt-1 text-xs text-midnight/60">
+            {approved ? "Approved — the shopper can no longer change their name." : "Not approved — the shopper can still change their own name."}
+          </p>
+          <button
+            onClick={() => run("approve", adminDb().rpc("approve_shopper_name", { target: u.id, approved: !approved }), approved ? "Approval removed" : "Name approved and locked")}
+            disabled={busy === "approve"}
+            className={cn("mt-2 inline-flex items-center gap-1.5 rounded-full px-3 py-2 text-xs font-semibold transition", approved ? "bg-cream text-midnight/70 hover:bg-line/60" : "bg-emerald-600 text-white hover:bg-emerald-700")}
+          >
+            {approved ? <Lock className="h-3.5 w-3.5" /> : <BadgeCheck className="h-3.5 w-3.5" />}
+            {busy === "approve" ? "Saving…" : approved ? "Remove approval" : "Approve name"}
+          </button>
+        </div>
+
+        <div>
+          <p className="text-[10px] font-semibold uppercase tracking-wider text-midnight/45">Correct the name</p>
+          <p className="mt-1 text-xs text-midnight/60">Admins can fix a name at any time, approved or not.</p>
+          <div className="mt-2 flex gap-2">
+            <input value={name} onChange={(e) => setName(e.target.value)} maxLength={80} aria-label={`Name for ${u.email}`} className={cn(adminInput, "!py-2 text-sm")} />
+            <button
+              onClick={() => run("rename", adminDb().rpc("admin_set_shopper_name", { target: u.id, new_name: name }), "Name updated")}
+              disabled={busy === "rename" || !name.trim() || name.trim() === u.full_name}
+              className="shrink-0 rounded-full bg-midnight px-3 py-2 text-xs font-semibold text-white transition hover:bg-midnight/90 disabled:opacity-40"
+            >
+              {busy === "rename" ? "Saving…" : "Save"}
+            </button>
+          </div>
+        </div>
+
+        <div>
+          <p className="text-[10px] font-semibold uppercase tracking-wider text-coral">Delete account</p>
+          <p className="mt-1 text-xs text-midnight/60">
+            Removes the sign-in, profile, saves, alerts, swipes and consent records for good. Type <b className="break-all">{u.email}</b> to confirm.
+          </p>
+          <div className="mt-2 flex gap-2">
+            <input
+              value={confirm}
+              onChange={(e) => setConfirm(e.target.value)}
+              placeholder="Type the email"
+              aria-label={`Confirm deleting ${u.email}`}
+              className={cn(adminInput, "!py-2 text-sm")}
+            />
+            <button
+              onClick={() => run("delete", adminDb().rpc("delete_shopper", { target: u.id, confirm_email: confirm }), "Account deleted")}
+              disabled={busy === "delete" || !emailMatches}
+              className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-coral px-3 py-2 text-xs font-semibold text-white transition hover:brightness-95 disabled:opacity-40"
+            >
+              <Trash2 className="h-3.5 w-3.5" />
+              {busy === "delete" ? "Deleting…" : "Delete"}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {!!history.data?.length && (
+        <>
+          <h4 className="mb-1 mt-4 text-[10px] font-semibold uppercase tracking-wider text-midnight/45">Admin history</h4>
+          <ul className="space-y-1 text-xs text-midnight/70">
+            {history.data.map((a) => (
+              <li key={a.id}>
+                {date(a.created_at, true)} · {a.action.replace("_", " ")} {a.detail && <span className="text-midnight/50">({a.detail})</span>}{" "}
+                <span className="text-midnight/40">by {a.actor_email || "unknown"}</span>
+              </li>
+            ))}
+          </ul>
+        </>
+      )}
     </div>
   );
 }

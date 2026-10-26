@@ -1,9 +1,11 @@
 "use client";
 
+import { Lock } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { PH_PROVINCES } from "@/lib/data/ph-provinces";
 import { GENDERS, MIN_AGE, ageOn, readDemoAbout, useProfileStatus, writeDemoAbout, type AboutYou } from "@/lib/profile";
+import { CONTACT_EMAIL } from "@/lib/site";
 import { useLovioo } from "@/lib/store";
 import { getSupabase } from "@/lib/supabase/client";
 import { cn } from "@/lib/utils";
@@ -19,6 +21,7 @@ const label = "mb-1.5 block text-sm font-medium";
 export function AboutYouForm({ submitLabel, onSaved, compact }: { submitLabel: string; onSaved?: () => void; compact?: boolean }) {
   const user = useLovioo((s) => s.user);
   const signIn = useLovioo((s) => s.signIn);
+  const nameLocked = useProfileStatus((s) => s.nameLocked);
   const [about, setAbout] = useState<AboutYou>({ fullName: user?.name ?? "", birthdate: null, gender: null, city: "", province: "" });
   const [parts, setParts] = useState({ d: "", m: "", y: "" });
   const [loaded, setLoaded] = useState(false);
@@ -45,15 +48,15 @@ export function AboutYouForm({ submitLabel, onSaved, compact }: { submitLabel: s
       .select("full_name, birthdate, gender, city, province")
       .eq("id", user.id)
       .single()
-      .then(({ data }) =>
+      .then(({ data }) => {
         apply({
           fullName: data?.full_name || user.name,
           birthdate: data?.birthdate ?? null,
           gender: data?.gender ?? null,
           city: data?.city ?? "",
           province: data?.province ?? "",
-        }),
-      );
+        });
+      });
   }, [user?.id, user?.name]);
 
   const set = <K extends keyof AboutYou>(k: K, v: AboutYou[K]) => setAbout((a) => ({ ...a, [k]: v }));
@@ -76,7 +79,7 @@ export function AboutYouForm({ submitLabel, onSaved, compact }: { submitLabel: s
       if (sb && user?.id) {
         const { error: err } = await sb
           .from("profiles")
-          .update({ full_name: name, birthdate, gender: next.gender, city: next.city || null, province: next.province || null })
+          .update({ ...(nameLocked ? {} : { full_name: name }), birthdate, gender: next.gender, city: next.city || null, province: next.province || null })
           .eq("id", user.id);
         if (err) return setError(err.message);
         useProfileStatus.setState({ needsProfile: false });
@@ -94,7 +97,26 @@ export function AboutYouForm({ submitLabel, onSaved, compact }: { submitLabel: s
         <span className={label}>
           Full name <span className="text-pink">*</span>
         </span>
-        <input className={field} value={about.fullName} onChange={(e) => set("fullName", e.target.value)} autoComplete="name" maxLength={80} placeholder="Your full name" />
+        <input
+          className={cn(field, nameLocked && "cursor-not-allowed bg-cream text-midnight/60")}
+          value={about.fullName}
+          onChange={(e) => set("fullName", e.target.value)}
+          autoComplete="name"
+          maxLength={80}
+          placeholder="Your full name"
+          readOnly={nameLocked}
+          aria-readonly={nameLocked || undefined}
+        />
+        {nameLocked && (
+          <span className="mt-1.5 flex flex-wrap items-center gap-x-1 gap-y-0.5 text-[11px] leading-snug text-midnight/55">
+            <Lock className="h-3 w-3 shrink-0" aria-hidden />
+            Your name has been approved by the Lovioo team, so it can&apos;t be changed here. Email
+            <a href={`mailto:${CONTACT_EMAIL}`} className="font-semibold text-pink">
+              {CONTACT_EMAIL}
+            </a>
+            if it needs correcting.
+          </span>
+        )}
       </label>
 
       <fieldset>
