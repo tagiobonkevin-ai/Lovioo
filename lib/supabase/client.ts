@@ -19,6 +19,23 @@ export function getSupabase(): Supabase | null {
   return browserClient;
 }
 
+/**
+ * Whether a sign-in provider (e.g. "google") is switched on in Supabase Auth, from its public settings endpoint.
+ * Lets the app hide a provider button instead of sending people to Supabase's "provider is not enabled" error.
+ */
+export async function isAuthProviderEnabled(provider: string): Promise<boolean> {
+  if (!isSupabaseConfigured) return true;
+  try {
+    const res = await fetch(`${url}/auth/v1/settings`, { headers: { apikey: key! } });
+    if (!res.ok) return true;
+    const settings = (await res.json()) as { external?: Record<string, boolean> };
+    return settings.external?.[provider] === true;
+  } catch {
+    // Can't tell: keep the button; Supabase reports the problem if there is one.
+    return true;
+  }
+}
+
 /** Stateless client for server rendering: anonymous, so it only sees public catalog rows. */
 export function createServerClient(): Supabase | null {
   if (!isSupabaseConfigured) return null;
