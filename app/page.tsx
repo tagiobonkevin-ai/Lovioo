@@ -34,7 +34,7 @@ export default async function Landing() {
   return (
     <div className={cn(display.variable, ui.variable, "lovioo-paper min-h-screen overflow-x-hidden bg-white font-ui text-ink antialiased")}>
       <header className="mx-auto flex h-16 max-w-[1248px] items-center gap-6 px-4 lg:px-6">
-        <Logo mono />
+        <Logo />
         <nav className="ml-auto flex items-center gap-1 text-sm">
           <Link href="/auth?mode=signin" className="px-4 py-2 text-ink/60 transition hover:text-ink">
             Sign in
@@ -176,7 +176,7 @@ export default async function Landing() {
 
       <footer className="border-t border-ink/10">
         <div className="mx-auto flex max-w-[1248px] flex-col items-center gap-4 px-4 py-10 sm:flex-row sm:justify-between lg:px-6">
-          <Logo tagline mono />
+          <Logo tagline />
           <LegalLinks />
         </div>
         <p className="mx-auto max-w-[1248px] px-4 pb-10 text-center text-[11px] leading-[1.6] text-ink/35 sm:text-left lg:px-6">
