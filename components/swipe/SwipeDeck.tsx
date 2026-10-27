@@ -192,7 +192,13 @@ export function SwipeDeck() {
           </span>
         </div>
 
-        <div className="relative h-[min(52dvh,520px)] w-full max-w-sm select-none sm:h-[500px]">
+        {/* The height is measured off the real chrome rather than a guessed fraction of the screen: 225px of
+            header, padding, title, chips and progress sit above, and 96px of action buttons plus the 64px tab bar
+            sit below -- 392px that doesn't shrink when the screen does. Subtracting it keeps Love and Nope clear
+            of the tab bar on a 320x568 iPhone SE as well as a 430x932 Pro Max; 520px caps the card on a desktop.
+            `sm:h-[500px]` used to be here and was the bug: it applied from 640px WIDE, which is phone landscape,
+            forcing a 500px card into a 390px-tall viewport. The 185px floor keeps the card whole there instead. */}
+        <div className="relative h-[clamp(185px,calc(100dvh-392px),520px)] w-full max-w-sm select-none">
           {!hydrated ? (
             <div className="absolute inset-0 animate-pulse rounded-[2rem] bg-white/70" />
           ) : queue.length === 0 ? (
@@ -216,7 +222,7 @@ export function SwipeDeck() {
           )}
         </div>
 
-        <div className="mt-5 flex items-center gap-3 sm:mt-6 sm:gap-4">
+        <div className="mt-8 flex items-center gap-3 sm:gap-4">
           <ActionButton label="Undo" onClick={undo} className="h-11 w-11 text-sunset" disabled={!hydrated || swipes.length === 0}>
             <RotateCcw className="h-5 w-5" />
           </ActionButton>
