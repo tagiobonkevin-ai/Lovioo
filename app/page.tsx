@@ -5,9 +5,11 @@ import { Logo } from "@/components/brand/Logo";
 import { DealCard } from "@/components/landing/DealCard";
 import { DealSummary, GuestChat } from "@/components/landing/GuestChat";
 import { LegalLinks } from "@/components/legal/LegalLinks";
+import { HalloweenDecor, HalloweenNote } from "@/components/seasonal/Halloween";
 import { CATEGORIES } from "@/lib/data/categories";
 import { loadCatalog, loadDeals } from "@/lib/data/load-catalog";
 import { brandDeals } from "@/lib/data/public-deals";
+import { isHalloween } from "@/lib/season";
 import { MAIN_RETAILERS, retailerById } from "@/lib/data/retailers";
 import { cn } from "@/lib/utils";
 
@@ -46,8 +48,10 @@ export default async function Landing() {
       </header>
 
       {/* Hero + Lovioo AI */}
-      <section className="mx-auto max-w-[1248px] px-4 pb-16 pt-8 lg:px-6 lg:pb-24 lg:pt-16">
+      <section className="relative mx-auto max-w-[1248px] px-4 pb-16 pt-8 lg:px-6 lg:pb-24 lg:pt-16">
+        <HalloweenDecor />
         <div className="mx-auto max-w-[760px] text-center">
+          <HalloweenNote className="mb-3" />
           <h1 className="font-display text-[42px] font-medium leading-[1.43] tracking-[-0.012em] text-ink sm:text-[52px] lg:text-[56px] lg:leading-[1.357] lg:tracking-[-0.015em]">
             Shop every store in the Philippines through one chat.
           </h1>
@@ -67,7 +71,7 @@ export default async function Landing() {
       {/* Brand discounts */}
       {!!brands.length && (
         <section className="mx-auto max-w-[1248px] px-4 pb-16 lg:px-6 lg:pb-24">
-          <Eyebrow>Today&apos;s discounts</Eyebrow>
+          <Eyebrow>{isHalloween() ? "🎃 Halloween discounts" : "Today's discounts"}</Eyebrow>
           <Heading>Best of sale</Heading>
           <div className="mt-6 grid grid-cols-2 gap-x-4 gap-y-6 sm:grid-cols-3 lg:grid-cols-4">
             {brands.map((b) => (
