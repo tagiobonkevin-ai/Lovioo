@@ -10,8 +10,11 @@ import { useLovioo } from "@/lib/store";
 import { getSupabase } from "@/lib/supabase/client";
 import { cn } from "@/lib/utils";
 
-// Pages where the bar would get in the way: sign-up has its own checkboxes, the documents explain the choice.
-const QUIET = ["/auth", "/admin", "/onboarding", "/terms", "/privacy", "/affiliate-disclosure", "/cookies"];
+// Pages where the bar would get in the way: sign-up has its own checkboxes, the documents explain the choice,
+// and on Swipe it floats exactly where the Love and Nope buttons are -- on a 375px phone it covered them
+// completely. Shoppers still meet it on Discover, Search, Brands, Saved, Profile and the product pages, and
+// "Privacy choices" still opens it anywhere, because barOpen is checked before this list.
+const QUIET = ["/auth", "/admin", "/onboarding", "/swipe", "/terms", "/privacy", "/affiliate-disclosure", "/cookies"];
 
 /** True while the analytics bar is on screen; other bottom prompts wait for it. */
 export function useConsentBarVisible() {
@@ -59,7 +62,7 @@ export function ConsentBar() {
           <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
             <BarChart3 className="hidden h-5 w-5 shrink-0 text-ink/40 sm:block" />
             <p className="min-w-0 flex-1 text-xs leading-snug text-ink/65">
-              <b className="font-medium text-ink">Help improve Lovioo?</b> Allow analytics of the pages and products you view. No advertising trackers.{" "}
+              <b className="font-medium text-ink">Help improve Lovioo?</b> Allow analytics of what you view. No ad trackers.{" "}
               <Link href="/cookies" className="whitespace-nowrap font-medium text-ink underline underline-offset-2">
                 Cookie &amp; Tracking Notice
               </Link>

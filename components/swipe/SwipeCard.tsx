@@ -116,7 +116,21 @@ export const SwipeCard = forwardRef<SwipeCardHandle, Props>(function SwipeCard({
 
             <div className="absolute inset-x-0 bottom-0 p-5 text-white">
               <p className="text-xs font-medium uppercase tracking-wider text-white/70">{product.brand}</p>
-              <h3 className="mt-0.5 text-2xl font-bold leading-tight">{product.name}</h3>
+              {/* On a short screen the card is small enough that this bottom-anchored block reaches the deal ring in
+                  the top-right corner, and the name ran underneath it on a 320px iPhone SE. Reserve the ring's
+                  width there; on a taller card the name sits well below it and keeps the full width. */}
+              <h3
+                className={cn(
+                  "mt-0.5 text-2xl font-bold leading-tight",
+                  // A short screen means a short card, and this block is anchored to the bottom, so a long name
+                  // grew upwards past the top edge and under the deal ring. Smaller, capped at two lines, and
+                  // holding the ring's width clear keeps it inside the card on a 320px iPhone SE.
+                  "[@media(max-height:719px)]:line-clamp-2 [@media(max-height:719px)]:text-lg",
+                  insight.priced && "[@media(max-height:719px)]:pr-[4.75rem]",
+                )}
+              >
+                {product.name}
+              </h3>
               {insight.priced ? (
                 <div className="mt-2 flex items-center gap-2">
                   <span className="text-2xl font-extrabold">{peso(insight.bestOffer.price)}</span>
