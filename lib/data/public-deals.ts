@@ -115,3 +115,32 @@ export const dealsAsProducts = (deals: Deal[]): Product[] =>
     offers: [{ retailer: d.retailer as Product["offers"][number]["retailer"], price: d.price, originalPrice: d.originalPrice, shipping: 0, inStock: true, url: "" }],
     stats: { low90: d.price, avg90: d.price, high90: d.originalPrice || d.price, days: 0 },
   }));
+
+/**
+ * A product a guest may see when there are no real prices to show yet: photo, brand and name, no money.
+ * Comes from product_teaser() (migration 20261031000100), which never returns a price.
+ */
+export interface Teaser {
+  name: string;
+  brand: string;
+  image: string;
+  emoji: string;
+  category: string;
+}
+
+/** Demo mode: the built-in catalogue stands in for the teaser. */
+export const demoTeaser = (want = 12): Teaser[] =>
+  PRODUCTS.slice(0, want).map((p) => ({ name: p.name, brand: p.brand, image: p.image, emoji: p.emoji, category: p.category }));
+
+/**
+ * What a guest sees while the catalogue has no verified prices. Names and photos only, so the front page
+ * is never bare and never quotes a number we can't stand behind.
+ */
+export async function fetchTeaser(sb: Supabase): Promise<Teaser[]> {
+  const { data, error } = await sb.rpc("product_teaser");
+  if (error) {
+    console.error("Lovioo teaser:", error.message);
+    return [];
+  }
+  return (data ?? []).map((t) => ({ name: t.name, brand: t.brand, image: t.image, emoji: t.emoji, category: t.category_id }));
+}

@@ -5,30 +5,40 @@ import Link from "next/link";
 import { useMemo, useRef, useState } from "react";
 import { AI_LANGS, AI_STRINGS, type AiLang } from "@/lib/ai-i18n";
 import { askLovioo } from "@/lib/ai";
-import { dealsAsProducts, type Deal } from "@/lib/data/public-deals";
+import { dealsAsProducts, type Deal, type Teaser } from "@/lib/data/public-deals";
 import { cn, peso } from "@/lib/utils";
 import { DealCard } from "./DealCard";
+import { TeaserCard } from "./TeaserCard";
 
 /**
  * The front page's Lovioo AI box. A guest asks in English, Tagalog or Visayan and gets a real answer from the public
  * deals — prices and all — then an invitation to create an account for the full catalogue.
  */
-export function GuestChat({ deals }: { deals: Deal[] }) {
+export function GuestChat({ deals, teasers }: { deals: Deal[]; teasers: Teaser[] }) {
   const [lang, setLang] = useState<AiLang>("en");
   const [q, setQ] = useState("");
-  const [asked, setAsked] = useState<{ q: string; text: string; picks: Deal[] } | null>(null);
+  const [asked, setAsked] = useState<{ q: string; text: string; picks: Deal[]; teases: Teaser[] } | null>(null);
   const answerRef = useRef<HTMLDivElement>(null);
   const strings = AI_STRINGS[lang];
+  /** Prices on the front page come from verified offers only. With none, the assistant names products instead. */
+  const priced = deals.length > 0;
   const catalogue = useMemo(() => dealsAsProducts(deals), [deals]);
 
   const ask = (text: string) => {
     const question = text.trim();
     if (!question) return;
-    const reply = askLovioo(question, "there", lang, catalogue);
-    const slugs = new Set(reply.products.slice(0, 4).map((p) => p.slug));
-    setAsked({ q: question, text: reply.text.replace(/\*\*/g, ""), picks: deals.filter((d) => slugs.has(d.slug)).slice(0, 4) });
     setQ("");
     requestAnimationFrame(() => answerRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" }));
+
+    if (!priced) {
+      // No verified price to quote, so match on words alone and say so, rather than invent a number.
+      const teases = matchTeasers(question, teasers);
+      setAsked({ q: question, text: teases.length ? strings.teaserFound(teases.length) : strings.teaserNone, picks: [], teases });
+      return;
+    }
+    const reply = askLovioo(question, "there", lang, catalogue);
+    const slugs = new Set(reply.products.slice(0, 4).map((p) => p.slug));
+    setAsked({ q: question, text: reply.text.replace(/\*\*/g, ""), picks: deals.filter((d) => slugs.has(d.slug)).slice(0, 4), teases: [] });
   };
 
   return (
@@ -98,12 +108,28 @@ export function GuestChat({ deals }: { deals: Deal[] }) {
               </p>
             </>
           )}
-          {!asked.picks.length && (
+          {!!asked.teases.length && (
+            <>
+              <div className="mt-5 grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-4">
+                {asked.teases.map((t) => (
+                  <TeaserCard key={t.name} teaser={t} />
+                ))}
+              </div>
+              <p className="mt-6 text-[13px] text-ink/55">
+                Prices on these are for members.{" "}
+                <Link href="/auth?next=/ai" className="font-medium text-ink underline underline-offset-4">
+                  Create a free account
+                </Link>{" "}
+                to see every price, compare the stores and get price-drop alerts.
+              </p>
+            </>
+          )}
+          {!asked.picks.length && !asked.teases.length && (
             <p className="mt-4 text-[13px] text-ink/55">
               <Link href="/auth?next=/ai" className="font-medium text-ink underline underline-offset-4">
                 Create a free account
               </Link>{" "}
-              and Lovioo AI will search the whole catalogue, not just today&apos;s front-page deals.
+              and Lovioo AI will search the whole catalogue, with every store&apos;s price.
             </p>
           )}
         </div>
@@ -112,11 +138,39 @@ export function GuestChat({ deals }: { deals: Deal[] }) {
   );
 }
 
-/** Shown under the hero: how many deals there are and the biggest discount today. */
-export function DealSummary({ deals }: { deals: Deal[] }) {
+/**
+ * Word-match a question against the teaser picks. Deliberately simple: no price logic at all, because the
+ * teaser carries no price. Falls back to the first few picks for a question with nothing to match on.
+ */
+function matchTeasers(q: string, teasers: Teaser[], max = 4): Teaser[] {
+  const words = q
+    .toLowerCase()
+    .split(/[^a-z0-9\u00f1]+/i)
+    .filter((w) => w.length > 2);
+  if (!words.length) return teasers.slice(0, max);
+  const scored = teasers
+    .map((t) => {
+      const hay = `${t.name} ${t.brand} ${t.category}`.toLowerCase();
+      return { t, score: words.filter((w) => hay.includes(w)).length };
+    })
+    .filter((x) => x.score > 0)
+    .sort((a, b) => b.score - a.score);
+  return scored.slice(0, max).map((x) => x.t);
+}
+
+/** Shown under the hero: today's deals, or — with no verified price yet — how much there is to browse. */
+export function DealSummary({ deals, teasers = [] }: { deals: Deal[]; teasers?: Teaser[] }) {
+  if (!deals.length) {
+    if (!teasers.length) return null;
+    const brands = new Set(teasers.map((t) => t.brand)).size;
+    return (
+      <p className="text-[13px] text-ink/55">
+        {teasers.length} picks · {brands} {brands === 1 ? "brand" : "brands"} · prices for members
+      </p>
+    );
+  }
   const best = deals.reduce((m, d) => Math.max(m, d.off), 0);
   const cheapest = deals.reduce((m, d) => Math.min(m, d.price), Infinity);
-  if (!deals.length) return null;
   return (
     <p className="text-[13px] text-ink/55">
       {deals.length} deals today · up to {best}% off · from {peso(cheapest)}

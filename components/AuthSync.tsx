@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import { resetConsentSession, syncConsent } from "@/lib/consent";
 import { clearMemberCatalog, loadMemberCatalog } from "@/lib/data/member-catalog";
-import { useProfileStatus } from "@/lib/profile";
+import { NO_NOTIFY, useProfileStatus } from "@/lib/profile";
 import { useLovioo } from "@/lib/store";
 import { getSupabase } from "@/lib/supabase/client";
 import { pullAndMerge, startWriteThrough } from "@/lib/sync";
@@ -30,7 +30,7 @@ export function AuthSync() {
         activeUserId = null;
         resetConsentSession();
         clearMemberCatalog();
-        useProfileStatus.setState({ needsProfile: false, avatarUrl: null, nameLocked: false });
+        useProfileStatus.setState({ needsProfile: false, avatarUrl: null, nameLocked: false, notify: NO_NOTIFY });
         // Also clears a leftover demo-mode login or an expired session; guests (no user) keep their data.
         if (useLovioo.getState().user) useLovioo.getState().signOut();
         return;
@@ -49,7 +49,7 @@ export function AuthSync() {
         if (activeUserId !== u.id) return;
         if (res?.fullName) useLovioo.getState().signIn({ id: u.id, email: u.email ?? "", name: res.fullName });
         if (res) {
-          useProfileStatus.setState({ needsProfile: !res.profileComplete, avatarUrl: res.avatarUrl, nameLocked: res.nameLocked });
+          useProfileStatus.setState({ needsProfile: !res.profileComplete, avatarUrl: res.avatarUrl, nameLocked: res.nameLocked, notify: res.notify });
           await syncConsent(sb, res.consent);
         }
         stopSync = startWriteThrough(sb, u.id, onError);

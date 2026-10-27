@@ -278,7 +278,11 @@ export default function PrivacyPage() {
                 processing, request erasure or blocking where available, withdraw consent where consent is the basis, request portability where applicable, or
                 lodge a complaint with the relevant authority.
               </p>
-              <p>To make a request, contact {mail}. We may verify your identity before acting on a request.</p>
+              <p>
+                You can delete your account yourself at any time: open <strong>Profile &rarr; Close your account</strong> and type your email address to
+                confirm. That removes your sign-in, profile, saved items, price alerts, swipe history and consent record, and it cannot be undone.
+              </p>
+              <p>For any other request, contact {mail}. We may verify your identity before acting on a request.</p>
               <p>
                 For Philippine privacy information, visit the National Privacy Commission:{" "}
                 <a href="https://privacy.gov.ph/" target="_blank" rel="noopener noreferrer">

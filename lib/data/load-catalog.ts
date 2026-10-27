@@ -3,7 +3,7 @@ import { cache } from "react";
 import { createServerClient } from "@/lib/supabase/client";
 import { applyCatalog, demoCatalog, type Catalog } from "./catalog";
 import { fetchCatalog } from "./fetch-catalog";
-import { demoDeals, fetchDeals, type Deal } from "./public-deals";
+import { demoDeals, demoTeaser, fetchDeals, fetchTeaser, type Deal, type Teaser } from "./public-deals";
 
 /**
  * Loads the public part of the catalog (categories, stores, brands) once per request (pages are revalidated every 60s).
@@ -23,4 +23,13 @@ export const loadCatalog = cache(async (): Promise<Catalog> => {
 export const loadDeals = cache(async (): Promise<Deal[]> => {
   const sb = createServerClient();
   return sb ? fetchDeals(sb, 24) : demoDeals(24);
+});
+
+/**
+ * The no-price fallback for the front page: names and photos only. Used when loadDeals() comes back empty,
+ * which is the case until real prices are entered in Admin -> Price list.
+ */
+export const loadTeaser = cache(async (): Promise<Teaser[]> => {
+  const sb = createServerClient();
+  return sb ? fetchTeaser(sb) : demoTeaser(12);
 });

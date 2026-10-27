@@ -7,11 +7,12 @@ import { Suspense, useEffect, useState } from "react";
 import { display, ui } from "@/app/fonts";
 import { Logo } from "@/components/brand/Logo";
 import { DealCard } from "@/components/landing/DealCard";
+import { TeaserCard } from "@/components/landing/TeaserCard";
 import { ConsentChecks, NO_CHOICES, requiredMissing, type ConsentChoices } from "@/components/legal/ConsentChecks";
 import { LegalLinks } from "@/components/legal/LegalLinks";
 import { HalloweenNoteLive } from "@/components/seasonal/HalloweenLive";
 import { useConsent } from "@/lib/consent";
-import { demoDeals, fetchDeals, type Deal } from "@/lib/data/public-deals";
+import { demoDeals, demoTeaser, fetchDeals, fetchTeaser, type Deal, type Teaser } from "@/lib/data/public-deals";
 import { CONSENT_VERSION } from "@/lib/site";
 import { safeNext } from "@/lib/safe-redirect";
 import { useLovioo } from "@/lib/store";
@@ -34,10 +35,13 @@ function GoogleIcon() {
   );
 }
 
+/** The three things this page does: make an account, sign in, or ask for a password-reset link. */
+type AuthMode = "signup" | "signin" | "reset";
+
 function AuthForm() {
   const params = useSearchParams();
   const router = useRouter();
-  const [mode, setMode] = useState<"signup" | "signin">(params.get("mode") === "signin" ? "signin" : "signup");
+  const [mode, setMode] = useState<AuthMode>(params.get("mode") === "signin" ? "signin" : "signup");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [show, setShow] = useState(false);
@@ -48,18 +52,26 @@ function AuthForm() {
   const [triedConsent, setTriedConsent] = useState(false);
   const signIn = useLovioo((s) => s.signIn);
   const signup = mode === "signup";
+  /** Asking for a reset link: email only, no password, no consent boxes. */
+  const resetting = mode === "reset";
   const missingConsent = signup ? requiredMissing(choices) : null;
   // Google stays visible but inactive until it's switched on in Supabase (Authentication → Providers).
   const [googleReady, setGoogleReady] = useState(true);
   useEffect(() => {
     isAuthProviderEnabled("google").then(setGoogleReady);
   }, []);
-  // Desktop side panel: today's front-page deals, the same ones the home page shows.
+  // Desktop side panel: today's front-page deals, the same ones the home page shows. With no verified price
+  // yet, it shows the same no-price picks the home page falls back to.
   const [deals, setDeals] = useState<Deal[]>([]);
+  const [teasers, setTeasers] = useState<Teaser[]>([]);
   useEffect(() => {
     const sb = getSupabase();
     if (!sb) setDeals(demoDeals(4));
-    else fetchDeals(sb, 4).then(setDeals);
+    else
+      fetchDeals(sb, 4).then((d) => {
+        setDeals(d);
+        if (!d.length) (sb ? fetchTeaser(sb) : Promise.resolve(demoTeaser(4))).then((t) => setTeasers(t.slice(0, 4)));
+      });
   }, []);
 
   /** The required agreements are saved with the account once it exists (sign-up trigger, or syncConsent for Google). */
@@ -69,7 +81,7 @@ function AuthForm() {
   const onboardingPath = params.get("next") ? `/onboarding?next=${encodeURIComponent(next)}` : "/onboarding";
   // Sent here from a members-only page (products and prices need an account).
   const fromLocked = params.get("next") !== null && signup;
-  const switchMode = (m: "signup" | "signin") => {
+  const switchMode = (m: AuthMode) => {
     setMode(m);
     setError("");
     setNotice("");
@@ -82,9 +94,32 @@ function AuthForm() {
     router.push(signup && !onboarded ? onboardingPath : next);
   };
 
+  /** Send a reset link. Nothing in the reply says whether the address has an account, so it can't be used to probe. */
+  const sendReset = async () => {
+    const sb = getSupabase();
+    if (!sb) {
+      setError("");
+      return setNotice("Password reset needs the live site — this preview has no account system.");
+    }
+    setBusy(true);
+    try {
+      const { error } = await sb.auth.resetPasswordForEmail(email, { redirectTo: `${window.location.origin}/auth/new-password` });
+      if (error) setError(friendlyAuthError(error.message, googleReady));
+      else {
+        setError("");
+        setNotice(
+          `If ${email} has a Lovioo account, a reset link is on its way. Open it in this same browser — and give it a few minutes, our email sending is still warming up.`,
+        );
+      }
+    } finally {
+      setBusy(false);
+    }
+  };
+
   const submit = async (ev: React.FormEvent) => {
     ev.preventDefault();
     if (!/^\S+@\S+\.\S+$/.test(email)) return setError("Enter a valid email address.");
+    if (resetting) return sendReset();
     if (password.length < 6) return setError("Password needs at least 6 characters.");
     if (missingConsent) {
       setTriedConsent(true);
@@ -147,9 +182,15 @@ function AuthForm() {
 
         <main className="flex flex-1 flex-col justify-center py-8">
           <HalloweenNoteLive className="mb-2" />
-          <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-ink/40">{signup ? "Free · takes a minute" : "Good to see you"}</p>
+          <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-ink/40">
+            {resetting ? "Password help" : signup ? "Free · takes a minute" : "Good to see you"}
+          </p>
           <h1 className={cn(h, "mt-2 text-[34px] leading-[1.35] text-ink sm:text-[42px] sm:leading-[1.43]")}>
-            {signup ? (
+            {resetting ? (
+              <>
+                Reset your <em className="text-ink/55">password.</em>
+              </>
+            ) : signup ? (
               <>
                 Join Lovioo. <em className="text-ink/55">Shop smarter.</em>
               </>
@@ -160,13 +201,16 @@ function AuthForm() {
             )}
           </h1>
           <p className="mt-3 text-[15px] leading-relaxed text-ink/60">
-            {fromLocked
-              ? "Create a free account to see prices and start swiping."
-              : signup
-                ? "Save the things you love, get price-drop alerts and picks made for you."
-                : "Sign in to see your loves, alerts and picks."}
+            {resetting
+              ? "Tell us your email address and we'll send you a link to choose a new password."
+              : fromLocked
+                ? "Create a free account to see prices and start swiping."
+                : signup
+                  ? "Save the things you love, get price-drop alerts and picks made for you."
+                  : "Sign in to see your loves, alerts and picks."}
           </p>
 
+          {!resetting && (
           <div className="mt-7 flex gap-1 border-b border-ink/10" role="tablist" aria-label="Account">
             {(["signup", "signin"] as const).map((m) => (
               <button
@@ -180,7 +224,9 @@ function AuthForm() {
               </button>
             ))}
           </div>
+          )}
 
+          {!resetting && (
           <button
             onClick={google}
             disabled={!googleReady}
@@ -192,10 +238,13 @@ function AuthForm() {
           >
             <GoogleIcon /> {googleReady ? "Continue with Google" : "Google sign-in coming soon"}
           </button>
+          )}
 
+          {!resetting && (
           <div className="my-6 flex items-center gap-3 text-[11px] uppercase tracking-[0.14em] text-ink/35">
             <span className="h-px flex-1 bg-ink/10" /> or with email <span className="h-px flex-1 bg-ink/10" />
           </div>
+          )}
 
           <form onSubmit={submit} className="space-y-3.5" noValidate>
             <label className="relative block">
@@ -203,6 +252,7 @@ function AuthForm() {
               <Mail className="pointer-events-none absolute left-0 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-ink/35" />
               <input className={field} type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email address" autoComplete="email" inputMode="email" />
             </label>
+            {!resetting && (
             <label className="relative block">
               <span className="sr-only">Password</span>
               <Lock className="pointer-events-none absolute left-0 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-ink/35" />
@@ -223,6 +273,18 @@ function AuthForm() {
                 {show ? <EyeOff className="h-[18px] w-[18px]" /> : <Eye className="h-[18px] w-[18px]" />}
               </button>
             </label>
+            )}
+            {mode === "signin" && (
+              <p className="text-right">
+                <button
+                  type="button"
+                  onClick={() => switchMode("reset")}
+                  className="inline-flex min-h-[40px] items-center text-sm text-ink/55 underline underline-offset-4 transition hover:text-ink"
+                >
+                  Forgot your password?
+                </button>
+              </p>
+            )}
             {signup && (
               <p className={cn("flex items-center gap-1.5 text-xs", password.length >= 6 ? "text-emerald-700" : "text-ink/45")}>
                 <Check className="h-3.5 w-3.5" /> At least 6 characters
@@ -257,19 +319,30 @@ function AuthForm() {
               disabled={busy}
               aria-disabled={!!missingConsent}
             >
-              {busy ? "One moment…" : signup ? "Create account" : "Sign in"} {!busy && <ArrowRight className="h-4 w-4" />}
+              {busy ? "One moment…" : resetting ? "Send reset link" : signup ? "Create account" : "Sign in"} {!busy && <ArrowRight className="h-4 w-4" />}
             </button>
             {missingConsent && !triedConsent && <p className="text-center text-[11px] text-ink/45">Tick both boxes to create your account.</p>}
           </form>
 
           <p className="mt-6 text-center text-sm text-ink/60">
-            {signup ? "Already have an account? " : "New to Lovioo? "}
-            <button
-              className="inline-flex min-h-[40px] items-center px-1 font-medium text-ink underline underline-offset-4"
-              onClick={() => switchMode(signup ? "signin" : "signup")}
-            >
-              {signup ? "Sign in" : "Create an account"}
-            </button>
+            {resetting ? (
+              <>
+                Remembered it?{" "}
+                <button className="inline-flex min-h-[40px] items-center px-1 font-medium text-ink underline underline-offset-4" onClick={() => switchMode("signin")}>
+                  Back to sign in
+                </button>
+              </>
+            ) : (
+              <>
+                {signup ? "Already have an account? " : "New to Lovioo? "}
+                <button
+                  className="inline-flex min-h-[40px] items-center px-1 font-medium text-ink underline underline-offset-4"
+                  onClick={() => switchMode(signup ? "signin" : "signup")}
+                >
+                  {signup ? "Sign in" : "Create an account"}
+                </button>
+              </>
+            )}
           </p>
           {!isSupabaseConfigured && <p className="mt-3 text-center text-[11px] text-ink/40">Demo: accounts are stored only in this browser.</p>}
         </main>
@@ -287,8 +360,15 @@ function AuthForm() {
             {deals.map((d) => (
               <DealCard key={d.slug} deal={d} />
             ))}
+            {!deals.length && teasers.map((t) => <TeaserCard key={t.name} teaser={t} />)}
           </div>
-          <p className="text-[13px] text-ink/50">Today&apos;s front-page deals. Your account unlocks every price, every store.</p>
+          {(!!deals.length || !!teasers.length) && (
+            <p className="text-[13px] text-ink/50">
+              {deals.length
+                ? "Today's front-page deals. Your account unlocks every price, every store."
+                : "A few picks from the catalogue. Your account unlocks every price, every store."}
+            </p>
+          )}
         </div>
       </aside>
     </div>
@@ -311,5 +391,8 @@ function friendlyAuthError(message: string, googleReady = true) {
   if (/email not confirmed/i.test(message)) return "Please confirm your email first — check your inbox (and spam) for the link we sent.";
   if (/invalid login credentials/i.test(message)) return "That email and password don't match. Try again or create an account.";
   if (/already registered/i.test(message)) return "There's already an account with this email — sign in instead.";
+  if (/for security purposes|after \d+ seconds/i.test(message)) return "That was quick — wait a moment before asking for another link.";
+  if (/same password/i.test(message)) return "That's the password you already have. Choose a different one.";
+  if (/weak password|password should be/i.test(message)) return "Pick a longer password — at least 6 characters.";
   return message;
 }

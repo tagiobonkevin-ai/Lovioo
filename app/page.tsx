@@ -3,11 +3,12 @@ import Link from "next/link";
 import { display, ui } from "@/app/fonts";
 import { Logo } from "@/components/brand/Logo";
 import { DealCard } from "@/components/landing/DealCard";
+import { TeaserCard } from "@/components/landing/TeaserCard";
 import { DealSummary, GuestChat } from "@/components/landing/GuestChat";
 import { LegalLinks } from "@/components/legal/LegalLinks";
 import { HalloweenDecor, HalloweenNote } from "@/components/seasonal/Halloween";
 import { CATEGORIES } from "@/lib/data/categories";
-import { loadCatalog, loadDeals } from "@/lib/data/load-catalog";
+import { loadCatalog, loadDeals, loadTeaser } from "@/lib/data/load-catalog";
 import { brandDeals } from "@/lib/data/public-deals";
 import { isHalloween } from "@/lib/season";
 import { MAIN_RETAILERS, retailerById } from "@/lib/data/retailers";
@@ -32,6 +33,9 @@ export default async function Landing() {
   const [, deals] = await Promise.all([loadCatalog(), loadDeals()]);
   const brands = brandDeals(deals, 8);
   const grid = deals.slice(0, 12);
+  // Until a product has a verified price, we show it without one rather than quote a number we can't stand
+  // behind. Entering real prices in Admin -> Price list brings the deal sections back on their own.
+  const teasers = deals.length ? [] : (await loadTeaser()).slice(0, 12);
 
   return (
     <div className={cn(display.variable, ui.variable, "lovioo-paper min-h-screen overflow-x-hidden bg-white font-ui text-ink antialiased")}>
@@ -61,10 +65,10 @@ export default async function Landing() {
           </p>
         </div>
         <div className="mx-auto mt-10 max-w-[720px]">
-          <GuestChat deals={deals} />
+          <GuestChat deals={deals} teasers={teasers} />
         </div>
         <div className="mx-auto mt-8 max-w-[720px] text-center">
-          <DealSummary deals={deals} />
+          <DealSummary deals={deals} teasers={teasers} />
         </div>
       </section>
 
@@ -90,6 +94,29 @@ export default async function Landing() {
               </Link>
             ))}
           </div>
+        </section>
+      )}
+
+      {/* Our picks, when no price is verified yet: real photos and names, no invented numbers */}
+      {!grid.length && !!teasers.length && (
+        <section className="mx-auto max-w-[1248px] px-4 pb-16 lg:px-6 lg:pb-24">
+          <Eyebrow>{isHalloween() ? "🎃 Halloween picks" : "In the catalogue"}</Eyebrow>
+          <Heading>What Lovioo is shopping</Heading>
+          <p className="mt-2 max-w-[52ch] text-[13px] leading-[1.6] text-ink/55">
+            Prices live with your account, so you always see what each store is charging today — never a number we
+            haven&apos;t checked.
+          </p>
+          <div className="mt-6 grid grid-cols-2 gap-x-4 gap-y-10 sm:grid-cols-3 lg:grid-cols-4">
+            {teasers.map((t) => (
+              <TeaserCard key={t.name} teaser={t} />
+            ))}
+          </div>
+          <Link
+            href="/auth?next=/discover"
+            className="mt-10 inline-flex h-11 items-center gap-2 bg-ink px-6 text-sm font-medium text-white transition hover:opacity-85"
+          >
+            Join free to see prices <ArrowRight className="h-4 w-4" />
+          </Link>
         </section>
       )}
 

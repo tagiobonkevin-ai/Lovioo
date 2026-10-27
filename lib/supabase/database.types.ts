@@ -100,6 +100,7 @@ export type Database = {
           terms_accepted_at: string | null; terms_version: string | null; privacy_ack_at: string | null; marketing_opt_in: boolean; analytics_opt_in: boolean;
           birthdate: string | null; gender: Gender | null; city: string | null; province: string | null; avatar_url: string | null; profile_completed_at: string | null;
           name_approved_at: string | null; name_approved_by: string | null;
+          notify_drops: boolean; notify_restock: boolean; notify_digest: boolean;
         };
         Insert: {
           budget?: string | null; created_at?: string; email?: string | null; full_name?: string; id: string; interests?: string[]; onboarded?: boolean;
@@ -109,6 +110,7 @@ export type Database = {
           budget?: string | null; created_at?: string; email?: string | null; full_name?: string; id?: string; interests?: string[]; onboarded?: boolean;
           platforms?: string[]; streak?: number; streak_day?: string | null; updated_at?: string;
           birthdate?: string | null; gender?: Gender | null; city?: string | null; province?: string | null;
+          notify_drops?: boolean; notify_restock?: boolean; notify_digest?: boolean;
         };
         Relationships: [];
       };
@@ -183,6 +185,7 @@ export type Database = {
       approve_shopper_name: { Args: { target: string; approved?: boolean }; Returns: undefined };
       admin_set_shopper_name: { Args: { target: string; new_name: string }; Returns: undefined };
       delete_shopper: { Args: { target: string; confirm_email: string }; Returns: undefined };
+      delete_my_account: { Args: { confirm_email: string }; Returns: undefined };
       product_teaser: { Args: never; Returns: { name: string; brand: string; image: string; emoji: string; category_id: string }[] };
       public_deals: {
         Args: { want?: number };

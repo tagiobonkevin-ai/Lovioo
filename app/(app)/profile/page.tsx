@@ -6,11 +6,12 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { PrivacyChoices } from "@/components/legal/PrivacyChoices";
 import { AboutYouForm } from "@/components/profile/AboutYouForm";
+import { DeleteAccount } from "@/components/profile/DeleteAccount";
 import { RetailerBadge } from "@/components/product/RetailerBadge";
 import { toast, useHydrated } from "@/components/Providers";
 import { BUDGETS, CATEGORIES } from "@/lib/data/categories";
 import { ALL_RETAILERS, retailerById } from "@/lib/data/retailers";
-import { useProfileStatus } from "@/lib/profile";
+import { NOTIFY_ROWS, notifyPatch, useProfileStatus, type NotifyChoices } from "@/lib/profile";
 import { useLovioo } from "@/lib/store";
 import { getSupabase } from "@/lib/supabase/client";
 import type { CategoryId, RetailerId } from "@/lib/types";
@@ -20,7 +21,7 @@ export default function ProfilePage() {
   const hydrated = useHydrated();
   const router = useRouter();
   const { user, prefs, saved, alerts, swipes, streak, setPrefs, signOut } = useLovioo();
-  const [notify, setNotify] = useState({ drops: true, restock: true, digest: false });
+  const notify = useProfileStatus((s) => s.notify);
   const [isStaff, setIsStaff] = useState(false);
   const avatarUrl = useProfileStatus((s) => s.avatarUrl);
   const [photoFailed, setPhotoFailed] = useState(false);
@@ -30,6 +31,19 @@ export default function ProfilePage() {
     if (!sb || !user?.id) return;
     sb.rpc("current_app_role").then(({ data }) => setIsStaff(!!data && data !== "customer"));
   }, [user?.id]);
+
+  /** Flip one switch: show it at once, save it, and put it back if the save fails. */
+  const toggleNotify = async (k: keyof NotifyChoices) => {
+    const want = !notify[k];
+    useProfileStatus.setState({ notify: { ...notify, [k]: want } });
+    const sb = getSupabase();
+    if (!sb || !user?.id) return; // Demo mode: the choice lives in this browser only.
+    const { error } = await sb.from("profiles").update(notifyPatch(k, want)).eq("id", user.id);
+    if (error) {
+      useProfileStatus.setState({ notify: { ...notify, [k]: !want } });
+      toast({ title: "Couldn't save that", body: error.message, kind: "error" });
+    }
+  };
 
   if (!hydrated) return <div className="h-64 animate-pulse rounded-3xl bg-white/60" />;
   if (!user) {
@@ -109,29 +123,30 @@ export default function ProfilePage() {
       </Section>
 
       <Section icon={Bell} title="Notifications" sub="Price drops, restocks and deals">
-        {(
-          [
-            ["drops", "Price drop alerts"],
-            ["restock", "Back-in-stock alerts"],
-            ["digest", "Weekly deals digest from Lovioo AI"],
-          ] as const
-        ).map(([k, label]) => (
-          <div key={k} className="flex items-center justify-between border-b border-ink/10 py-3 last:border-0">
+        {NOTIFY_ROWS.map(({ id, label }) => (
+          <div key={id} className="flex items-center justify-between border-b border-ink/10 py-3 last:border-0">
             <span className="text-sm">{label}</span>
             <button
               role="switch"
-              aria-checked={notify[k]}
+              aria-checked={notify[id]}
               aria-label={label}
-              onClick={() => setNotify((n) => ({ ...n, [k]: !n[k] }))}
-              className={cn("relative h-7 w-12 rounded-full transition", notify[k] ? "bg-pink" : "bg-line")}
+              onClick={() => toggleNotify(id)}
+              className={cn("relative h-7 w-12 rounded-full transition", notify[id] ? "bg-pink" : "bg-line")}
             >
-              <span className={cn("absolute top-1 h-5 w-5 rounded-full bg-white shadow transition-all", notify[k] ? "left-6" : "left-1")} />
+              <span className={cn("absolute top-1 h-5 w-5 rounded-full bg-white shadow transition-all", notify[id] ? "left-6" : "left-1")} />
             </button>
           </div>
         ))}
+        {/* Say what actually happens today, rather than imply an email is on its way. */}
+        <p className="mt-3 text-xs text-ink/50">
+          We&apos;re saving your choice now and will start sending these soon. Until then, the 🔔 on a product keeps
+          watching its price for you in the app.
+        </p>
       </Section>
 
       <PrivacyChoices />
+
+      <DeleteAccount />
 
       <div className="card divide-y divide-ink/10/70">
         {[

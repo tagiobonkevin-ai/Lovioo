@@ -34,7 +34,7 @@ export default function SavedPage() {
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <h1 className="text-[30px] leading-[1.35]">Your loves 💖</h1>
-          <p className="text-sm text-ink/60">Manage your wishlist and price alerts.</p>
+          <p className="text-sm text-ink/60">Manage your wishlist and price alerts. Alerts show up here — email alerts are coming.</p>
         </div>
         {!user && (
           <Link href="/auth?next=/saved" className="rounded-2xl bg-blush px-4 py-2.5 text-sm text-ink/80">
@@ -84,7 +84,7 @@ export default function SavedPage() {
                         <button
                           onClick={() => {
                             setAlert(p.id);
-                            toast({ title: "Price alert on 🔔", body: p.name, kind: "ok" });
+                            toast({ title: "Price alert on 🔔", body: `Watching ${p.name} — check back here.`, kind: "ok" });
                           }}
                           className="absolute left-3 top-12 inline-flex items-center gap-1 rounded-full bg-white/90 px-2 py-1 text-[10px] font-semibold text-grape shadow-sm"
                         >
