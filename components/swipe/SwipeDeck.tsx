@@ -146,7 +146,7 @@ export function SwipeDeck() {
     <div className="grid gap-6 lg:grid-cols-[260px_minmax(0,1fr)_260px]">
       {/* Left rail: vibes + goal */}
       <aside className="order-1 min-w-0 space-y-4">
-        <div>
+        <div className="[@media(max-height:719px)]:hidden lg:block">
           <h1 className="text-2xl font-extrabold tracking-tight sm:text-3xl">
             Swipe. <span className="text-gradient">Love.</span> Shop.
           </h1>
@@ -198,7 +198,7 @@ export function SwipeDeck() {
             of the tab bar on a 320x568 iPhone SE as well as a 430x932 Pro Max; 520px caps the card on a desktop.
             `sm:h-[500px]` used to be here and was the bug: it applied from 640px WIDE, which is phone landscape,
             forcing a 500px card into a 390px-tall viewport. The 185px floor keeps the card whole there instead. */}
-        <div className="relative h-[clamp(185px,calc(100dvh-392px),520px)] w-full max-w-sm select-none">
+        <div className="relative h-[clamp(185px,calc(100dvh-392px),520px)] [@media(max-height:719px)]:h-[clamp(185px,calc(100dvh-360px),520px)] w-full max-w-sm select-none">
           {!hydrated ? (
             <div className="absolute inset-0 animate-pulse rounded-[2rem] bg-white/70" />
           ) : queue.length === 0 ? (
