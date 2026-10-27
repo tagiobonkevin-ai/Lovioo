@@ -11,15 +11,39 @@ export interface AboutYou {
   province: string;
 }
 
+/** Which alerts a shopper asked for. Saved on their profile; nothing sends them yet. */
+export interface NotifyChoices {
+  drops: boolean;
+  restock: boolean;
+  digest: boolean;
+}
+
+export const NO_NOTIFY: NotifyChoices = { drops: false, restock: false, digest: false };
+
+/** The three switches, in the order Profile shows them. */
+export const NOTIFY_ROWS: { id: keyof NotifyChoices; label: string }[] = [
+  { id: "drops", label: "Price drop alerts" },
+  { id: "restock", label: "Back-in-stock alerts" },
+  { id: "digest", label: "Weekly deals digest from Lovioo AI" },
+];
+
+/**
+ * One switch as a profiles patch. Spelled out per key rather than built from a computed name, so the
+ * column names stay literal types and a typo can't slip past the Supabase types.
+ */
+export const notifyPatch = (k: keyof NotifyChoices, value: boolean) =>
+  k === "drops" ? { notify_drops: value } : k === "restock" ? { notify_restock: value } : { notify_digest: value };
+
 interface ProfileStatus {
   /** Signed in, but name + birthday haven't been filled in yet (set after sign-in sync). */
   needsProfile: boolean;
   avatarUrl: string | null;
   /** An admin approved the name, so only the Lovioo team can change it now. */
   nameLocked: boolean;
+  notify: NotifyChoices;
 }
 
-export const useProfileStatus = create<ProfileStatus>(() => ({ needsProfile: false, avatarUrl: null, nameLocked: false }));
+export const useProfileStatus = create<ProfileStatus>(() => ({ needsProfile: false, avatarUrl: null, nameLocked: false, notify: NO_NOTIFY }));
 
 export const GENDERS: { id: Gender; label: string }[] = [
   { id: "female", label: "Female" },
