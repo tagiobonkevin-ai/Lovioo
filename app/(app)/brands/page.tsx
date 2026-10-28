@@ -3,11 +3,15 @@
 import { Search } from "lucide-react";
 import { useState } from "react";
 import { BrandCard } from "@/components/brand/BrandCrush";
-import { sortedBrands } from "@/lib/data/brands";
+import { brandProducts, sortedBrands } from "@/lib/data/brands";
 
 export default function BrandsPage() {
   const [q, setQ] = useState("");
-  const brands = sortedBrands().filter((b) => !q || b.name.toLowerCase().includes(q.toLowerCase()));
+  // A brand with nothing to show is a dead end: its card opens an empty page. The seed created a row for
+  // every brand name in the catalogue, so a few carry no published products -- keep those out until they do.
+  const brands = sortedBrands()
+    .filter((b) => brandProducts(b).length > 0)
+    .filter((b) => !q || b.name.toLowerCase().includes(q.toLowerCase()));
   const featured = brands.filter((b) => b.featured);
   const rest = brands.filter((b) => !b.featured);
 

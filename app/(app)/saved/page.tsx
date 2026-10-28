@@ -61,18 +61,22 @@ export default function SavedPage() {
           <Empty />
         ) : (
           <>
+            {/* Only offer a filter that has something behind it. "Great deals" needs tracked prices, so it
+                would otherwise sit there as a tab that always says "Nothing in this collection yet". */}
             <div className="flex gap-2">
               {(
                 [
-                  ["all", "All"],
-                  ["drops", "🔥 Great deals"],
-                  ["swipe", "💘 Swipe loves"],
+                  ["all", "All", true],
+                  ["drops", "🔥 Great deals", products.some(isDrop)],
+                  ["swipe", "💘 Swipe loves", products.some((p) => swipeLoved.has(p.id))],
                 ] as const
-              ).map(([id, label]) => (
-                <button key={id} onClick={() => setCollection(id)} className={cn("chip", collection === id && "chip-active")}>
-                  {label}
-                </button>
-              ))}
+              )
+                .filter(([, , show]) => show)
+                .map(([id, label]) => (
+                  <button key={id} onClick={() => setCollection(id)} className={cn("chip", collection === id && "chip-active")}>
+                    {label}
+                  </button>
+                ))}
             </div>
             <motion.div layout className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
               <AnimatePresence>

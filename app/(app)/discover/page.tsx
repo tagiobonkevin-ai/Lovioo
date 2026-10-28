@@ -74,9 +74,11 @@ export default function Discover() {
 
       <BrandCrush />
 
-      <div className="grid gap-4 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
+      {/* The deal carousel needs tracked prices. Without it the two-column split left an empty half on
+          desktop, so the Swipe and AI cards sit side by side instead until prices are entered. */}
+      <div className={topDeals.length > 0 ? "grid gap-4 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]" : "grid gap-4"}>
         {topDeals.length > 0 && <DealCarousel products={topDeals} />}
-        <div className="grid gap-4">
+        <div className={topDeals.length > 0 ? "grid gap-4" : "grid gap-4 sm:grid-cols-2"}>
           <Link href="/swipe" className="group relative overflow-hidden rounded-2xl bg-ink p-6 text-white">
             <div className="absolute -right-6 -top-6 h-32 w-32 rounded-full bg-pink/40 blur-2xl" />
             <Layers className="h-8 w-8 text-pink" />
@@ -128,7 +130,7 @@ export default function Discover() {
 
       <section>
         <div className="flex items-end justify-between gap-3">
-          <h2 className="text-[20px] leading-[1.5]">Trending deals 🔥</h2>
+          <h2 className="text-[20px] leading-[1.5]">{topDeals.length > 0 ? "Trending deals 🔥" : "Trending now 🔥"}</h2>
           <Link href="/search?sort=trending" className="shrink-0 whitespace-nowrap text-sm font-semibold text-pink">
             See all
           </Link>

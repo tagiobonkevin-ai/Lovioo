@@ -14,6 +14,8 @@ type Verdict = Insight["verdict"] | "seePrices";
 interface AiStrings {
   hi: (name: string) => string;
   intro: string;
+  /** Same greeting, for while no product has a tracked price to compare. */
+  introUnpriced: string;
   placeholder: string;
   starters: string[];
   greeting: (name: string) => string;
@@ -23,6 +25,8 @@ interface AiStrings {
   /** Front page before any price is verified: we can name the products, but not quote a price. */
   teaserFound: (n: number) => string;
   teaserNone: string;
+  /** A budget was asked for, but none of the picks has a tracked price to check it against. */
+  budgetUnpriced: (budget: string) => string;
   trending: string;
   gifts: string;
   found: (n: number, what: string, budget: string | null) => string;
@@ -45,6 +49,7 @@ export const AI_STRINGS: Record<AiLang, AiStrings> = {
   en: {
     hi: (name) => `Hi ${name}! 👋`,
     intro: "What are you looking for today? I compare prices across stores and tell you when to buy.",
+    introUnpriced: "What are you looking for today? Tell me and I'll find it across Shopee, Lazada, TikTok Shop and Amazon.",
     placeholder: "Ask Lovioo AI anything…",
     starters: ["Best deals on sneakers", "Skincare under ₱1,000", "Home essentials", "Trending on TikTok Shop", "Gift ideas under ₱2,000"],
     greeting: (name) =>
@@ -54,6 +59,7 @@ export const AI_STRINGS: Record<AiLang, AiStrings> = {
     noMatchChips: ["Show trending deals", "Home essentials", "Gift ideas under ₱2,000"],
     teaserFound: (n) => `Here ${n === 1 ? "is" : "are"} ${n} ${n === 1 ? "pick" : "picks"} from the Lovioo catalogue. Prices are for members, so join free and I'll compare every store for you ✨`,
     teaserNone: "I couldn't match that to a pick on the front page. Join free and I'll search the whole catalogue with live prices ✨",
+    budgetUnpriced: (b) => `I can't check your ${b} budget on these yet — tap one for the store's live price.`,
     trending: "Here's what's trending right now 🔥",
     gifts: "Gift-worthy finds 🎁",
     found: (n, what, budget) => `Found ${n} ${what}${budget ? ` under ${budget}` : ""} for you ✨`,
@@ -80,6 +86,7 @@ export const AI_STRINGS: Record<AiLang, AiStrings> = {
   tl: {
     hi: (name) => `Hi ${name}! 👋`,
     intro: "Ano'ng hinahanap mo ngayon? Ikukumpara ko ang presyo sa iba't ibang store at sasabihin ko kung kailan ang best time bumili.",
+    introUnpriced: "Ano'ng hinahanap mo ngayon? Sabihin mo lang at hahanapin ko sa Shopee, Lazada, TikTok Shop at Amazon.",
     placeholder: "Magtanong kay Lovioo AI…",
     starters: ["Murang sapatos", "Skincare na mas mura sa ₱1,000", "Gamit sa bahay", "Uso sa TikTok Shop", "Regalo na mas mura sa ₱2,000"],
     greeting: (name) =>
@@ -89,6 +96,7 @@ export const AI_STRINGS: Record<AiLang, AiStrings> = {
     noMatchChips: ["Ano'ng uso ngayon?", "Gamit sa bahay", "Regalo na mas mura sa ₱2,000"],
     teaserFound: (n) => `Heto ang ${n} pick mula sa catalogue ng Lovioo. Para sa mga member ang presyo, kaya sumali ka nang libre at ikukumpara ko ang lahat ng tindahan ✨`,
     teaserNone: "Wala akong na-match diyan sa mga pick sa front page. Sumali nang libre at hahanapin ko ang buong catalogue na may live na presyo ✨",
+    budgetUnpriced: (b) => `Hindi ko pa ma-check ang ${b} budget mo rito — i-tap ang isa para sa live na presyo ng tindahan.`,
     trending: "Ito ang mga patok ngayon 🔥",
     gifts: "Mga swak na pangregalo 🎁",
     found: (n, what, budget) => `May ${n} ${what}${budget ? ` na mas mura sa ${budget}` : ""} akong nahanap para sa'yo ✨`,
@@ -123,6 +131,7 @@ export const AI_STRINGS: Record<AiLang, AiStrings> = {
   ceb: {
     hi: (name) => `Hi ${name}! 👋`,
     intro: "Unsa imong gipangita karon? Ikumpara nako ang presyo sa lain-laing store ug sultihan tika kanus-a maayo mopalit.",
+    introUnpriced: "Unsa imong gipangita karon? Sultihi ko ug pangitaon nako sa Shopee, Lazada, TikTok Shop ug Amazon.",
     placeholder: "Pangutana kang Lovioo AI…",
     starters: ["Barato nga sapatos", "Skincare ubos sa ₱1,000", "Gamit sa balay", "Uso sa TikTok Shop", "Regalo ubos sa ₱2,000"],
     greeting: (name) =>
@@ -132,6 +141,7 @@ export const AI_STRINGS: Record<AiLang, AiStrings> = {
     noMatchChips: ["Unsay uso karon?", "Gamit sa balay", "Regalo ubos sa ₱2,000"],
     teaserFound: (n) => `Ania ang ${n} ka pick gikan sa catalogue sa Lovioo. Para sa mga member ang presyo, busa apil nga libre ug ikomparar nako ang tanang tindahan ✨`,
     teaserNone: "Wala koy na-match niana sa mga pick sa front page. Apil nga libre ug pangitaon nako ang tibuok catalogue nga may live nga presyo ✨",
+    budgetUnpriced: (b) => `Dili pa nako ma-check ang imong ${b} nga budget diri — i-tap ang usa para sa live nga presyo sa tindahan.`,
     trending: "Mao ni ang uso karon 🔥",
     gifts: "Nindot nga iregalo 🎁",
     found: (n, what, budget) => `Naa koy ${n} ka ${what}${budget ? ` nga ubos sa ${budget}` : ""} para nimo ✨`,
