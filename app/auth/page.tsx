@@ -108,7 +108,7 @@ function AuthForm() {
       else {
         setError("");
         setNotice(
-          `If ${email} has a Lovioo account, a reset link is on its way. Open it in this same browser — and give it a few minutes, our email sending is still warming up.`,
+          `If ${email} has a Lovioo account, a reset link is on its way. Open it in this same browser. It can take a few minutes, so check your spam folder too.`,
         );
       }
     } finally {
@@ -385,6 +385,9 @@ export default function AuthPage() {
 
 /** Turns Supabase auth errors testers are likely to hit into plain language. */
 function friendlyAuthError(message: string, googleReady = true) {
+  // Supabase's built-in sender only mails the project's own team until custom SMTP is set up.
+  if (/email address not authorized/i.test(message))
+    return `We couldn't send a confirmation email to that address just yet. Please try again later${googleReady ? ", or continue with Google" : ""}.`;
   if (/email rate limit/i.test(message))
     return `We can't send more confirmation emails right now. Please try again in a little while${googleReady ? ", or continue with Google" : ""}.`;
   if (/rate limit|too many/i.test(message)) return "Lots of people are signing up right now — please try again in a few minutes.";
