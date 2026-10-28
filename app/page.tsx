@@ -211,8 +211,10 @@ export default async function Landing() {
           <LegalLinks />
         </div>
         <p className="mx-auto max-w-[1248px] px-4 pb-10 text-center text-[11px] leading-[1.6] text-ink/35 sm:text-left lg:px-6">
-          Some store links are affiliate links. Prices and availability are set by each retailer and may change. Prices shown here are today&apos;s
-          front-page deals; the full catalogue is for members.
+          Some store links are affiliate links. Prices and availability are set by each retailer and may change.{" "}
+          {grid.length
+            ? "Prices shown here are today's front-page deals; the full catalogue is for members."
+            : "The full catalogue, with prices from every store, is for members."}
         </p>
       </footer>
     </div>

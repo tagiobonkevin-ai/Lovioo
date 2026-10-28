@@ -9,7 +9,7 @@ import { RetailerBadge } from "@/components/product/RetailerBadge";
 import { useHydrated } from "@/components/Providers";
 import { askLovioo, buyOrWait, isBuyOrWait, type AiReply } from "@/lib/ai";
 import { AI_LANGS, AI_STRINGS } from "@/lib/ai-i18n";
-import { productById } from "@/lib/data/products";
+import { PRODUCTS, isPriced, productById } from "@/lib/data/products";
 import { getInsight } from "@/lib/insights";
 import { useLovioo } from "@/lib/store";
 import type { Product } from "@/lib/types";
@@ -127,7 +127,8 @@ export function AiChat({ compact = false, initialQuery }: { compact?: boolean; i
             </div>
           </div>
           <p className="mt-2 text-lg font-bold">{t.hi(name)}</p>
-          <p className="text-sm text-ink/70">{t.intro}</p>
+          {/* Only promise price comparison while there is a tracked price to compare. */}
+          <p className="text-sm text-ink/70">{PRODUCTS.some(isPriced) ? t.intro : t.introUnpriced}</p>
           {msgs.length === 0 && (
             <div className="mt-3 flex flex-wrap gap-2">
               {t.starters.map((s) => (

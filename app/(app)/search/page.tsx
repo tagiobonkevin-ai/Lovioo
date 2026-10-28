@@ -16,10 +16,10 @@ import { cn, peso } from "@/lib/utils";
 
 const SORTS = [
   { id: "relevant", label: "Most relevant" },
-  { id: "deal", label: "Best deal score" },
-  { id: "discount", label: "Biggest discount" },
-  { id: "price-asc", label: "Price: low to high" },
-  { id: "price-desc", label: "Price: high to low" },
+  { id: "deal", label: "Best deal score", needsPrice: true },
+  { id: "discount", label: "Biggest discount", needsPrice: true },
+  { id: "price-asc", label: "Price: low to high", needsPrice: true },
+  { id: "price-desc", label: "Price: high to low", needsPrice: true },
   { id: "rating", label: "Top rated" },
   { id: "trending", label: "Trending" },
 ];
@@ -55,6 +55,8 @@ function matches(p: Product, q: string) {
 function SearchInner() {
   const params = useSearchParams();
   const router = useRouter();
+  // Computed per render, not at module load: PRODUCTS is swapped in once the member catalogue arrives.
+  const anyPriced = PRODUCTS.some(isPriced);
   const q = params.get("q") ?? "";
   const [sort, setSort] = useState(params.get("sort") ?? "relevant");
   const [f, setF] = useState<Filters>({
@@ -126,6 +128,9 @@ function SearchInner() {
           <Check key={c.id} label={`${c.emoji} ${c.name}`} checked={f.categories.includes(c.id)} onChange={() => toggle("categories", c.id)} count={PRODUCTS.filter((p) => p.category === c.id && matches(p, q)).length} />
         ))}
       </FilterGroup>
+      {/* Price range and the price sorts only work against a tracked price. Until prices are entered they
+          would match nothing, so a shopper picking "Under P500" would just get "No matches yet". */}
+      {anyPriced && (
       <FilterGroup title="Price range">
         {PRICE_BANDS.map((b, i) => (
           <Check key={b.label} label={b.label} checked={f.band === i} onChange={() => update({ band: f.band === i ? null : i, min: "", max: "" })} />
@@ -136,6 +141,7 @@ function SearchInner() {
           <input className="input !rounded-xl !px-3 !py-2" inputMode="numeric" placeholder="Max ₱" value={f.max} onChange={(e) => update({ max: e.target.value.replace(/\D/g, ""), band: null })} aria-label="Maximum price" />
         </div>
       </FilterGroup>
+      )}
       <FilterGroup title="Store">
         {ALL_RETAILERS.map((r) => (
           <Check key={r} label={retailerById(r).name} icon={<RetailerBadge id={r} size="xs" />} checked={f.platforms.includes(r)} onChange={() => toggle("platforms", r)} />
@@ -201,7 +207,7 @@ function SearchInner() {
               <label className="relative">
                 <span className="sr-only">Sort by</span>
                 <select value={sort} onChange={(e) => setSort(e.target.value)} className="appearance-none rounded-full border border-ink/15 bg-white py-2 pl-4 pr-9 text-sm font-medium outline-none focus:border-pink">
-                  {SORTS.map((s) => (
+                  {SORTS.filter((s) => !s.needsPrice || anyPriced).map((s) => (
                     <option key={s.id} value={s.id}>
                       Sort: {s.label}
                     </option>

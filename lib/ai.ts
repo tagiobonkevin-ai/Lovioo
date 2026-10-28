@@ -1,6 +1,6 @@
 import { AI_STRINGS, verdictText, type AiLang } from "@/lib/ai-i18n";
 import { CATEGORIES } from "@/lib/data/categories";
-import { BRANDS, PRODUCTS, lowestPrice } from "@/lib/data/products";
+import { BRANDS, PRODUCTS, isPriced, lowestPrice } from "@/lib/data/products";
 import { ALL_RETAILERS, retailerById } from "@/lib/data/retailers";
 import { getInsight } from "@/lib/insights";
 import type { CategoryId, Product, RetailerId } from "@/lib/types";
@@ -119,7 +119,10 @@ export function askLovioo(input: string, name = "there", lang: AiLang = "en", ca
     if (cats.length && !cats.includes(p.category)) return false;
     if (brand && p.brand !== brand) return false;
     if (retailer && !p.offers.some((o) => o.retailer === retailer)) return false;
-    if (budget && lowestPrice(p) > budget) return false;
+    // A budget can only rule out a product whose price we track. An unpriced pick still belongs in the answer
+    // -- the shopper taps through for the store's live price -- and dropping it here left suggested prompts
+    // like "Skincare under P1,000" answering "couldn't find a match" whenever nothing was priced yet.
+    if (budget && isPriced(p) && lowestPrice(p) > budget) return false;
     if (wantsGift && !p.tags.includes("gift idea") && !cats.length) return false;
     return true;
   });
@@ -150,12 +153,16 @@ export function askLovioo(input: string, name = "there", lang: AiLang = "en", ca
   const top = picks[0];
   const ti = getInsight(top);
   const catLabel = cats.length ? categoryLabel(cats[0], lang) : s.picks;
+  // Only claim a budget was applied when at least one pick has a price to apply it to.
+  const anyPriced = picks.some((p) => getInsight(p).priced);
+  const budgetLabel = budget && anyPriced ? peso(budget) : null;
   const parts = [
-    wantsTrending ? s.trending : wantsGift ? s.gifts : s.found(pool.length, catLabel, budget ? peso(budget) : null),
+    wantsTrending ? s.trending : wantsGift ? s.gifts : s.found(pool.length, catLabel, budgetLabel),
     ti.priced
       ? s.topPick(top.name, peso(ti.bestOffer.price), retailerById(ti.bestOffer.retailer).name, ti.dealScore, verdictText(ti, lang))
       : s.topPickSeePrices(top.name, verdictText(ti, lang)),
   ];
+  if (budget && !anyPriced) parts.push(s.budgetUnpriced(peso(budget)));
   if (wantsDeals && ti.savings > 0) parts.push(s.savings(peso(ti.savings)));
 
   return {

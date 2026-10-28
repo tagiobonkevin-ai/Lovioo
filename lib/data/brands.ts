@@ -65,6 +65,10 @@ export function brandCrush(limit = 10) {
     const b = brandOf(p);
     if (b) counts.set(b.id, (counts.get(b.id) ?? 0) + 1);
   });
-  const top = [...BRAND_LIST].sort((a, b) => (counts.get(b.id) ?? 0) - (counts.get(a.id) ?? 0)).slice(0, limit);
+  // Only brands that actually have products: a card promising "0 products" is worse than a shorter row.
+  const top = [...BRAND_LIST]
+    .filter((b) => (counts.get(b.id) ?? 0) > 0)
+    .sort((a, b) => (counts.get(b.id) ?? 0) - (counts.get(a.id) ?? 0))
+    .slice(0, limit);
   return { featured: false, brands: top };
 }
