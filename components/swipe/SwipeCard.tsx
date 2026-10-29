@@ -92,7 +92,7 @@ export const SwipeCard = forwardRef<SwipeCardHandle, Props>(function SwipeCard({
           {/* Front */}
           <div className="absolute inset-0 overflow-hidden rounded-[2rem] bg-white shadow-2xl ring-1 ring-black/5" style={{ backfaceVisibility: "hidden" }}>
             <ProductImage product={product} className="h-full w-full" emojiSize="text-[9rem]" />
-            <div className="absolute inset-x-0 bottom-0 h-3/5 bg-gradient-to-t from-midnight/90 via-midnight/40 to-transparent" />
+            <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-midnight/85 via-midnight/35 to-transparent" />
             <div className="absolute left-4 top-4 flex flex-wrap gap-1.5">
               {product.trending && <span className="rounded-full bg-white/90 px-2.5 py-1 text-[11px] font-semibold text-coral">🔥 Trending</span>}
               {product.isNew && <span className="rounded-full bg-midnight/80 px-2.5 py-1 text-[11px] font-semibold text-white">NEW</span>}
@@ -114,33 +114,26 @@ export const SwipeCard = forwardRef<SwipeCardHandle, Props>(function SwipeCard({
               SUPER LOVE ⭐
             </motion.div>
 
-            <div className="absolute inset-x-0 bottom-0 p-5 text-white">
-              <p className="text-xs font-medium uppercase tracking-wider text-white/70">{product.brand}</p>
-              {/* On a short screen the card is small enough that this bottom-anchored block reaches the deal ring in
-                  the top-right corner, and the name ran underneath it on a 320px iPhone SE. Reserve the ring's
-                  width there; on a taller card the name sits well below it and keeps the full width. */}
-              <h3
-                className={cn(
-                  "mt-0.5 text-2xl font-bold leading-tight",
-                  // A short screen means a short card, and this block is anchored to the bottom, so a long name
-                  // grew upwards past the top edge and under the deal ring. Smaller, capped at two lines, and
-                  // holding the ring's width clear keeps it inside the card on a 320px iPhone SE.
-                  "[@media(max-height:719px)]:line-clamp-2 [@media(max-height:719px)]:text-lg",
-                  insight.priced && "[@media(max-height:719px)]:pr-[4.75rem]",
-                )}
-              >
+            {/* The photo is what sells the product, so the words stay in the bottom third. Marketplace titles run
+                to four lines at full size ("[SUNSCREEN + TINTED] Dear Face Skin SUNBOUNCE Daily Defense..."), which
+                buried the picture; the full title is one tap away on the back of the card. */}
+            <div className="absolute inset-x-0 bottom-0 p-4 text-white">
+              {/* Below 720px of screen height the card itself is short (208px on an iPhone SE), so only the name,
+                  price and store stay on the front; the brand and the hint wait on the back. */}
+              <p className="truncate text-[11px] font-medium uppercase tracking-wider text-white/70 [@media(max-height:719px)]:hidden">{product.brand}</p>
+              <h3 className="mt-0.5 line-clamp-2 text-lg font-bold leading-snug [@media(max-height:719px)]:mt-0 [@media(max-height:719px)]:line-clamp-1 [@media(max-height:719px)]:text-base">
                 {product.name}
               </h3>
               {insight.priced ? (
-                <div className="mt-2 flex items-center gap-2">
-                  <span className="text-2xl font-extrabold">{peso(insight.bestOffer.price)}</span>
+                <div className="mt-1.5 flex items-center gap-2">
+                  <span className="text-xl font-extrabold">{peso(insight.bestOffer.price)}</span>
                   {pct > 0 && <span className="text-sm text-white/60 line-through">{peso(insight.bestOffer.originalPrice)}</span>}
                   <DiscountBadge pct={pct} />
                 </div>
               ) : (
-                <p className="mt-2 text-2xl font-extrabold">See prices</p>
+                <p className="mt-1.5 text-xl font-extrabold">See prices</p>
               )}
-              <div className="mt-2 flex flex-wrap items-center gap-3 text-xs text-white/80">
+              <div className="mt-1.5 flex flex-wrap items-center gap-3 text-xs text-white/80">
                 {insight.priced ? (
                   <span className="inline-flex items-center gap-1.5">
                     <RetailerBadge id={insight.bestOffer.retailer} size="xs" /> Best on {retailerById(insight.bestOffer.retailer).name}
@@ -156,7 +149,13 @@ export const SwipeCard = forwardRef<SwipeCardHandle, Props>(function SwipeCard({
                   </span>
                 )}
               </div>
-              <p className="mt-3 text-[11px] text-white/60">{insight.priced ? `Tap to see all ${product.offers.length} offers ↻` : "Tap to see where to buy ↻"}</p>
+              <p className="mt-2 text-[11px] text-white/60 [@media(max-height:719px)]:hidden">
+                {!insight.priced
+                  ? "Tap to see where to buy ↻"
+                  : product.offers.length === 1
+                    ? "Tap to see the offer ↻"
+                    : `Tap to see all ${product.offers.length} offers ↻`}
+              </p>
             </div>
           </div>
 
