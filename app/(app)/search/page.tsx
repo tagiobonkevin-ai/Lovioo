@@ -8,7 +8,7 @@ import { Suspense, useMemo, useState } from "react";
 import { ProductCard } from "@/components/product/ProductCard";
 import { RetailerBadge } from "@/components/product/RetailerBadge";
 import { CATEGORIES, categoryById } from "@/lib/data/categories";
-import { BRANDS, PRODUCTS, discountPct, isPriced, lowestPrice } from "@/lib/data/products";
+import { BRANDS, PRODUCTS, categoryHasProducts, discountPct, isPriced, lowestPrice } from "@/lib/data/products";
 import { ALL_RETAILERS, retailerById } from "@/lib/data/retailers";
 import { getInsight } from "@/lib/insights";
 import type { CategoryId, Product, RetailerId } from "@/lib/types";
@@ -124,7 +124,7 @@ function SearchInner() {
         )}
       </div>
       <FilterGroup title="Category">
-        {CATEGORIES.map((c) => (
+        {CATEGORIES.filter((c) => f.categories.includes(c.id) || categoryHasProducts(c.id)).map((c) => (
           <Check key={c.id} label={`${c.emoji} ${c.name}`} checked={f.categories.includes(c.id)} onChange={() => toggle("categories", c.id)} count={PRODUCTS.filter((p) => p.category === c.id && matches(p, q)).length} />
         ))}
       </FilterGroup>
