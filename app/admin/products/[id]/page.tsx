@@ -11,7 +11,7 @@ import { ErrorNote, Field, PageHeader, Panel, Skeleton, Toggle, adminInput } fro
 import { RetailerBadge } from "@/components/product/RetailerBadge";
 import { CATEGORIES, VIBES } from "@/lib/data/categories";
 import { RETAILERS, retailerById } from "@/lib/data/retailers";
-import { linkError, storeLinkWarning } from "@/lib/links";
+import { brandTextError, linkError, storeLinkWarning } from "@/lib/links";
 import { MAX_EXTRA_PHOTOS, PhotoSlides } from "@/components/admin/PhotoSlides";
 import { CONTENT_KEYS, asChangeSet, changeLabels, shortDate, type ChangeSet } from "@/lib/review";
 import type { Database, Json } from "@/lib/supabase/database.types";
@@ -107,6 +107,7 @@ export default function ProductEditor({ params }: { params: { id: string } }) {
   const latest = requests.data?.[0];
   // An editor's changes to a live product: prices and stock save directly, everything else goes to review.
   const liveLocked = !canPublish && !isNew && !!data?.published;
+  const brandProblem = brandTextError(draft.brand);
   const imageProblem = linkError("Image URL", draft.image);
   const photosProblem = draft.images.map((u, i) => linkError(`Photo ${i + 2}`, u)).find(Boolean) ?? null;
   const offerProblem = (o: OfferDraft) => linkError(`${storeName(o.retailer_id)} link`, o.url);
@@ -121,6 +122,7 @@ export default function ProductEditor({ params }: { params: { id: string } }) {
   const save = async (): Promise<boolean> => {
     setProblem("");
     if (!draft.name.trim() || !draft.brand.trim()) return fail("Name and brand are required.");
+    if (brandProblem) return fail(brandProblem);
     if (!/^[a-z0-9]+(-[a-z0-9]+)*$/.test(draft.slug)) return fail("The URL slug can only use lowercase letters, numbers and single dashes.");
     const badLink = imageProblem ?? photosProblem ?? offers.map(offerProblem).find(Boolean);
     if (badLink) return fail(badLink);
@@ -348,7 +350,14 @@ export default function ProductEditor({ params }: { params: { id: string } }) {
                     ))}
                   </select>
                 )}
-                <input className={adminInput} value={draft.brand} onChange={(e) => set("brand", e.target.value)} aria-label="Brand name" />
+                <input
+                  className={cn(adminInput, brandProblem && "!border-coral")}
+                  value={draft.brand}
+                  onChange={(e) => set("brand", e.target.value)}
+                  aria-label="Brand name"
+                  aria-invalid={!!brandProblem}
+                />
+                {brandProblem && <span className="mt-1 block text-[11px] font-medium text-coral">{brandProblem}</span>}
               </Field>
               <Field label="Category">
                 <select className={adminInput} value={draft.category_id} onChange={(e) => set("category_id", e.target.value)}>
