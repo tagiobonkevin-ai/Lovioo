@@ -1,4 +1,4 @@
--- Account self-service tests (run AFTER migrations 20261101000100 and 20261104000200). Everything runs in ONE
+-- Account self-service tests (run AFTER migrations 20261105000100 and 20261105000200). Everything runs in ONE transaction that ends with a
 -- transaction that ends with a deliberate error, so it is all rolled back. The error lists each check with
 -- its expected result in brackets.
 begin;

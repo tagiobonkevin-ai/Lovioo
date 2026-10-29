@@ -1,12 +1,18 @@
--- Rollback for migrations/20261101000100_shopper_admin.sql. Not applied automatically.
--- Removes name approval and the admin delete/rename tools, and restores the profile guard from 20261029000100.
+-- Rollback for migrations/20261105000100_account_tools.sql. Not applied automatically.
+-- Run 20261105000200_account_delete_functions_down.sql first if part 2 was applied, since it depends on this.
+-- Dropping the notify_ columns loses the alert choices shoppers saved.
 
-drop function if exists public.delete_shopper(uuid, text);
 drop function if exists public.admin_set_shopper_name(uuid, text);
 drop function if exists public.approve_shopper_name(uuid, boolean);
 drop function if exists public.log_account_action(uuid, text, text);
 drop table if exists public.account_actions;
-alter table public.profiles drop column if exists name_approved_at, drop column if exists name_approved_by;
+revoke update (notify_drops, notify_restock, notify_digest) on public.profiles from authenticated;
+alter table public.profiles
+  drop column if exists name_approved_at,
+  drop column if exists name_approved_by,
+  drop column if exists notify_drops,
+  drop column if exists notify_restock,
+  drop column if exists notify_digest;
 
 create or replace function public.guard_profile_details()
 returns trigger

@@ -1,4 +1,4 @@
--- Shopper admin tests (run AFTER migration 20261101000100). Everything runs in ONE transaction that ends with a
+-- Shopper admin tests (run AFTER migrations 20261105000100 and 20261105000200). Everything runs in ONE transaction that ends with a
 -- deliberate error, so it is all rolled back. The error lists each check with its expected result in brackets.
 begin;
 create function pg_temp.as_user(who uuid) returns void language plpgsql as $f$
