@@ -35,7 +35,7 @@ export function applyCatalog(c: Catalog) {
   ALL_RETAILERS.splice(0, ALL_RETAILERS.length, ...c.retailers.filter((r) => r.active !== false).map((r) => r.id));
   PRODUCTS.splice(0, PRODUCTS.length, ...c.products);
   BRAND_LIST.splice(0, BRAND_LIST.length, ...c.brands);
-  BRANDS.splice(0, BRANDS.length, ...Array.from(new Set(c.products.map((p) => p.brand))).sort());
+  BRANDS.splice(0, BRANDS.length, ...Array.from(new Set(c.products.map((p) => p.brand).filter(Boolean))).sort());
   listeners.forEach((fn) => fn());
 }
 

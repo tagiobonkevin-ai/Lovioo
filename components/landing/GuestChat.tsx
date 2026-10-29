@@ -162,7 +162,7 @@ function matchTeasers(q: string, teasers: Teaser[], max = 4): Teaser[] {
 export function DealSummary({ deals, teasers = [] }: { deals: Deal[]; teasers?: Teaser[] }) {
   if (!deals.length) {
     if (!teasers.length) return null;
-    const brands = new Set(teasers.map((t) => t.brand)).size;
+    const brands = new Set(teasers.map((t) => t.brand).filter(Boolean)).size;
     return (
       <p className="text-[13px] text-ink/55">
         {teasers.length} picks · {brands} {brands === 1 ? "brand" : "brands"} · prices for members
