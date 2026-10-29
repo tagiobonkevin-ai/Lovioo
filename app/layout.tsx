@@ -1,18 +1,11 @@
 import type { Metadata, Viewport } from "next";
-import { Poppins } from "next/font/google";
-import { display, ui } from "@/app/fonts";
+import { display, poppins, ui } from "@/app/fonts";
 import { Providers } from "@/components/Providers";
 import { ConsentedAnalytics } from "@/components/legal/ConsentSheet";
 import { SITE_URL } from "@/lib/site";
 import { cn } from "@/lib/utils";
 import { loadCatalog } from "@/lib/data/load-catalog";
 import "./globals.css";
-
-const poppins = Poppins({
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700", "800"],
-  variable: "--font-poppins",
-});
 
 export const metadata: Metadata = {
   title: "Lovioo — Swipe. Love. Shop.",
