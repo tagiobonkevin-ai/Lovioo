@@ -51,7 +51,10 @@ export function swipeFeed(signals: Signals, seen: Set<string>, vibe: Vibe | "und
   let pool = PRODUCTS.filter((p) => !seen.has(p.id));
   if (vibe === "under1k") pool = pool.filter((p) => lowestPrice(p) <= 1000);
   else if (vibe) pool = pool.filter((p) => p.vibes.includes(vibe));
-  return scoreProducts(signals, pool);
+  // The deck is photo-first: products with a picture lead, emoji-only cards come after (order kept within each).
+  const ranked = scoreProducts(signals, pool);
+  const hasPhoto = (p: Product) => Boolean(p.image?.trim());
+  return [...ranked.filter(hasPhoto), ...ranked.filter((p) => !hasPhoto(p))];
 }
 
 export function similarProducts(p: Product, n = 4) {

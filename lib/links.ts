@@ -32,3 +32,17 @@ export function storeLinkWarning(retailer: string, url: string) {
   const ok = hosts.some((h) => (h.endsWith(".") ? host.includes(h) : host === h || host.endsWith(`.${h}`)));
   return ok ? null : `This link goes to ${host}, not ${retailerById(retailer).name}. Double-check it's the right store.`;
 }
+
+/**
+ * Text copied off a marketplace page drags the category trail along with it -- one live product arrived with
+ * the brand "Health & Personal Care icon arrow right Suncare icon arrow right Face". Catch that before it
+ * reaches shoppers. Returns a message for a brand that looks scraped, or null when it's fine.
+ */
+export function brandTextError(brand: string | null | undefined) {
+  const b = (brand ?? "").trim();
+  if (!b) return null;
+  if (/icon\s*arrow|›|»|\s>\s|\s\/\s/i.test(b))
+    return "The brand looks like a page's category trail (it has arrows or separators in it). Type just the brand name, e.g. \"Dear Face\".";
+  if (b.length > 60) return "That's long for a brand name — type just the brand, e.g. \"Dear Face\".";
+  return null;
+}
