@@ -120,7 +120,7 @@ export default function ProductEditor({ params }: { params: { id: string } }) {
 
   const save = async (): Promise<boolean> => {
     setProblem("");
-    if (!draft.name.trim() || !draft.brand.trim()) return fail("Name and brand are required.");
+    if (!draft.name.trim()) return fail("A product name is required.");
     if (!/^[a-z0-9]+(-[a-z0-9]+)*$/.test(draft.slug)) return fail("The URL slug can only use lowercase letters, numbers and single dashes.");
     const badLink = imageProblem ?? photosProblem ?? offers.map(offerProblem).find(Boolean);
     if (badLink) return fail(badLink);
@@ -329,7 +329,7 @@ export default function ProductEditor({ params }: { params: { id: string } }) {
                   }}
                 />
               </Field>
-              <Field label="Brand" hint={brands.data ? "Pick a brand page, or type a name for an unlisted brand" : undefined}>
+              <Field label="Brand" hint={brands.data ? "Optional. Pick a brand page, type a name for an unlisted brand, or leave it empty" : "Optional"}>
                 {brands.data && (
                   <select
                     className={cn(adminInput, "mb-2")}
@@ -348,7 +348,7 @@ export default function ProductEditor({ params }: { params: { id: string } }) {
                     ))}
                   </select>
                 )}
-                <input className={adminInput} value={draft.brand} onChange={(e) => set("brand", e.target.value)} aria-label="Brand name" />
+                <input className={adminInput} value={draft.brand} onChange={(e) => set("brand", e.target.value)} aria-label="Brand name" placeholder="No brand" />
               </Field>
               <Field label="Category">
                 <select className={adminInput} value={draft.category_id} onChange={(e) => set("category_id", e.target.value)}>

@@ -33,8 +33,9 @@ const pct = (price: number, was: number) => (was > price && was > 0 ? Math.round
 export const brandDeals = (deals: Deal[], max = 8): BrandDeal[] => {
   const by = new Map<string, BrandDeal>();
   for (const d of deals) {
-    if (!d.off) continue;
     const key = d.brandId || d.brand;
+    // Products without a brand still show as deals, just not as a nameless brand.
+    if (!d.off || !key) continue;
     const found = by.get(key);
     if (found) {
       found.off = Math.max(found.off, d.off);
