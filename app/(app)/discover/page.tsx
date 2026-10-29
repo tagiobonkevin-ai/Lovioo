@@ -157,10 +157,16 @@ function DealCarousel({ products }: { products: typeof PRODUCTS }) {
   return (
     <div className="relative overflow-hidden rounded-2xl bg-brand-soft">
       <AnimatePresence mode="wait">
-        <motion.div key={p.id} initial={{ opacity: 0, x: 40 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -40 }} className="grid min-h-[280px] items-center gap-4 p-6 sm:grid-cols-2 sm:p-8">
+        <motion.div
+          key={p.id}
+          initial={{ opacity: 0, x: 40 }}
+          animate={{ opacity: 1, x: 0 }}
+          exit={{ opacity: 0, x: -40 }}
+          className="grid min-h-[280px] grid-cols-[minmax(0,1fr)_7rem] items-center gap-4 p-6 sm:grid-cols-2 sm:p-8"
+        >
           <div>
             <span className="chip border-none bg-white/80 text-pink">Top deal just for you</span>
-            <h2 className="mt-3 text-[24px] leading-[1.45] leading-tight sm:text-3xl">{p.name}</h2>
+            <h2 className="mt-3 line-clamp-2 text-[20px] leading-[1.3] sm:line-clamp-3 sm:text-3xl sm:leading-[1.45]">{p.name}</h2>
             <p className="mt-2 text-sm text-ink/70">
               {peso(ins.bestOffer.price)} on {retailerById(ins.bestOffer.retailer).name} · {ins.headline}
             </p>
@@ -171,7 +177,7 @@ function DealCarousel({ products }: { products: typeof PRODUCTS }) {
               <DealScoreRing score={ins.dealScore} size={48} />
             </div>
           </div>
-          <ProductImage product={p} className="mx-auto hidden aspect-square w-full max-w-[240px] rounded-3xl shadow-xl sm:block" emojiSize="text-8xl" />
+          <ProductImage product={p} className="mx-auto aspect-square w-28 rounded-2xl shadow-lg sm:w-full sm:max-w-[240px] sm:rounded-3xl sm:shadow-xl" emojiSize="text-4xl sm:text-8xl" />
         </motion.div>
       </AnimatePresence>
       <div className="absolute bottom-4 right-4 flex gap-2">

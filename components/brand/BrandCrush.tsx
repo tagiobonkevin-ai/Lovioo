@@ -34,14 +34,21 @@ export function BrandCrush({ className }: { className?: string }) {
 }
 
 export function BrandCard({ brand, className }: { brand: Brand; className?: string }) {
-  const count = brandProducts(brand).length;
+  const products = brandProducts(brand);
+  const count = products.length;
+  // Hardly any brand has its own cover art, which left every card a flat gradient with a letter on it.
+  // One of the brand's own product photos says far more about the brand than its initial does.
+  const art = brand.cover || products.find((p) => p.image?.trim())?.image;
   return (
     <Link
       href={`/brand/${brand.id}`}
       className={cn("group relative flex h-44 w-40 shrink-0 flex-col justify-end overflow-hidden rounded-[1.75rem] p-3.5 text-white shadow-soft transition active:scale-[0.97]", className)}
-      style={{ background: brand.cover ? undefined : `linear-gradient(150deg, ${brand.color} 0%, ${brand.color}cc 45%, #0F2742 140%)` }}
+      style={{ background: art ? undefined : `linear-gradient(150deg, ${brand.color} 0%, ${brand.color}cc 45%, #0F2742 140%)` }}
     >
-      {brand.cover && <img src={brand.cover} alt="" className="absolute inset-0 h-full w-full object-cover transition duration-500 group-hover:scale-105" />}
+      {art && (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={art} alt="" loading="lazy" className="absolute inset-0 h-full w-full object-cover transition duration-500 group-hover:scale-105" />
+      )}
       <span className="absolute inset-0 bg-gradient-to-t from-midnight/80 via-midnight/10 to-transparent" />
       {brand.featured && (
         <span className="absolute left-3 top-3 inline-flex items-center gap-1 rounded-full bg-white/90 px-2 py-0.5 text-[10px] font-bold text-pink">
