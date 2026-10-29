@@ -28,7 +28,7 @@ export function AppHeader() {
 
   return (
     <header className="sticky top-0 z-40 border-b border-ink/10 bg-white/90 backdrop-blur-xl">
-      <div className="mx-auto flex h-16 max-w-[1248px] items-center gap-4 px-4 lg:px-6">
+      <div className="mx-auto flex h-16 max-w-[1248px] items-center gap-2 px-4 sm:gap-4 lg:px-6">
         <Link href="/discover" aria-label="Lovioo home">
           <Logo />
         </Link>
@@ -69,7 +69,7 @@ export function AppHeader() {
           </label>
         </form>
 
-        <div className="ml-auto flex items-center gap-2 lg:ml-0">
+        <div className="ml-auto flex items-center gap-1 sm:gap-2 lg:ml-0">
           <Link href="/search" className="grid h-10 w-10 place-items-center rounded-full hover:bg-white lg:hidden" aria-label="Search">
             <Search className="h-5 w-5" />
           </Link>

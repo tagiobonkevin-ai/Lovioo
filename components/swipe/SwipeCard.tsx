@@ -121,17 +121,17 @@ export const SwipeCard = forwardRef<SwipeCardHandle, Props>(function SwipeCard({
               {/* Below 720px of screen height the card itself is short (208px on an iPhone SE), so only the name,
                   price and store stay on the front; the brand and the hint wait on the back. */}
               <p className="truncate text-[11px] font-medium uppercase tracking-wider text-white/70 [@media(max-height:719px)]:hidden">{product.brand}</p>
-              <h3 className="mt-0.5 line-clamp-2 text-lg font-bold leading-snug [@media(max-height:719px)]:mt-0 [@media(max-height:719px)]:line-clamp-1 [@media(max-height:719px)]:text-base">
+              <h3 className="mt-0.5 line-clamp-2 text-[15px] font-semibold leading-snug [overflow-wrap:anywhere] [@media(max-height:719px)]:mt-0 [@media(max-height:719px)]:line-clamp-1 [@media(max-height:719px)]:text-sm">
                 {product.name}
               </h3>
               {insight.priced ? (
                 <div className="mt-1.5 flex items-center gap-2">
-                  <span className="text-xl font-extrabold">{peso(insight.bestOffer.price)}</span>
+                  <span className="text-lg font-extrabold">{peso(insight.bestOffer.price)}</span>
                   {pct > 0 && <span className="text-sm text-white/60 line-through">{peso(insight.bestOffer.originalPrice)}</span>}
                   <DiscountBadge pct={pct} />
                 </div>
               ) : (
-                <p className="mt-1.5 text-xl font-extrabold">See prices</p>
+                <p className="mt-1.5 text-lg font-extrabold">See prices</p>
               )}
               <div className="mt-1.5 flex flex-wrap items-center gap-3 text-xs text-white/80">
                 {insight.priced ? (
