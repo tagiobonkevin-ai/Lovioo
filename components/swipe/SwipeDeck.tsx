@@ -7,7 +7,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ProductImage } from "@/components/product/ProductImage";
 import { toast, useHydrated } from "@/components/Providers";
 import { categoryById, VIBES } from "@/lib/data/categories";
-import { isPriced, productById } from "@/lib/data/products";
+import { isPriced, productById, vibeHasProducts } from "@/lib/data/products";
 import { getInsight } from "@/lib/insights";
 import { swipeFeed } from "@/lib/recommend";
 import { swipesToday, useLovioo, type SwipeAction } from "@/lib/store";
@@ -32,7 +32,7 @@ export function SwipeDeck() {
   // Deep links like /swipe?vibe=cozy (from the home screen vibe chips).
   useEffect(() => {
     const v = new URLSearchParams(window.location.search).get("vibe");
-    if (v === "under1k" || VIBES.some((x) => x.id === v)) setVibe(v as VibeFilter);
+    if ((v === "under1k" || VIBES.some((x) => x.id === v)) && vibeHasProducts(v as Vibe | "under1k")) setVibe(v as VibeFilter);
   }, []);
   const [queue, setQueue] = useState<Product[]>([]);
   const [flipped, setFlipped] = useState(false);
@@ -153,7 +153,7 @@ export function SwipeDeck() {
           <p className="mt-1 hidden text-sm text-midnight/60 sm:block">Right to love, left to pass, up to super-love. Tap a card to flip it.</p>
         </div>
         <div className="no-scrollbar -mx-4 flex gap-2 overflow-x-auto px-4 lg:mx-0 lg:flex-wrap lg:px-0">
-          {VIBE_CHIPS.map((v) => (
+          {VIBE_CHIPS.filter((v) => v.id === null || v.id === vibe || vibeHasProducts(v.id)).map((v) => (
             <button key={String(v.id)} onClick={() => setVibe(v.id)} className={cn("chip shrink-0", vibe === v.id && "chip-active")}>
               <span>{v.emoji}</span> {v.label}
             </button>

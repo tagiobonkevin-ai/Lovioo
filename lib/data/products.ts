@@ -167,3 +167,8 @@ export const discountPct = (p: Product) => {
 };
 
 export const BRANDS: string[] = Array.from(new Set(PRODUCTS.map((p) => p.brand))).sort();
+
+/** Browse chips and tiles only offer a category or vibe that has something in it: an empty one is a dead end. */
+export const categoryHasProducts = (id: CategoryId) => PRODUCTS.some((p) => p.category === id);
+export const vibeHasProducts = (id: Vibe | "under1k") =>
+  PRODUCTS.some((p) => (id === "under1k" ? lowestPrice(p) <= 1000 : p.vibes.includes(id)));

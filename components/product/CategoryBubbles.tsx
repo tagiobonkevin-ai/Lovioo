@@ -1,10 +1,11 @@
 import Link from "next/link";
 import { CATEGORIES } from "@/lib/data/categories";
+import { categoryHasProducts } from "@/lib/data/products";
 
 export function CategoryBubbles() {
   return (
     <div className="no-scrollbar -mx-4 flex gap-4 overflow-x-auto px-4 sm:mx-0 sm:justify-between sm:px-0">
-      {CATEGORIES.map((c) => (
+      {CATEGORIES.filter((c) => categoryHasProducts(c.id)).map((c) => (
         <Link key={c.id} href={`/search?category=${c.id}`} className="group flex w-20 shrink-0 flex-col items-center gap-2 text-center">
           <span
             className="grid h-16 w-16 place-items-center rounded-full text-3xl shadow-sm ring-4 ring-white transition group-hover:-translate-y-1 group-hover:shadow-pop"

@@ -11,7 +11,7 @@ import { ProductImage } from "@/components/product/ProductImage";
 import { useHydrated } from "@/components/Providers";
 import { BrandCrush } from "@/components/brand/BrandCrush";
 import { VIBES } from "@/lib/data/categories";
-import { PRODUCTS, isPriced, lowestPrice } from "@/lib/data/products";
+import { PRODUCTS, isPriced, lowestPrice, vibeHasProducts } from "@/lib/data/products";
 import { retailerById } from "@/lib/data/retailers";
 import { getInsight } from "@/lib/insights";
 import { scoreProducts } from "@/lib/recommend";
@@ -61,14 +61,16 @@ export default function Discover() {
           </span>
         </h1>
         <div className="no-scrollbar relative -mx-4 mt-4 flex gap-2 overflow-x-auto px-4 pb-1">
-          {VIBES.map((v) => (
+          {VIBES.filter((v) => vibeHasProducts(v.id)).map((v) => (
             <Link key={v.id} href={`/swipe?vibe=${v.id}`} className="chip shrink-0 !py-2 text-sm transition active:scale-95">
               <span className="text-base">{v.emoji}</span> {v.label}
             </Link>
           ))}
-          <Link href="/swipe?vibe=under1k" className="chip shrink-0 !py-2 text-sm transition active:scale-95">
-            <span className="text-base">💸</span> Under ₱1k
-          </Link>
+          {vibeHasProducts("under1k") && (
+            <Link href="/swipe?vibe=under1k" className="chip shrink-0 !py-2 text-sm transition active:scale-95">
+              <span className="text-base">💸</span> Under ₱1k
+            </Link>
+          )}
         </div>
       </div>
 

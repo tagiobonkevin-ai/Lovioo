@@ -35,7 +35,9 @@ export default function BrandsPage() {
 
       {featured.length > 0 && <BrandGrid title="Featured partners" brands={featured} />}
       <BrandGrid title={featured.length ? "More brands" : "All brands"} brands={rest} />
-      {brands.length === 0 && <p className="py-10 text-center text-sm text-ink/50">No brand matches “{q}”.</p>}
+      {brands.length === 0 && (
+        <p className="py-10 text-center text-sm text-ink/50">{q ? `No brand matches “${q}”.` : "Brands show up here as soon as their products are live."}</p>
+      )}
     </div>
   );
 }

@@ -56,9 +56,9 @@ export const brandProducts = (brand: Brand) => PRODUCTS.filter((p) => brandOf(p)
 /** Featured partners first, then by sort order and name. */
 export const sortedBrands = () => [...BRAND_LIST].sort((a, b) => Number(b.featured) - Number(a.featured) || a.sort - b.sort || a.name.localeCompare(b.name));
 
-/** Brand Crush: featured partners, or the brands with the most products while none are featured yet. */
+/** Brand Crush: featured partners that have products, or the brands with the most products while none do. */
 export function brandCrush(limit = 10) {
-  const featured = sortedBrands().filter((b) => b.featured);
+  const featured = sortedBrands().filter((b) => b.featured && brandProducts(b).length > 0);
   if (featured.length) return { featured: true, brands: featured.slice(0, limit) };
   const counts = new Map<string, number>();
   PRODUCTS.forEach((p) => {
