@@ -73,3 +73,16 @@ h3 {
 input[type="range"] {
   accent-color: #ff2d9a;
 }
+
+/* iPhones zoom the whole page in when a text box under 16px gets focus, and it stays zoomed, cutting off the
+   right edge. On touch screens every text box is 16px; double-tap zoom is off too (pinch zoom still works). */
+@media (hover: none) and (pointer: coarse) {
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]),
+  select,
+  textarea {
+    font-size: 16px !important;
+  }
+}
+html {
+  touch-action: manipulation;
+}

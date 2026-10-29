@@ -64,7 +64,7 @@ function ProductView({ product }: { product: Product }) {
 
   return (
     <div className="space-y-10 pb-16 lg:pb-0">
-      <nav className="text-xs text-ink/50">
+      <nav className="truncate text-xs text-ink/50">
         <Link href="/discover" className="hover:text-pink">Home</Link> <span className="mx-1.5">›</span>
         <Link href={`/search?category=${cat.id}`} className="hover:text-pink">{cat.name}</Link> <span className="mx-1.5">›</span>
         <span className="text-ink/70">{product.name}</span>
@@ -80,7 +80,7 @@ function ProductView({ product }: { product: Product }) {
           }
         />
 
-        <div>
+        <div className="min-w-0">
           {brandOf(product) ? (
             <Link href={`/brand/${brandOf(product)!.id}`} className="text-sm font-semibold text-pink hover:underline">
               {product.brand} · see all {product.brand} products →
@@ -88,7 +88,7 @@ function ProductView({ product }: { product: Product }) {
           ) : (
             <p className="text-sm font-medium text-ink/50">{product.brand}</p>
           )}
-          <h1 className="mt-1 text-[30px] leading-[1.35]">{product.name}</h1>
+          <h1 className="mt-1 text-[22px] leading-snug [overflow-wrap:anywhere] sm:text-[28px]">{product.name}</h1>
           {product.reviewCount > 0 && (
             <div className="mt-2 flex items-center gap-2 text-sm">
               <span className="flex">
@@ -111,17 +111,17 @@ function ProductView({ product }: { product: Product }) {
           {priced ? (
             <>
               <div className="mt-6 flex items-end gap-3">
-                <span className="text-4xl font-extrabold">{peso(best.price)}</span>
+                <span className="text-3xl font-extrabold sm:text-4xl">{peso(best.price)}</span>
                 {best.originalPrice > best.price && <span className="pb-1 text-ink/40 line-through">{peso(best.originalPrice)}</span>}
                 <DiscountBadge pct={pct} className="mb-1.5" />
               </div>
               <p className="mt-1 text-sm text-ink/60">
-                Lowest price on <b>{retailerById(best.retailer).name}</b> · compared across {product.offers.length} stores
+                Lowest price on <b>{retailerById(best.retailer).name}</b> · {product.offers.length === 1 ? "the only store we track for it right now" : `compared across ${product.offers.length} stores`}
               </p>
             </>
           ) : (
             <>
-              <p className="mt-6 text-[30px] leading-[1.35]">See prices</p>
+              <p className="mt-6 text-[22px] leading-snug sm:text-[28px]">See prices</p>
               <p className="mt-1 text-sm text-ink/60">
                 {insight.headline} — compare sellers in <button onClick={() => setTab("Compare offers")} className="font-semibold text-pink">Where to buy</button> below.
               </p>
