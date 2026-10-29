@@ -1,5 +1,6 @@
 // Known ids get autocomplete; admins can add more in Supabase, so any string is allowed.
-export type CategoryId = "electronics" | "fashion" | "beauty" | "home" | "sports" | "toys" | (string & {});
+export type CategoryId = "electronics" | "fashion" | "beauty" | "home" | "sports" | "toys" | "family"
+  | "appliances" | "groceries" | "health" | "automotive" | "books" | (string & {});
 
 export type RetailerId = "shopee" | "lazada" | "tiktok" | "amazon" | "ebay" | "aliexpress" | "shein" | (string & {});
 

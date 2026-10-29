@@ -14,6 +14,12 @@ export const CATEGORIES: Category[] = [
   { id: "home", name: "Home & Living", emoji: "🛋️", tint: "#FFF0DE" },
   { id: "sports", name: "Sports & Outdoors", emoji: "🏸", tint: "#E3F7EC" },
   { id: "toys", name: "Toys & Hobbies", emoji: "🧸", tint: "#F1E8FF" },
+  { id: "family", name: "Family & Pets", emoji: "🐾", tint: "#E6F4FF" },
+  { id: "appliances", name: "Home Appliances", emoji: "🔌", tint: "#EAEEF5" },
+  { id: "groceries", name: "Groceries", emoji: "🛒", tint: "#FFF6D6" },
+  { id: "health", name: "Health & Wellness", emoji: "💊", tint: "#E2F6F3" },
+  { id: "automotive", name: "Motors & Automotive", emoji: "🏍️", tint: "#E6ECEF" },
+  { id: "books", name: "Books & Stationery", emoji: "📚", tint: "#F3F7DD" },
 ];
 
 export const categoryById = (id: CategoryId): Category =>
