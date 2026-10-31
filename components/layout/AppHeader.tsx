@@ -14,7 +14,7 @@ const NAV = [
   { href: "/swipe", label: "Swipe", badge: "💘" },
   { href: "/crush", label: "Brand Crush" },
   { href: "/brands", label: "Brands" },
-  { href: "/store", label: "Lovioo Store" },
+  { href: "/store", label: "Lovioo Store", soon: true },
   { href: "/search?sort=discount", label: "Deals" },
   { href: "/ai", label: "Lovioo AI" },
 ];
@@ -47,6 +47,7 @@ export function AppHeader() {
               >
                 {n.label}
                 {n.badge && <span className="ml-1">{n.badge}</span>}
+                {n.soon && <span className="ml-1.5 rounded-full bg-pink-soft px-1.5 py-0.5 text-[10px] font-bold text-pink">Soon</span>}
               </Link>
             );
           })}

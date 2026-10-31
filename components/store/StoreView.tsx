@@ -12,10 +12,13 @@ import { CONTACT_EMAIL } from "@/lib/site";
 import { cn } from "@/lib/utils";
 
 /**
+ * The full Lovioo Store (ready for launch; /store shows "Coming soon" until then). To launch, render this from
+ * app/(app)/store/page.tsx so it stays members-only like the rest of the catalogue, and remove app/store.
+ *
  * Lovioo Store: products from Lovioo Brand Partners, in one place. Lovioo doesn't sell anything itself: every product
  * links to the brand's own store or marketplace shop, and only brands with a real partnership are listed.
  */
-export default function LoviooStore() {
+export function StoreView() {
   const brands = partnerBrands();
   const key = brands.map((b) => b.id).join(",");
   const products = useMemo(() => {
