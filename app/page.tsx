@@ -7,6 +7,7 @@ import { DealSummary, GuestChat } from "@/components/landing/GuestChat";
 import { HomeHeader } from "@/components/landing/HomeHeader";
 import { HomeProductCard } from "@/components/landing/HomeProductCard";
 import { LifestyleMosaic, LifestyleRibbon } from "@/components/landing/LifestyleRibbon";
+import { partnerBrands } from "@/lib/data/brands";
 import { PhotoCollage } from "@/components/landing/PhotoCollage";
 import { SwipeDemo, type SwipeDemoItem } from "@/components/landing/SwipeDemo";
 import { LegalLinks } from "@/components/legal/LegalLinks";
@@ -117,6 +118,8 @@ export default async function Landing() {
     .map((p) => ({ id: p.id, slug: p.slug, name: p.name, brand: p.brand, image: p.image, emoji: p.emoji, price: isPriced(p) ? lowestPrice(p) : undefined }));
   const compare = comparePick(products);
   const stories = crushStories(products, curated);
+  // Lovioo Store: only brands an admin marked as Brand Partners (a real agreement); the section hides without any.
+  const partners = partnerBrands().slice(0, 6);
   const categories = browseCategories((id) => products.some((p) => p.category === id));
 
   return (
@@ -224,6 +227,44 @@ export default async function Landing() {
           })}
         </div>
       </section>
+
+      {/* 03 — Lovioo Store: products from Brand Partners */}
+      {partners.length > 0 && (
+        <section className={cn(section, "pb-6")}>
+          <div className="rounded-[2.5rem] bg-white p-6 ring-1 ring-ink/[0.06] sm:p-10">
+            <div className="flex flex-wrap items-end justify-between gap-6">
+              <div className="max-w-[600px]">
+                <Eyebrow>Lovioo Store</Eyebrow>
+                <Heading accent="Our Brand Partners.">Shop Straight From</Heading>
+                <p className="mt-4 text-[16px] leading-relaxed text-ink/60">
+                  Products added by the brands themselves and checked by the Lovioo team, with links to their official stores.
+                </p>
+              </div>
+              <Link href="/store" className={pinkPill}>
+                Visit the Lovioo Store <ArrowRight className="h-4 w-4" />
+              </Link>
+            </div>
+            <ul className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+              {partners.map((b) => (
+                <li key={b.id}>
+                  <Link href={`/brand/${b.id}`} className="group flex h-full flex-col items-center gap-2 rounded-3xl bg-pink-soft/50 p-4 text-center transition hover:bg-pink-soft">
+                    <span className="grid h-16 w-16 place-items-center overflow-hidden rounded-full bg-white text-xl font-extrabold text-pink ring-1 ring-ink/5">
+                      {b.logo ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img src={b.logo} alt="" loading="lazy" className="h-full w-full object-cover" />
+                      ) : (
+                        b.name.slice(0, 1)
+                      )}
+                    </span>
+                    <span className="line-clamp-2 text-[13px] font-bold leading-snug">{b.name}</span>
+                    {b.tagline && <span className="line-clamp-1 text-[11px] text-ink/50">{b.tagline}</span>}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
+      )}
 
       {/* 04 — Categories */}
       <section className={cn(section, "py-20 lg:py-28")}>
