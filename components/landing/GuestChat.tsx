@@ -6,6 +6,8 @@ import { useMemo, useRef, useState } from "react";
 import { AI_LANGS, AI_STRINGS, type AiLang } from "@/lib/ai-i18n";
 import { askLovioo } from "@/lib/ai";
 import { dealsAsProducts, type Deal, type Teaser } from "@/lib/data/public-deals";
+import { getSupabase } from "@/lib/supabase/client";
+import { trackAi } from "@/lib/sync";
 import { cn, peso } from "@/lib/utils";
 import { DealCard } from "./DealCard";
 import { TeaserCard } from "./TeaserCard";
@@ -33,10 +35,12 @@ export function GuestChat({ deals, teasers, starters }: { deals: Deal[]; teasers
     if (!priced) {
       // No verified price to quote, so match on words alone and say so, rather than invent a number.
       const teases = matchTeasers(question, teasers);
+      trackAi(getSupabase(), question, lang, teases.length, "home");
       setAsked({ q: question, text: teases.length ? strings.teaserFound(teases.length) : strings.teaserNone, picks: [], teases });
       return;
     }
     const reply = askLovioo(question, "there", lang, catalogue);
+    trackAi(getSupabase(), question, lang, reply.products.length, "home");
     const slugs = new Set(reply.products.slice(0, 4).map((p) => p.slug));
     setAsked({ q: question, text: reply.text.replace(/\*\*/g, ""), picks: deals.filter((d) => slugs.has(d.slug)).slice(0, 4), teases: [] });
   };

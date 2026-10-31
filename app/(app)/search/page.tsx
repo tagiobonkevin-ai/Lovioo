@@ -4,13 +4,15 @@ import { AnimatePresence, motion } from "framer-motion";
 import { ChevronDown, SlidersHorizontal, Star, X } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Suspense, useMemo, useState } from "react";
+import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { ProductCard } from "@/components/product/ProductCard";
 import { RetailerBadge } from "@/components/product/RetailerBadge";
 import { CATEGORIES, categoryById } from "@/lib/data/categories";
 import { BRANDS, PRODUCTS, categoryHasProducts, discountPct, isPriced, lowestPrice } from "@/lib/data/products";
 import { ALL_RETAILERS, retailerById } from "@/lib/data/retailers";
 import { getInsight } from "@/lib/insights";
+import { getSupabase } from "@/lib/supabase/client";
+import { trackSearch } from "@/lib/sync";
 import type { CategoryId, Product, RetailerId } from "@/lib/types";
 import { cn, peso } from "@/lib/utils";
 
@@ -103,6 +105,19 @@ function SearchInner() {
     };
     return list.sort(by[sort] ?? by.relevant);
   }, [q, f, sort]);
+
+  // Admin -> Shopper Insights: log each search once (not every filter change), with how many products it found.
+  const logged = useRef("");
+  const matching = useMemo(() => (q.trim() ? PRODUCTS.filter((p) => matches(p, q)).length : 0), [q]);
+  useEffect(() => {
+    const term = q.trim();
+    if (!term || logged.current === term) return;
+    const t = setTimeout(() => {
+      logged.current = term;
+      trackSearch(getSupabase(), term, matching);
+    }, 700);
+    return () => clearTimeout(t);
+  }, [q, matching]);
 
   const update = (patch: Partial<Filters>) => {
     setF((prev) => ({ ...prev, ...patch }));

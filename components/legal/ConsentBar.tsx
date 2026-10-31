@@ -62,7 +62,7 @@ export function ConsentBar() {
           <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
             <BarChart3 className="hidden h-5 w-5 shrink-0 text-ink/40 sm:block" />
             <p className="min-w-0 flex-1 text-xs leading-snug text-ink/65">
-              <b className="font-medium text-ink">Help improve Lovioo?</b> Allow analytics of what you view. No ad trackers.{" "}
+              <b className="font-medium text-ink">Help improve Lovioo?</b> Allow analytics: link what you view, search and ask to your account. No ad trackers.{" "}
               <Link href="/cookies" className="whitespace-nowrap font-medium text-ink underline underline-offset-2">
                 Cookie &amp; Tracking Notice
               </Link>

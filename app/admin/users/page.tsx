@@ -243,8 +243,44 @@ function ShopperDetails({ u, onChanged }: { u: Shopper; onChanged: () => void })
         </ul>
       </section>
       <section className="lg:col-span-3">
+        <ShopperActivity u={u} />
+      </section>
+      <section className="lg:col-span-3">
         <AccountActions u={u} onChanged={onChanged} />
       </section>
+    </div>
+  );
+}
+
+/** The searches and Lovioo AI questions linked to this shopper: only recorded when they allowed analytics. */
+function ShopperActivity({ u }: { u: Shopper }) {
+  const searches = useAdminQuery((sb) => sb.from("search_events").select("id, query, results, created_at").eq("user_id", u.id).order("created_at", { ascending: false }).limit(20), [u.id]);
+  const ai = useAdminQuery((sb) => sb.from("ai_events").select("id, question, lang, results, created_at").eq("user_id", u.id).order("created_at", { ascending: false }).limit(20), [u.id]);
+  const list = "max-h-48 space-y-1.5 overflow-y-auto text-xs text-ink/75";
+  return (
+    <div className="grid gap-4 border-t border-ink/10 pt-4 sm:grid-cols-2">
+      <div>
+        <h3 className="mb-2 text-xs font-bold text-ink">Recent searches</h3>
+        <ul className={list}>
+          {searches.data?.map((e) => (
+            <li key={e.id}>
+              <span className="font-semibold text-ink">{e.query}</span> · {e.results} {e.results === 1 ? "result" : "results"} <span className="text-ink/40">· {date(e.created_at, true)}</span>
+            </li>
+          ))}
+          {searches.data?.length === 0 && <li className="text-ink/40">{u.analytics_opt_in ? "No searches yet." : "None linked: this shopper hasn't allowed analytics."}</li>}
+        </ul>
+      </div>
+      <div>
+        <h3 className="mb-2 text-xs font-bold text-ink">Lovioo AI questions</h3>
+        <ul className={list}>
+          {ai.data?.map((e) => (
+            <li key={e.id}>
+              <span className="font-semibold text-ink">{e.question}</span> · {e.results} {e.results === 1 ? "product" : "products"} <span className="text-ink/40">· {date(e.created_at, true)}</span>
+            </li>
+          ))}
+          {ai.data?.length === 0 && <li className="text-ink/40">{u.analytics_opt_in ? "No questions yet." : "None linked: this shopper hasn't allowed analytics."}</li>}
+        </ul>
+      </div>
     </div>
   );
 }

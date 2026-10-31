@@ -162,13 +162,34 @@ export function startWriteThrough(sb: Supabase, userId: string, onError: (msg: s
   };
 }
 
-/** Fire-and-forget analytics for the admin dashboard; only once the visitor has allowed analytics. */
+/**
+ * Who an activity row belongs to: the signed-in shopper, but only when they allowed analytics. Everyone else's
+ * activity is still counted, just without a name (see the Privacy Policy).
+ */
+function trackedUserId() {
+  return canTrack() ? (useLovioo.getState().user?.id ?? null) : null;
+}
+
+const warn = ({ error }: { error: { message: string } | null }) => {
+  if (error) console.warn("Lovioo analytics:", error.message);
+};
+
+/** Fire-and-forget product view / store click count for the admin dashboard and brand partners. */
 export function trackEvent(sb: Supabase | null, productId: string, kind: "view" | "click_out", retailerId?: string) {
-  if (!sb || !canTrack()) return;
-  const userId = useLovioo.getState().user?.id ?? null;
-  sb.from("product_events")
-    .insert({ product_id: productId, kind, retailer_id: retailerId ?? null, user_id: userId })
-    .then(({ error }) => {
-      if (error) console.warn("Lovioo analytics:", error.message);
-    });
+  if (!sb) return;
+  sb.from("product_events").insert({ product_id: productId, kind, retailer_id: retailerId ?? null, user_id: trackedUserId() }).then(warn);
+}
+
+/** Records a search someone ran and how many products it found (Admin -> Shopper Insights). */
+export function trackSearch(sb: Supabase | null, query: string, results: number) {
+  const q = query.trim().slice(0, 200);
+  if (!sb || !q) return;
+  sb.from("search_events").insert({ query: q, results: Math.max(0, Math.round(results)), user_id: trackedUserId() }).then(warn);
+}
+
+/** Records a question asked to Lovioo AI and how many products it answered with (Admin -> Shopper Insights). */
+export function trackAi(sb: Supabase | null, question: string, lang: string, results: number, source: "home" | "app") {
+  const q = question.trim().slice(0, 500);
+  if (!sb || !q) return;
+  sb.from("ai_events").insert({ question: q, lang, results: Math.max(0, Math.round(results)), source, user_id: trackedUserId() }).then(warn);
 }

@@ -102,6 +102,18 @@ export type Database = {
           { foreignKeyName: "product_events_retailer_id_fkey"; columns: ["retailer_id"]; isOneToOne: false; referencedRelation: "retailers"; referencedColumns: ["id"] },
         ];
       };
+      search_events: {
+        Row: { created_at: string; id: number; query: string; results: number; user_id: string | null };
+        Insert: { created_at?: string; id?: never; query: string; results?: number; user_id?: string | null };
+        Update: { created_at?: string; id?: never; query?: string; results?: number; user_id?: string | null };
+        Relationships: [];
+      };
+      ai_events: {
+        Row: { created_at: string; id: number; question: string; lang: string; results: number; source: string; user_id: string | null };
+        Insert: { created_at?: string; id?: never; question: string; lang?: string; results?: number; source?: string; user_id?: string | null };
+        Update: { created_at?: string; id?: never; question?: string; lang?: string; results?: number; source?: string; user_id?: string | null };
+        Relationships: [];
+      };
       products: {
         Row: {
           brand: string; brand_id: string | null; category_id: string; created_at: string; description: string; emoji: string; highlights: string[]; id: string; image: string; images: string[];
@@ -204,6 +216,8 @@ export type Database = {
     };
     Functions: {
       admin_overview: { Args: { days?: number }; Returns: Json };
+      admin_insights: { Args: { days?: number }; Returns: Json };
+      purge_old_activity: { Args: { months?: number }; Returns: number };
       approve_product_change: { Args: { request_id: number }; Returns: undefined };
       reject_product_change: { Args: { request_id: number; note?: string }; Returns: undefined };
       current_app_role: { Args: never; Returns: Database["public"]["Enums"]["app_role"] | null };

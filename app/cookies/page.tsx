@@ -36,7 +36,7 @@ export default function CookiesPage() {
             <ul>
               <li>Lovioo doesn&apos;t set advertising cookies and doesn&apos;t use advertising trackers.</li>
               <li>Essential browser storage keeps you signed in and remembers your saves and settings.</li>
-              <li>Analytics run only if you choose <b>Allow</b>. You can change your mind at any time.</li>
+              <li>Analytics, and linking what you view, search and ask to your account, run only if you choose <b>Allow</b>. You can change your mind at any time.</li>
             </ul>
           ),
         },
@@ -70,7 +70,7 @@ export default function CookiesPage() {
         },
         {
           id: "analytics",
-          title: "3. Analytics (only with your permission)",
+          title: "3. Analytics and Lovioo counts",
           body: (
             <>
               <ul>
@@ -79,11 +79,16 @@ export default function CookiesPage() {
                   build a profile of you. Provider: Vercel Inc.
                 </li>
                 <li>
-                  <b>Lovioo product counts:</b> records when a product page is viewed and when you tap through to a store, so we can see which products and
-                  stores are useful. Stored in Lovioo&apos;s database (Supabase) and linked to your account if you&apos;re signed in.
+                  <b>Lovioo counts:</b> records when a product page is viewed, when you tap through to a store, what you search for and what you ask Lovioo
+                  AI, so we can see which products and stores are useful and what shoppers can&apos;t find. Stored in Lovioo&apos;s database (Supabase). These
+                  are counted without your name; they&apos;re linked to your account only if you choose Allow. Searches and AI questions are kept for 12
+                  months. Brand partners see totals for their own products only.
                 </li>
               </ul>
-              <p>Neither runs until you choose Allow, either on the bar at the bottom of the screen or in Profile → Privacy choices.</p>
+              <p>
+                Vercel Web Analytics, and linking Lovioo counts to your account, only happen after you choose Allow, either on the bar at the bottom of the
+                screen or in Profile → Privacy choices.
+              </p>
             </>
           ),
         },
