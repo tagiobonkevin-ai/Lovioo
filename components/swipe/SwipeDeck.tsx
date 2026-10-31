@@ -147,7 +147,7 @@ export function SwipeDeck() {
       {/* Left rail: vibes + goal */}
       <aside className="order-1 min-w-0 space-y-4">
         <div className="[@media(max-height:719px)]:hidden lg:block">
-          <h1 className="text-2xl font-extrabold tracking-tight sm:text-3xl">
+          <h1 className="text-[28px] font-medium leading-[1.25] sm:text-[32px]">
             Swipe. <span className="text-gradient">Love.</span> Shop.
           </h1>
           <p className="mt-1 hidden text-sm text-midnight/60 sm:block">Right to love, left to pass, up to super-love. Tap a card to flip it.</p>

@@ -9,12 +9,13 @@ import { AboutYouForm } from "@/components/profile/AboutYouForm";
 import { DeleteAccount } from "@/components/profile/DeleteAccount";
 import { RetailerBadge } from "@/components/product/RetailerBadge";
 import { toast, useHydrated } from "@/components/Providers";
-import { BUDGETS, CATEGORIES } from "@/lib/data/categories";
+import { BUDGETS, browseCategories } from "@/lib/data/categories";
 import { ALL_RETAILERS, retailerById } from "@/lib/data/retailers";
 import { NOTIFY_ROWS, notifyPatch, useProfileStatus, type NotifyChoices } from "@/lib/profile";
 import { useLovioo } from "@/lib/store";
 import { getSupabase } from "@/lib/supabase/client";
 import type { CategoryId, RetailerId } from "@/lib/types";
+import { categoryHasProducts } from "@/lib/data/products";
 import { cn } from "@/lib/utils";
 
 export default function ProfilePage() {
@@ -50,7 +51,7 @@ export default function ProfilePage() {
     return (
       <div className="card mx-auto max-w-md p-10 text-center">
         <span className="text-5xl">👋</span>
-        <h1 className="mt-3 text-xl font-bold">Sign in to see your profile</h1>
+        <h1 className="mt-3 text-[22px] font-medium">Sign in to see your profile</h1>
         <p className="mt-1 text-sm text-ink/60">Keep your loves, alerts and preferences in one place.</p>
         <Link href="/auth?next=/profile" className="btn-primary mt-5">
           Sign in
@@ -97,7 +98,7 @@ export default function ProfilePage() {
 
       <Section icon={ShoppingBag} title="Shopping interests" sub="Shapes your swipe deck and recommendations">
         <div className="flex flex-wrap gap-2">
-          {CATEGORIES.map((c) => (
+          {browseCategories(categoryHasProducts).map((c) => (
             <button key={c.id} onClick={() => toggleInterest(c.id)} className={cn("chip", prefs.interests.includes(c.id) && "chip-active")}>
               {c.emoji} {c.name}
             </button>
@@ -182,7 +183,7 @@ function Section({ icon: Icon, title, sub, children }: { icon: React.ElementType
           <Icon className="h-5 w-5" />
         </span>
         <div>
-          <h2 className="font-bold">{title}</h2>
+          <h2 className="text-[18px] font-medium">{title}</h2>
           <p className="text-xs text-ink/50">{sub}</p>
         </div>
       </div>

@@ -90,7 +90,7 @@ export function GuestChat({ deals, teasers }: { deals: Deal[]; teasers: Teaser[]
 
       {asked && (
         <div ref={answerRef} className="mt-8 border-t border-ink/10 pt-6">
-          <p className="text-[20px] font-extrabold leading-snug tracking-[-0.02em] text-ink">{asked.q}</p>
+          <p className="font-display text-[22px] font-medium leading-[1.45] tracking-[-0.012em] text-ink">{asked.q}</p>
           <p className="mt-2 text-[15px] leading-relaxed text-ink/70">{asked.text}</p>
           {!!asked.picks.length && (
             <>

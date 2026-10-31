@@ -121,7 +121,7 @@ export const SwipeCard = forwardRef<SwipeCardHandle, Props>(function SwipeCard({
               {/* Below 720px of screen height the card itself is short (208px on an iPhone SE), so only the name,
                   price and store stay on the front; the brand and the hint wait on the back. */}
               <p className="truncate text-[11px] font-medium uppercase tracking-wider text-white/70 [@media(max-height:719px)]:hidden">{product.brand}</p>
-              <h3 className="mt-0.5 line-clamp-2 text-[15px] font-semibold leading-snug [overflow-wrap:anywhere] [@media(max-height:719px)]:mt-0 [@media(max-height:719px)]:line-clamp-1 [@media(max-height:719px)]:text-sm">
+              <h3 className="mt-0.5 line-clamp-2 font-sans text-[15px] font-semibold leading-snug [overflow-wrap:anywhere] [@media(max-height:719px)]:mt-0 [@media(max-height:719px)]:line-clamp-1 [@media(max-height:719px)]:text-sm">
                 {product.name}
               </h3>
               {insight.priced ? (

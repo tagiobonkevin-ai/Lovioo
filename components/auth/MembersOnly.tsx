@@ -1,44 +1,40 @@
 "use client";
 
-import { Lock, RotateCw } from "lucide-react";
+import { Heart, RotateCw } from "lucide-react";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 import { LogoMark } from "@/components/brand/Logo";
 import { useHydrated } from "@/components/Providers";
 import { loadMemberCatalog, useMemberCatalog } from "@/lib/data/member-catalog";
 import { useLovioo } from "@/lib/store";
 
+/** Pages that hold a person's own data; everything else (Discover, Swipe, Search, products, Brand Crush) is open. */
+const PERSONAL = ["/saved", "/profile"];
+
 /**
- * Products and prices are for members. Guests are sent to Create account and come back here afterwards; members see a
- * loader until their catalog has arrived. Nothing is rendered on the server, and the database (RLS) only sends
- * products to signed-in accounts, so this is the experience, not the lock.
+ * Loads the catalogue for every visitor and shows a loader until it has arrived. Guests can browse, swipe and save
+ * on this phone; only the personal pages ask for an account. The database (RLS) decides what each visitor may read.
  */
 export function MembersOnly({ children }: { children: React.ReactNode }) {
   const hydrated = useHydrated();
   const user = useLovioo((s) => s.user);
   const { status, error } = useMemberCatalog();
   const pathname = usePathname();
-  const router = useRouter();
-  const [authHref, setAuthHref] = useState("/auth");
+  const personal = PERSONAL.some((p) => pathname === p || pathname.startsWith(p + "/"));
 
-  useEffect(() => {
-    if (!hydrated || user) return;
-    const href = `/auth?next=${encodeURIComponent(pathname + window.location.search)}`;
-    setAuthHref(href);
-    router.replace(href);
-  }, [hydrated, user, pathname, router]);
-
-  if (hydrated && !user)
+  if (hydrated && !user && personal)
     return (
       <Gate>
-        <span className="grid h-12 w-12 place-items-center rounded-full bg-pink/10 text-pink">
-          <Lock className="h-5 w-5" aria-hidden />
+        <span className="grid h-12 w-12 place-items-center rounded-full bg-pink-soft text-pink">
+          <Heart className="h-5 w-5" aria-hidden />
         </span>
-        <h1 className="mt-4 text-[20px] leading-[1.5]">Create a free account to see prices</h1>
-        <p className="mt-1 max-w-xs text-sm text-ink/60">Products, prices and swiping are for Lovioo members. It takes a minute.</p>
-        <Link href={authHref} className="btn-primary mt-5">
+        <h1 className="mt-4 text-[22px] leading-snug">{pathname.startsWith("/saved") ? "Your wishlist lives in your account" : "Your profile needs an account"}</h1>
+        <p className="mt-1 max-w-xs text-sm text-ink/60">Create a free account to save your favourites, get price alerts and pick up where you left off on any device.</p>
+        <Link href={`/auth?next=${encodeURIComponent(pathname)}`} className="btn-primary mt-5">
           Create free account
+        </Link>
+        <Link href="/discover" className="mt-3 text-sm font-semibold text-pink">
+          Keep discovering
         </Link>
       </Gate>
     );
@@ -48,7 +44,7 @@ export function MembersOnly({ children }: { children: React.ReactNode }) {
       <Gate>
         <h1 className="text-[18px] leading-[1.5]">Couldn&apos;t load products</h1>
         <p className="mt-1 max-w-xs text-sm text-ink/60">{error}</p>
-        <button onClick={() => user?.id && loadMemberCatalog(user.id)} className="btn-primary mt-5 inline-flex items-center gap-2">
+        <button onClick={() => loadMemberCatalog(user?.id ?? null)} className="btn-primary mt-5 inline-flex items-center gap-2">
           <RotateCw className="h-4 w-4" /> Try again
         </button>
       </Gate>

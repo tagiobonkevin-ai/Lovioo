@@ -21,10 +21,10 @@ const config: Config = {
         surface: "#F5F5F7",
       },
       fontFamily: {
-        // Brand typeface: Manrope everywhere (see app/fonts.ts).
+        // Brand typeface Manrope for UI and body; headlines in a Plantin-style serif at daydream's sizes (app/fonts.ts).
         sans: ["var(--font-manrope)", "ui-sans-serif", "system-ui", "sans-serif"],
         poppins: ["var(--font-manrope)", "ui-sans-serif", "system-ui", "sans-serif"],
-        display: ["var(--font-manrope)", "ui-sans-serif", "system-ui", "sans-serif"],
+        display: ["var(--font-newsreader)", "ui-serif", "Georgia", "serif"],
         ui: ["var(--font-manrope)", "ui-sans-serif", "system-ui", "sans-serif"],
       },
       backgroundImage: {

@@ -142,9 +142,9 @@ function ProductView({ product }: { product: Product }) {
                 onClick={() => {
                   if (hasAlert) removeAlert(product.id);
                   else {
-                    setAlert(product.id);
                     // Nothing emails yet, so promise only what Saved actually shows.
-                    toast({ title: "Price alert on 🔔", body: `Watching for under ${peso(insight.lowest90)} — see it in Saved.`, kind: "ok" });
+                    if (setAlert(product.id))
+                      toast({ title: "Price alert on 🔔", body: `Watching for under ${peso(insight.lowest90)} — see it in Saved.`, kind: "ok" });
                   }
                 }}
                 className={cn("btn !px-5", hasAlert ? "bg-grape text-white" : "btn-ghost")}

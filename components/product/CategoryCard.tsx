@@ -9,7 +9,7 @@ import { cn } from "@/lib/utils";
  * with rounded corners. Callers wrap it in a link or button and set its size with `className`. Falls back to the
  * emoji when the category has no photo or the photo can't load.
  */
-export function CategoryCard({ category, className }: { category: Pick<Category, "id" | "name" | "emoji">; className?: string }) {
+export function CategoryCard({ category, className, tagline = false }: { category: Pick<Category, "id" | "name" | "emoji">; className?: string; tagline?: boolean }) {
   const art = categoryArt(category.id);
   const [failed, setFailed] = useState(false);
   const img = useRef<HTMLImageElement>(null);
@@ -22,7 +22,8 @@ export function CategoryCard({ category, className }: { category: Pick<Category,
     <span className={cn("relative flex h-[240px] w-[200px] shrink-0 flex-col overflow-hidden rounded-3xl bg-pink-soft text-ink ring-1 ring-pink/10", className)}>
       <span className="block px-3.5 pt-3.5">
         {art && <span className="block text-[10px] font-bold uppercase tracking-[0.1em] text-pink">{art.label}</span>}
-        <span className="mt-0.5 block text-[15px] font-bold leading-tight tracking-[-0.01em]">{category.name}</span>
+        <span className="mt-0.5 block font-display text-[16px] font-medium leading-tight">{category.name}</span>
+        {tagline && art && <span className="mt-0.5 block text-[12px] leading-snug text-ink/55">{art.tagline}</span>}
       </span>
       <span className="relative mx-2 mb-2 mt-2.5 block min-h-0 flex-1 overflow-hidden rounded-2xl bg-white">
         {art && !failed ? (

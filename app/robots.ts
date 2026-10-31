@@ -1,12 +1,12 @@
 import type { MetadataRoute } from "next";
 import { SITE_URL } from "@/lib/site";
 
-// Shopping screens are members-only (account required), so only the home and legal pages are for search engines.
-const MEMBERS_ONLY = ["/discover", "/swipe", "/search", "/ai", "/brands", "/brand/", "/product/", "/compare"];
+// Browsing is open to everyone, so search engines may read the shopping pages; personal and admin pages stay out.
+const PRIVATE = ["/admin", "/profile", "/saved", "/onboarding", "/auth", "/compare", "/ai"];
 
 export default function robots(): MetadataRoute.Robots {
   return {
-    rules: { userAgent: "*", allow: "/", disallow: ["/admin", "/profile", "/saved", "/onboarding", "/auth", ...MEMBERS_ONLY] },
+    rules: { userAgent: "*", allow: "/", disallow: PRIVATE },
     sitemap: `${SITE_URL}/sitemap.xml`,
   };
 }
