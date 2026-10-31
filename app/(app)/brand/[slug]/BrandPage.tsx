@@ -45,10 +45,16 @@ export function BrandPage({ slug }: { slug: string }) {
         <div className="relative flex flex-wrap items-end gap-4">
           <BrandAvatar brand={brand} className="h-20 w-20 text-2xl ring-4 ring-white/70" />
           <div className="min-w-0 flex-1">
-            {brand.featured && (
+            {brand.isPartner ? (
               <span className="inline-flex items-center gap-1 rounded-full bg-white/90 px-2.5 py-0.5 text-[11px] font-bold text-pink">
-                <BadgeCheck className="h-3.5 w-3.5" /> Featured brand
+                <BadgeCheck className="h-3.5 w-3.5" /> Lovioo Brand Partner
               </span>
+            ) : (
+              brand.featured && (
+                <span className="inline-flex items-center gap-1 rounded-full bg-white/90 px-2.5 py-0.5 text-[11px] font-bold text-pink">
+                  <BadgeCheck className="h-3.5 w-3.5" /> Featured brand
+                </span>
+              )
             )}
             <h1 className="mt-1 text-[30px] leading-[1.35]">{brand.name}</h1>
             <p className="text-sm text-white/85">

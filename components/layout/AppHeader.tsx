@@ -14,6 +14,7 @@ const NAV = [
   { href: "/swipe", label: "Swipe", badge: "💘" },
   { href: "/crush", label: "Brand Crush" },
   { href: "/brands", label: "Brands" },
+  { href: "/store", label: "Lovioo Store" },
   { href: "/search?sort=discount", label: "Deals" },
   { href: "/ai", label: "Lovioo AI" },
 ];

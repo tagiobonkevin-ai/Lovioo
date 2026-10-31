@@ -63,6 +63,7 @@ export function mapBrand(b: Tables["brands"]["Row"]): Brand {
     storeUrl: b.store_url ?? undefined,
     retailer: b.retailer_id ?? undefined,
     featured: b.featured,
+    isPartner: !!b.is_partner,
     sort: b.sort,
   };
 }

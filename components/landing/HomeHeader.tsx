@@ -8,6 +8,7 @@ import { Logo } from "@/components/brand/Logo";
 const LINKS = [
   { href: "/discover", label: "Discover", note: "Explore products" },
   { href: "/crush", label: "Brand Crush", note: "Curated discoveries" },
+  { href: "/store", label: "Lovioo Store", note: "From our Brand Partners" },
   { href: "/ai", label: "Ask Lovioo AI", note: "Smart shopping" },
   { href: "/saved", label: "My Wishlist", note: "Saved favourites" },
 ];

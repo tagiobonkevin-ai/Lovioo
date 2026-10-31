@@ -13,6 +13,8 @@ export interface Brand {
   storeUrl?: string;
   retailer?: RetailerId;
   featured: boolean;
+  /** A Lovioo Brand Partner (set by admins only when there's an agreement): shown in the Lovioo Store. */
+  isPartner?: boolean;
   sort: number;
 }
 
@@ -52,6 +54,12 @@ export const brandById = (id: string | undefined) => (id ? BRAND_LIST.find((b) =
 export const brandOf = (p: Product) => brandById(p.brandId) ?? brandById(brandSlug(p.brand));
 
 export const brandProducts = (brand: Brand) => PRODUCTS.filter((p) => brandOf(p)?.id === brand.id);
+
+/** Lovioo Store: the Brand Partners, partners with live products first. */
+export const partnerBrands = () =>
+  sortedBrands()
+    .filter((b) => b.isPartner)
+    .sort((a, b) => Number(brandProducts(b).length > 0) - Number(brandProducts(a).length > 0) || a.name.localeCompare(b.name));
 
 /** Featured brands first, then by sort order and name. */
 export const sortedBrands = () => [...BRAND_LIST].sort((a, b) => Number(b.featured) - Number(a.featured) || a.sort - b.sort || a.name.localeCompare(b.name));
