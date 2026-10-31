@@ -18,6 +18,7 @@ import { useLovioo } from "@/lib/store";
 import { getSupabase } from "@/lib/supabase/client";
 import type { Gender } from "@/lib/supabase/database.types";
 import type { CategoryId, Preferences, RetailerId } from "@/lib/types";
+import { CategoryCard } from "@/components/product/CategoryCard";
 import { cn } from "@/lib/utils";
 
 type StepId = "name" | "birthday" | "gender" | "place" | "interests" | "budget" | "stores";
@@ -312,15 +313,16 @@ export default function Onboarding() {
                           onClick={() => setInterests(toggle(interests, c.id))}
                           aria-pressed={on}
                           className={cn(
-                            "relative flex items-center gap-2.5 rounded-2xl p-3.5 pr-7 text-left text-sm font-semibold leading-tight transition active:scale-[0.98]",
-                            on ? "bg-pink/[0.06] ring-2 ring-pink" : "bg-white ring-1 ring-midnight/10 hover:ring-midnight/25",
+                            "group relative rounded-xl text-left transition active:scale-[0.98]",
+                            on ? "ring-2 ring-pink ring-offset-2" : "opacity-95 hover:opacity-100",
                           )}
                         >
-                          <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl text-lg" style={{ background: c.tint }}>
-                            {c.emoji}
-                          </span>
-                          <span className="min-w-0">{c.name}</span>
-                          {on && <Check className="absolute right-2.5 top-2.5 h-4 w-4 text-pink" />}
+                          <CategoryCard category={c} className="h-[168px] w-full" />
+                          {on && (
+                            <span className="absolute right-2 top-2 grid h-6 w-6 place-items-center rounded-full bg-pink text-white shadow-pop">
+                              <Check className="h-3.5 w-3.5" />
+                            </span>
+                          )}
                         </button>
                       );
                     })}

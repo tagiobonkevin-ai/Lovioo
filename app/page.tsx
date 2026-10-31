@@ -3,6 +3,7 @@ import Link from "next/link";
 import { display, ui } from "@/app/fonts";
 import { Logo } from "@/components/brand/Logo";
 import { DealCard } from "@/components/landing/DealCard";
+import { CategoryCard } from "@/components/product/CategoryCard";
 import { TeaserCard } from "@/components/landing/TeaserCard";
 import { DealSummary, GuestChat } from "@/components/landing/GuestChat";
 import { LegalLinks } from "@/components/legal/LegalLinks";
@@ -184,13 +185,11 @@ export default async function Landing() {
       <section className="mx-auto max-w-[1248px] px-4 pb-16 lg:px-6 lg:pb-24">
         <Eyebrow>Categories</Eyebrow>
         <Heading>What are you shopping for?</Heading>
-        <div className="mt-6 grid grid-cols-2 gap-x-4 gap-y-6 sm:grid-cols-3 lg:grid-cols-6">
+        {/* One swipeable row of photo cards on phones; a single row of equal cards on desktop. */}
+        <div className="no-scrollbar -mx-4 mt-6 flex snap-x gap-2 overflow-x-auto px-4 pb-1 lg:mx-0 lg:grid lg:grid-cols-7 lg:overflow-visible lg:px-0">
           {CATEGORIES.map((c) => (
-            <Link key={c.id} href={`/auth?next=${encodeURIComponent(`/search?category=${c.id}`)}`} className="group">
-              <span className="grid aspect-[4/3] place-items-center text-4xl transition duration-500 group-hover:scale-105" style={{ background: c.tint }} aria-hidden>
-                {c.emoji}
-              </span>
-              <span className="mt-2 block font-display text-[16px] font-medium leading-[1.5] tracking-[-0.009em] lg:text-[20px]">{c.name}</span>
+            <Link key={c.id} href={`/auth?next=${encodeURIComponent(`/search?category=${c.id}`)}`} className="group shrink-0 snap-start transition active:scale-[0.98]">
+              <CategoryCard category={c} className="lg:h-[230px] lg:w-full" />
             </Link>
           ))}
         </div>

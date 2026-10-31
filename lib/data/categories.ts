@@ -16,6 +16,33 @@ export const CATEGORIES: Category[] = [
   { id: "toys", name: "Toys & Hobbies", emoji: "🧸", tint: "#F1E8FF" },
 ];
 
+/** How a category looks on its photo card: one HD photo, its own colour and a short label above the name. */
+export interface CategoryArt {
+  image: string;
+  bg: string;
+  fg: string;
+  label: string;
+}
+
+// Free-licence Unsplash photos (no attribution required), cropped portrait by Unsplash's image CDN.
+const unsplash = (id: string) => `https://images.unsplash.com/photo-${id}?auto=format&fit=crop&w=640&h=800&q=75`;
+
+/**
+ * Photo cards for the category rows, after daydream's: deep, earthy card colours with cream text. Keyed by
+ * category id, so the categories in Supabase need no extra columns; a category without art keeps its emoji tile.
+ */
+const CATEGORY_ART: Record<string, CategoryArt> = {
+  electronics: { image: unsplash("1505740420928-5e560c06d30e"), bg: "#26354B", fg: "#E4E3DA", label: "Gadgets" },
+  fashion: { image: unsplash("1542291026-7eec264c27ff"), bg: "#B24B32", fg: "#F0E1C9", label: "Style" },
+  beauty: { image: unsplash("1556228578-8c89e6adf883"), bg: "#8E4A5C", fg: "#F6E6E4", label: "Glow" },
+  home: { image: unsplash("1555041469-a586c61ea9bc"), bg: "#9B7530", fg: "#F2E7CD", label: "Cozy" },
+  sports: { image: unsplash("1626224583764-f87db24ac4ea"), bg: "#2B4638", fg: "#F2E7CD", label: "Active" },
+  toys: { image: unsplash("1587654780291-39c9404d746b"), bg: "#315174", fg: "#E4E3DA", label: "Play" },
+  family: { image: unsplash("1543466835-00a7907e9de1"), bg: "#CDAA92", fg: "#2B1F17", label: "Pets & kids" },
+};
+
+export const categoryArt = (id: CategoryId): CategoryArt | undefined => CATEGORY_ART[id];
+
 export const categoryById = (id: CategoryId): Category =>
   CATEGORIES.find((c) => c.id === id) ?? { id, name: id, emoji: "✨", tint: "#FFE9E2" };
 
