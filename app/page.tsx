@@ -1,18 +1,19 @@
-import { ArrowRight, Check, Heart, Search, ShoppingBag, Sparkles, Tag, Zap } from "lucide-react";
+import { ArrowRight, Check, Heart, ShoppingBag, Tag, Zap } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Logo } from "@/components/brand/Logo";
 import { CrushStories } from "@/components/crush/CrushStories";
+import { DealSummary, GuestChat } from "@/components/landing/GuestChat";
 import { HomeHeader } from "@/components/landing/HomeHeader";
 import { HomeProductCard } from "@/components/landing/HomeProductCard";
-import { PhoneMock } from "@/components/landing/PhoneMock";
 import { PhotoCollage } from "@/components/landing/PhotoCollage";
 import { SwipeDemo, type SwipeDemoItem } from "@/components/landing/SwipeDemo";
 import { LegalLinks } from "@/components/legal/LegalLinks";
 import { HalloweenDecor, HalloweenNote } from "@/components/seasonal/Halloween";
 import { browseCategories, categoryArt } from "@/lib/data/categories";
 import { crushBySlug, crushProducts, crushStories } from "@/lib/data/crush";
-import { loadCatalog, loadDeals, loadHomeProducts } from "@/lib/data/load-catalog";
+import { loadCatalog, loadDeals, loadTeaser } from "@/lib/data/load-catalog";
+import { dealsAsProducts } from "@/lib/data/public-deals";
 import { isPriced, lowestPrice } from "@/lib/data/products";
 import { MAIN_RETAILERS, retailerById } from "@/lib/data/retailers";
 import { CONTACT_EMAIL } from "@/lib/site";
@@ -80,16 +81,6 @@ const TREND_CHIPS = [
   { label: "Under ₱1,000", href: "/search?max=1000" },
 ];
 
-const HERO_CHIPS = [
-  { label: "Gadgets", href: "/search?category=electronics" },
-  { label: "Fashion", href: "/search?category=fashion" },
-  { label: "Beauty", href: "/search?category=beauty" },
-  { label: "Home", href: "/search?category=home" },
-  { label: "Sports", href: "/search?category=sports" },
-  { label: "Kids", href: "/search?category=baby-kids" },
-  { label: "More", href: "/discover" },
-];
-
 const HERO_FEATURES = [
   { icon: Zap, title: "Smart Discovery", body: "Products you'll love" },
   { icon: Tag, title: "Compare Prices", body: "See the best deals" },
@@ -111,112 +102,58 @@ const updated = (iso?: string) =>
  * live catalogue; sections without real data stay out of the way rather than show placeholders.
  */
 export default async function Landing() {
-  const [, deals, products] = await Promise.all([loadCatalog(), loadDeals(), loadHomeProducts()]);
-  const heroDeal = deals.find((d) => d.image) ?? deals[0];
-  const trending = [...products].sort((a, b) => Number(!!b.trending) - Number(!!a.trending)).slice(0, 8);
-  const hasTrending = products.some((p) => p.trending);
+  const [, deals] = await Promise.all([loadCatalog(), loadDeals()]);
+  // Guests see today's public deals (the full catalogue is for members); with no verified prices yet, names and photos.
+  const teasers = deals.length ? [] : (await loadTeaser()).slice(0, 12);
+  const products = dealsAsProducts(deals);
+  const trending = [...products].slice(0, 8);
   const swipeItems: SwipeDemoItem[] = products
     .filter((p) => p.image?.trim())
     .slice(0, 8)
     .map((p) => ({ id: p.id, slug: p.slug, name: p.name, brand: p.brand, image: p.image, emoji: p.emoji, price: isPriced(p) ? lowestPrice(p) : undefined }));
   const compare = comparePick(products);
-  const trendMini = trending.filter((p) => p.image).slice(0, 3);
   const stories = crushStories(products);
   const categories = browseCategories((id) => products.some((p) => p.category === id));
 
   return (
     <div className="min-h-screen overflow-x-hidden bg-white font-ui text-ink antialiased">
-      {/* 01 — Hero */}
+      {/* 01 — Hero: Lovioo AI front and centre, the way daydream opens with its chat */}
       <div className="relative isolate overflow-hidden bg-gradient-to-b from-white via-[#FFF3F8] to-pink-soft">
         <div className="pointer-events-none absolute -right-24 -top-24 -z-10 h-96 w-96 rounded-full bg-pink/25 blur-3xl" aria-hidden />
         <div className="pointer-events-none absolute -bottom-40 -left-24 -z-10 h-96 w-96 rounded-full bg-coral/20 blur-3xl" aria-hidden />
         <HomeHeader />
-        <section className={cn(section, "relative grid items-center gap-12 pb-16 pt-6 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)] lg:pb-24 lg:pt-12")}>
+        <section className={cn(section, "relative pb-16 pt-8 lg:pb-24 lg:pt-14")}>
           <HalloweenDecor />
-          <div className="min-w-0">
+          <div className="mx-auto max-w-[760px] text-center">
             <HalloweenNote className="mb-3" />
-            <Eyebrow>Your new shopping discovery experience</Eyebrow>
+            <Eyebrow className="justify-center">Lovioo AI · your shopping discovery assistant</Eyebrow>
             <h1 className="mt-4 font-display text-[42px] font-medium leading-[1.12] tracking-[-0.012em] sm:text-[56px] lg:text-[64px]">
               Find Something <span className="block text-pink">You&apos;ll Love.</span>
             </h1>
-            <p className="mt-4 max-w-[46ch] text-[16px] leading-relaxed text-ink/65">
-              Discover amazing products from every store in the Philippines through one AI chat. Less searching. More discovering.
+            <p className="mx-auto mt-4 max-w-[46ch] text-[16px] leading-relaxed text-ink/65">
+              Shop every store in the Philippines through one chat. Tell Lovioo what you want, your budget and what you love — in English, Tagalog
+              or Visayan.
             </p>
-            <form action="/search" className="mt-7 flex max-w-[560px] items-center gap-2 rounded-full bg-white py-1.5 pl-5 pr-1.5 shadow-[0_18px_40px_-24px_rgba(255,79,184,0.6)] ring-1 ring-pink/20 focus-within:ring-pink/50">
-              <Search className="h-5 w-5 shrink-0 text-pink" aria-hidden />
-              <label htmlFor="home-search" className="sr-only">
-                What are you looking for today?
-              </label>
-              <input
-                id="home-search"
-                name="q"
-                placeholder="What are you looking for today?"
-                className="h-11 min-w-0 flex-1 bg-transparent text-[16px] font-medium outline-none placeholder:text-ink/40"
-              />
-              <button type="submit" aria-label="Search" className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-brand text-white shadow-pop">
-                <ArrowRight className="h-5 w-5" />
-              </button>
-            </form>
-            <div className="mt-4 flex flex-wrap gap-2">
-              {HERO_CHIPS.map((c) => (
-                <Link key={c.label} href={c.href} className="rounded-full bg-white/80 px-4 py-2 text-[13px] font-semibold text-ink/70 ring-1 ring-ink/10 transition hover:bg-pink hover:text-white hover:ring-pink">
-                  {c.label}
-                </Link>
-              ))}
-            </div>
-            <ul className="mt-7 grid grid-cols-2 gap-x-4 gap-y-4 sm:grid-cols-4">
-              {HERO_FEATURES.map((f) => (
-                <li key={f.title} className="flex min-w-0 items-start gap-2.5">
-                  <f.icon className="mt-0.5 h-5 w-5 shrink-0 text-pink" aria-hidden />
-                  <span className="min-w-0">
-                    <span className="block text-[13px] font-bold leading-tight">{f.title}</span>
-                    <span className="block text-[12px] leading-snug text-ink/55">{f.body}</span>
-                  </span>
-                </li>
-              ))}
-            </ul>
           </div>
-          <div className="relative">
-            <PhoneMock deal={heroDeal} className="lg:ml-2 lg:mr-auto" />
-            <Link
-              href="/ai"
-              className="absolute -top-2 right-0 hidden rounded-3xl bg-white/95 px-4 py-3 shadow-[0_18px_40px_-20px_rgba(17,17,17,0.35)] ring-1 ring-pink/15 transition hover:-translate-y-0.5 lg:block"
-            >
-              <span className="flex items-center gap-1.5 font-display text-[17px] font-medium leading-tight">
-                Just ask. <Sparkles className="h-4 w-4 text-pink" />
-              </span>
-              <span className="block font-display text-[17px] font-medium leading-tight">Lovioo finds.</span>
-            </Link>
-            {trendMini.length > 0 && (
-              <Link
-                href="/crush/trend-crush"
-                className="absolute bottom-16 right-0 hidden w-[220px] rounded-3xl bg-white/95 p-3.5 shadow-[0_18px_40px_-20px_rgba(17,17,17,0.35)] ring-1 ring-pink/15 transition hover:-translate-y-0.5 lg:block"
-              >
-                <span className="flex items-center justify-between">
-                  <span>
-                    <span className="block font-display text-[16px] font-medium">Trending Now</span>
-                    <span className="block text-[11px] text-ink/50">See what&apos;s popular today.</span>
-                  </span>
-                  <ArrowRight className="h-4 w-4 text-pink" />
-                </span>
-                <span className="mt-2.5 grid grid-cols-3 gap-1.5">
-                  {trendMini.map((p) => (
-                    <span key={p.id} className="block">
-                      <span className="block aspect-square overflow-hidden rounded-xl bg-pink-soft">
-                        {p.image ? (
-                          // eslint-disable-next-line @next/next/no-img-element
-                          <img src={p.image} alt="" className="h-full w-full object-cover" />
-                        ) : (
-                          <span className="grid h-full place-items-center text-xl">{p.emoji}</span>
-                        )}
-                      </span>
-                      {isPriced(p) && <span className="mt-1 block text-[11px] font-bold">{peso(lowestPrice(p))}</span>}
-                    </span>
-                  ))}
-                </span>
-              </Link>
-            )}
+          <div className="mx-auto mt-8 max-w-[760px]">
+            <GuestChat deals={deals} teasers={teasers} starters={AI_PROMPTS.slice(0, 4)} />
           </div>
+          <div className="mx-auto mt-6 max-w-[720px] text-center">
+            <DealSummary deals={deals} teasers={teasers} />
+          </div>
+          <ul className="mx-auto mt-12 grid max-w-[880px] grid-cols-2 gap-x-4 gap-y-5 sm:grid-cols-4">
+            {HERO_FEATURES.map((f) => (
+              <li key={f.title} className="flex min-w-0 items-start gap-2.5">
+                <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-white text-pink shadow-sm" aria-hidden>
+                  <f.icon className="h-[18px] w-[18px]" />
+                </span>
+                <span className="min-w-0">
+                  <span className="block text-[13px] font-bold leading-tight">{f.title}</span>
+                  <span className="block text-[12px] leading-snug text-ink/55">{f.body}</span>
+                </span>
+              </li>
+            ))}
+          </ul>
         </section>
       </div>
 
@@ -271,7 +208,7 @@ export default async function Landing() {
                 <span className="absolute inset-0 bg-gradient-to-t from-ink/80 via-ink/15 to-transparent" aria-hidden />
                 <span className="absolute inset-x-0 bottom-0 p-6 text-white">
                   <span className="text-[11px] font-bold uppercase tracking-[0.16em] text-white/80">
-                    {picks.length ? `${picks.length} ${picks.length === 1 ? "find" : "finds"}` : "Coming soon"}
+                    Members&apos; collection
                   </span>
                   <span className="mt-1 block font-display text-[26px] font-medium leading-tight">{c.title}</span>
                   <span className="mt-1 block text-[14px] text-white/85">{c.tagline}</span>
@@ -279,45 +216,6 @@ export default async function Landing() {
               </Link>
             );
           })}
-        </div>
-      </section>
-
-      {/* 03 — Lovioo AI */}
-      <section className="bg-ink text-white">
-        <div className={cn(section, "grid gap-12 py-20 lg:grid-cols-2 lg:items-center lg:py-28")}>
-          <div>
-            <Eyebrow className="text-pink">Lovioo AI</Eyebrow>
-            <Heading className="text-white" accent="We Have Ideas.">You Have a Wishlist.</Heading>
-            <p className="mt-3 font-display text-[22px] font-medium text-white/85">Just ask. Lovioo finds.</p>
-            <p className="mt-4 max-w-[48ch] text-[16px] leading-relaxed text-white/70">
-              Not sure what you&apos;re looking for? Tell Lovioo what you need, how much you want to spend and what you love — in English, Tagalog or
-              Visayan — and explore products that match.
-            </p>
-            <Link href="/ai" className={cn(pinkPill, "mt-8")}>
-              Ask Lovioo Anything <Sparkles className="h-4 w-4" />
-            </Link>
-            <p className="mt-5 text-[14px] font-semibold text-white/55">Your ideas. Your budget. Your next discovery.</p>
-          </div>
-          <div className="rounded-[2rem] bg-white/[0.06] p-5 ring-1 ring-white/10 sm:p-7">
-            <form action="/ai" className="flex items-center gap-2 rounded-full bg-white py-1.5 pl-5 pr-1.5">
-              <Sparkles className="h-5 w-5 shrink-0 text-pink" aria-hidden />
-              <label htmlFor="home-ai" className="sr-only">
-                Ask Lovioo AI
-              </label>
-              <input id="home-ai" name="q" placeholder="Ask Lovioo anything…" className="h-11 min-w-0 flex-1 bg-transparent text-[16px] font-medium text-ink outline-none placeholder:text-ink/40" />
-              <button type="submit" className="h-11 shrink-0 rounded-full bg-pink px-5 text-sm font-bold text-white">
-                Ask
-              </button>
-            </form>
-            <p className="mt-6 text-[11px] font-bold uppercase tracking-[0.16em] text-white/45">Try asking</p>
-            <div className="mt-3 flex flex-wrap gap-2">
-              {AI_PROMPTS.map((q) => (
-                <Link key={q} href={`/ai?q=${encodeURIComponent(q)}`} className="rounded-full bg-white/10 px-4 py-2 text-[13px] font-semibold text-white/85 transition hover:bg-pink hover:text-white">
-                  “{q}”
-                </Link>
-              ))}
-            </div>
-          </div>
         </div>
       </section>
 
@@ -373,12 +271,11 @@ export default async function Landing() {
           <div className={cn(section, "py-20 lg:py-28")}>
             <div className="grid items-center gap-10 lg:grid-cols-2">
               <div className="min-w-0">
-                <Eyebrow>Trending Crush</Eyebrow>
-                <Heading accent="Loving It Already.">Trending Now.</Heading>
+                <Eyebrow>Prices today</Eyebrow>
+                <Heading accent="Loving It Already.">Today&apos;s Finds.</Heading>
                 <p className="mt-4 max-w-[48ch] text-[16px] leading-relaxed text-ink/60">
-                  {hasTrending
-                    ? "Discover products getting attention right now — from exciting new gadgets to popular everyday essentials."
-                    : "Fresh finds from the catalogue, worth a closer look."}
+                  A taste of today&apos;s finds with verified prices. Join free to see the whole catalogue — trending picks, new arrivals and
+                  hidden gems.
                 </p>
                 <div className="mt-6 flex flex-wrap gap-2">
                   {TREND_CHIPS.map((c) => (
@@ -393,7 +290,7 @@ export default async function Landing() {
               </div>
               <PhotoCollage
                 items={trending.filter((p) => p.image).map((p) => ({ href: `/product/${p.slug}`, image: p.image, label: p.brand }))}
-                stickers={["Trending 🔥", "Worth a look 💘"]}
+                stickers={["Today 🔥", "Worth a look 💘"]}
               />
             </div>
             <div className="mt-8 grid grid-cols-2 gap-x-4 gap-y-10 sm:grid-cols-3 lg:grid-cols-4">

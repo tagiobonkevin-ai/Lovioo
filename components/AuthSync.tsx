@@ -29,9 +29,8 @@ export function AuthSync() {
         stopSync?.();
         activeUserId = null;
         resetConsentSession();
-        // Guests browse too: (re)load the public catalogue, which also drops a signed-out editor's drafts.
+        // The full catalogue is for members: forget it on sign-out (guests see the home page preview).
         clearMemberCatalog();
-        setTimeout(() => loadMemberCatalog(null), 0);
         useProfileStatus.setState({ needsProfile: false, avatarUrl: null, nameLocked: false, notify: NO_NOTIFY });
         // Also clears a leftover demo-mode login or an expired session; guests (no user) keep their data.
         if (useLovioo.getState().user) useLovioo.getState().signOut();

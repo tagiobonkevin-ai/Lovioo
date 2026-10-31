@@ -7,6 +7,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { LogoMark } from "@/components/brand/Logo";
 import type { CrushStory } from "@/lib/data/crush";
+import { saveOrJoin } from "@/lib/signup-nudge";
 import { useLovioo } from "@/lib/store";
 import { cn, peso } from "@/lib/utils";
 
@@ -67,6 +68,7 @@ function StoryViewer({ stories, start, onClose }: { stories: CrushStory[]; start
   const slides = slidesOf(story);
   const slide = slides[at];
   const save = useLovioo((s) => s.save);
+  const signedIn = useLovioo((s) => !!s.user);
   const saved = useLovioo((s) => s.saved);
   const closeRef = useRef<HTMLButtonElement>(null);
 
@@ -203,7 +205,7 @@ function StoryViewer({ stories, start, onClose }: { stories: CrushStory[]; start
                       View <ArrowRight className="h-4 w-4" />
                     </Link>
                     <button
-                      onClick={() => save(product.id)}
+                      onClick={() => saveOrJoin(product.id, save, signedIn)}
                       aria-label={saved.includes(product.id) ? "Saved" : "Save"}
                       className="grid h-12 w-12 place-items-center rounded-full bg-pink text-white shadow-pop"
                     >

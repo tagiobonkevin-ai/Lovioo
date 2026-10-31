@@ -12,6 +12,11 @@ const COPY = {
     title: "Saved on this phone 💗",
     body: "Create a free account to keep your loves on every device, build your wishlist and get price alerts.",
   },
+  preview: {
+    icon: Heart,
+    title: "Love it? Join free to save it 💗",
+    body: "Create a free account to see every product, save your favourites, swipe your feed and get price alerts.",
+  },
   alert: {
     icon: Bell,
     title: "Get price alerts with a free account",

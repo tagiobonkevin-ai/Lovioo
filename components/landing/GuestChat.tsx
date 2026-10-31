@@ -14,7 +14,7 @@ import { TeaserCard } from "./TeaserCard";
  * The front page's Lovioo AI box. A guest asks in English, Tagalog or Visayan and gets a real answer from the public
  * deals — prices and all — then an invitation to create an account for the full catalogue.
  */
-export function GuestChat({ deals, teasers }: { deals: Deal[]; teasers: Teaser[] }) {
+export function GuestChat({ deals, teasers, starters }: { deals: Deal[]; teasers: Teaser[]; starters?: string[] }) {
   const [lang, setLang] = useState<AiLang>("en");
   const [q, setQ] = useState("");
   const [asked, setAsked] = useState<{ q: string; text: string; picks: Deal[]; teases: Teaser[] } | null>(null);
@@ -63,7 +63,7 @@ export function GuestChat({ deals, teasers }: { deals: Deal[]; teasers: Teaser[]
           e.preventDefault();
           ask(q);
         }}
-        className="mt-4 flex items-center gap-2 rounded-full bg-surface py-1.5 pl-5 pr-1.5 ring-1 ring-transparent transition focus-within:bg-white focus-within:ring-pink/40"
+        className="mt-5 flex items-center gap-2 rounded-[1.75rem] bg-white py-2 pl-6 pr-2 shadow-[0_24px_60px_-30px_rgba(255,79,184,0.55)] ring-1 ring-pink/20 transition focus-within:ring-pink/50"
       >
         <label className="sr-only" htmlFor="lovioo-ai">
           {strings.placeholder}
@@ -73,15 +73,15 @@ export function GuestChat({ deals, teasers }: { deals: Deal[]; teasers: Teaser[]
           value={q}
           onChange={(e) => setQ(e.target.value)}
           placeholder={strings.placeholder}
-          className="h-10 min-w-0 flex-1 bg-transparent text-[16px] font-medium leading-none text-ink outline-none placeholder:text-ink/40"
+          className="h-14 min-w-0 flex-1 bg-transparent text-[17px] font-medium leading-none text-ink outline-none placeholder:text-ink/40"
         />
-        <button type="submit" aria-label="Ask Lovioo AI" className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-pink text-white shadow-pop transition hover:brightness-105">
+        <button type="submit" aria-label="Ask Lovioo AI" className="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-brand text-white shadow-pop transition hover:brightness-105">
           <ArrowUp className="h-4 w-4" />
         </button>
       </form>
 
-      <div className="mt-4 flex flex-wrap gap-2">
-        {strings.starters.slice(0, 4).map((s) => (
+      <div className="mt-4 flex flex-wrap justify-center gap-2">
+        {(lang === "en" && starters?.length ? starters : strings.starters.slice(0, 4)).map((s) => (
           <button key={s} onClick={() => ask(s)} className="h-9 rounded-full bg-pink-soft px-4 text-[13px] font-semibold text-ink/75 transition hover:bg-pink hover:text-white">
             {s}
           </button>

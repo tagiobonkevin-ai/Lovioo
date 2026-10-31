@@ -4,6 +4,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { Heart } from "lucide-react";
 import { useState } from "react";
 import { toast, useHydrated } from "@/components/Providers";
+import { saveOrJoin } from "@/lib/signup-nudge";
 import { useLovioo } from "@/lib/store";
 import { cn } from "@/lib/utils";
 
@@ -22,6 +23,8 @@ export function HeartButton({ productId, className, size = "md" }: { productId: 
       onClick={(e) => {
         e.preventDefault();
         e.stopPropagation();
+        // Home page preview products aren't in the catalogue yet: guests are invited to join instead of saving.
+        if (productId.startsWith("deal-")) return saveOrJoin(productId, toggleSave, !!useLovioo.getState().user);
         const now = toggleSave(productId);
         if (now) {
           setBurst((b) => b + 1);
