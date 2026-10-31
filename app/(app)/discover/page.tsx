@@ -5,6 +5,8 @@ import { ArrowRight, ChevronLeft, ChevronRight, Layers, Sparkles } from "lucide-
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { CategoryBubbles } from "@/components/product/CategoryBubbles";
+import { CrushStories } from "@/components/crush/CrushStories";
+import { crushStories } from "@/lib/data/crush";
 import { DealScoreRing } from "@/components/product/DealScore";
 import { ProductCard } from "@/components/product/ProductCard";
 import { ProductImage } from "@/components/product/ProductImage";
@@ -73,6 +75,8 @@ export default function Discover() {
           )}
         </div>
       </div>
+
+      <CrushStories stories={crushStories()} />
 
       <BrandCrush />
 

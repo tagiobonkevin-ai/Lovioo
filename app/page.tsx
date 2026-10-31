@@ -2,14 +2,16 @@ import { ArrowRight, Check, Heart, Search, ShoppingBag, Sparkles, Tag, Zap } fro
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Logo } from "@/components/brand/Logo";
+import { CrushStories } from "@/components/crush/CrushStories";
 import { HomeHeader } from "@/components/landing/HomeHeader";
 import { HomeProductCard } from "@/components/landing/HomeProductCard";
 import { PhoneMock } from "@/components/landing/PhoneMock";
+import { PhotoCollage } from "@/components/landing/PhotoCollage";
 import { SwipeDemo, type SwipeDemoItem } from "@/components/landing/SwipeDemo";
 import { LegalLinks } from "@/components/legal/LegalLinks";
 import { HalloweenDecor, HalloweenNote } from "@/components/seasonal/Halloween";
 import { browseCategories, categoryArt } from "@/lib/data/categories";
-import { crushBySlug, crushProducts } from "@/lib/data/crush";
+import { crushBySlug, crushProducts, crushStories } from "@/lib/data/crush";
 import { loadCatalog, loadDeals, loadHomeProducts } from "@/lib/data/load-catalog";
 import { isPriced, lowestPrice } from "@/lib/data/products";
 import { MAIN_RETAILERS, retailerById } from "@/lib/data/retailers";
@@ -119,6 +121,7 @@ export default async function Landing() {
     .map((p) => ({ id: p.id, slug: p.slug, name: p.name, brand: p.brand, image: p.image, emoji: p.emoji, price: isPriced(p) ? lowestPrice(p) : undefined }));
   const compare = comparePick(products);
   const trendMini = trending.filter((p) => p.image).slice(0, 3);
+  const stories = crushStories(products);
   const categories = browseCategories((id) => products.some((p) => p.category === id));
 
   return (
@@ -228,6 +231,17 @@ export default async function Landing() {
           ))}
         </div>
       </section>
+
+      {/* Crush Stories: the collections as tap-through stories */}
+      {stories.length > 0 && (
+        <section className={cn(section, "pt-10")}>
+          <div className="flex items-baseline justify-between gap-4">
+            <h2 className="font-display text-[22px] font-medium">Crush Stories</h2>
+            <span className="text-[12px] font-semibold text-ink/50">Tap a story to start</span>
+          </div>
+          <CrushStories stories={stories} className="mt-4" />
+        </section>
+      )}
 
       {/* 02 — Brand Crush */}
       <section className={cn(section, "py-20 lg:py-28")}>
@@ -357,26 +371,30 @@ export default async function Landing() {
       {!!trending.length && (
         <section className="bg-surface">
           <div className={cn(section, "py-20 lg:py-28")}>
-            <div className="flex flex-wrap items-end justify-between gap-6">
-              <div className="max-w-[640px]">
+            <div className="grid items-center gap-10 lg:grid-cols-2">
+              <div className="min-w-0">
                 <Eyebrow>Trending Crush</Eyebrow>
                 <Heading accent="Loving It Already.">Trending Now.</Heading>
-                <p className="mt-4 text-[16px] leading-relaxed text-ink/60">
+                <p className="mt-4 max-w-[48ch] text-[16px] leading-relaxed text-ink/60">
                   {hasTrending
                     ? "Discover products getting attention right now — from exciting new gadgets to popular everyday essentials."
                     : "Fresh finds from the catalogue, worth a closer look."}
                 </p>
-              </div>
-              <Link href="/crush/trend-crush" className={pinkPill}>
-                See What&apos;s Trending <ArrowRight className="h-4 w-4" />
-              </Link>
-            </div>
-            <div className="no-scrollbar -mx-4 mt-8 flex gap-2 overflow-x-auto px-4">
-              {TREND_CHIPS.map((c) => (
-                <Link key={c.label} href={c.href} className="shrink-0 rounded-full bg-white px-4 py-2 text-[13px] font-bold text-ink/75 ring-1 ring-ink/10 transition hover:bg-pink hover:text-white hover:ring-pink">
-                  {c.label}
+                <div className="mt-6 flex flex-wrap gap-2">
+                  {TREND_CHIPS.map((c) => (
+                    <Link key={c.label} href={c.href} className="rounded-full bg-white px-4 py-2 text-[13px] font-bold text-ink/75 ring-1 ring-ink/10 transition hover:bg-pink hover:text-white hover:ring-pink">
+                      {c.label}
+                    </Link>
+                  ))}
+                </div>
+                <Link href="/crush/trend-crush" className={cn(pinkPill, "mt-8")}>
+                  See What&apos;s Trending <ArrowRight className="h-4 w-4" />
                 </Link>
-              ))}
+              </div>
+              <PhotoCollage
+                items={trending.filter((p) => p.image).map((p) => ({ href: `/product/${p.slug}`, image: p.image, label: p.brand }))}
+                stickers={["Trending 🔥", "Worth a look 💘"]}
+              />
             </div>
             <div className="mt-8 grid grid-cols-2 gap-x-4 gap-y-10 sm:grid-cols-3 lg:grid-cols-4">
               {trending.map((p) => (

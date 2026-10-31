@@ -35,7 +35,7 @@ export function ProductGallery({ product, badge }: { product: Product; badge?: R
     // min-w-0: without it the grid column grows to fit the slide strip instead of the strip scrolling.
     <div className="w-full min-w-0 space-y-3">
       <div className="relative">
-        <div ref={strip} className="no-scrollbar flex snap-x snap-mandatory overflow-x-auto rounded-2xl" aria-roledescription="carousel" aria-label={`${product.name} photos`}>
+        <div ref={strip} className="no-scrollbar flex snap-x snap-mandatory overflow-x-auto rounded-[1.75rem]" aria-roledescription="carousel" aria-label={`${product.name} photos`}>
           {slides.map((src, i) => (
             <div key={i} className="w-full shrink-0 snap-center" aria-label={`Photo ${i + 1} of ${slides.length}`} role="group">
               <ProductImage product={{ ...product, image: src }} className="aspect-square" emojiSize="text-[10rem]" />
