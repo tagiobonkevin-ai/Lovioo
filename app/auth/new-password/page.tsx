@@ -4,7 +4,6 @@ import { ArrowRight, Check, Eye, EyeOff, Lock } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { display, ui } from "@/app/fonts";
 import { Logo } from "@/components/brand/Logo";
 import { LegalLinks } from "@/components/legal/LegalLinks";
 import { getSupabase } from "@/lib/supabase/client";
@@ -56,7 +55,7 @@ export default function NewPasswordPage() {
   };
 
   return (
-    <div className={cn(display.variable, ui.variable, "lovioo-paper min-h-screen bg-white font-ui text-ink antialiased")}>
+    <div className={cn("lovioo-paper min-h-screen bg-white font-ui text-ink antialiased")}>
       <div className="mx-auto flex min-h-screen w-full max-w-[26rem] flex-col px-4 pb-8 pt-5 lg:max-w-[28rem] lg:px-6">
         <header>
           <Link href="/" aria-label="Lovioo home">
@@ -66,7 +65,7 @@ export default function NewPasswordPage() {
 
         <main className="flex flex-1 flex-col justify-center py-8">
           <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-ink/40">Password help</p>
-          <h1 className="mt-2 font-display text-[34px] font-medium leading-[1.35] tracking-[-0.012em] text-ink sm:text-[42px] sm:leading-[1.43]">
+          <h1 className="mt-2 font-display text-[34px] font-extrabold leading-[1.15] tracking-[-0.025em] text-ink sm:text-[42px] sm:leading-[1.43]">
             Choose a new <em className="text-ink/55">password.</em>
           </h1>
 
@@ -84,7 +83,7 @@ export default function NewPasswordPage() {
               </p>
               <Link
                 href="/auth?mode=signin"
-                className="mt-7 inline-flex h-12 items-center justify-center gap-2 bg-ink px-6 text-[15px] font-medium text-white transition hover:opacity-85"
+                className="mt-7 inline-flex h-12 items-center justify-center gap-2 rounded-full bg-pink px-6 text-[15px] font-bold text-white shadow-pop transition hover:brightness-105"
               >
                 Ask for a new link <ArrowRight className="h-4 w-4" />
               </Link>
@@ -138,7 +137,7 @@ export default function NewPasswordPage() {
                 )}
 
                 <button
-                  className="flex h-12 w-full items-center justify-center gap-2 bg-ink text-[15px] font-medium text-white transition hover:opacity-85 active:scale-[0.99]"
+                  className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-pink text-[15px] font-bold text-white shadow-pop transition hover:brightness-105 active:scale-[0.99]"
                   disabled={busy}
                 >
                   {busy ? "One moment…" : "Save new password"} {!busy && <ArrowRight className="h-4 w-4" />}

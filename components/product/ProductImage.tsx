@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { categoryById } from "@/lib/data/categories";
 import type { Product } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
@@ -22,12 +21,9 @@ export function ProductImage({
     const el = img.current;
     if (el && el.complete && el.naturalWidth === 0) setFailed(true);
   }, []);
-  const tint = categoryById(product.category).tint;
   return (
-    <div
-      className={cn("relative overflow-hidden", className)}
-      style={{ background: `radial-gradient(circle at 30% 20%, #fff 0%, ${tint} 70%)` }}
-    >
+    // Brand light pink behind every product photo, so products of any category sit on the same backdrop.
+    <div className={cn("relative overflow-hidden", className)} style={{ background: "radial-gradient(circle at 30% 20%, #fff 0%, #FFE8F1 70%)" }}>
       {!failed ? (
         <img
           ref={img}

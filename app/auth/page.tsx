@@ -4,7 +4,6 @@ import { ArrowLeft, ArrowRight, Check, Eye, EyeOff, Lock, Mail } from "lucide-re
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
-import { display, ui } from "@/app/fonts";
 import { Logo } from "@/components/brand/Logo";
 import { DealCard } from "@/components/landing/DealCard";
 import { TeaserCard } from "@/components/landing/TeaserCard";
@@ -20,7 +19,7 @@ import { getSupabase, isAuthProviderEnabled, isSupabaseConfigured } from "@/lib/
 import { cn } from "@/lib/utils";
 
 // Same type system as the front page: Newsreader headings, Inter for the small print.
-const h = "font-display font-medium tracking-[-0.012em]";
+const h = "font-display font-extrabold tracking-[-0.025em]";
 const field =
   "h-12 w-full border-b border-ink/15 bg-transparent pl-8 pr-4 text-[15px] text-ink outline-none transition placeholder:text-ink/35 focus:border-ink/50";
 
@@ -169,7 +168,7 @@ function AuthForm() {
   };
 
   return (
-    <div className={cn(display.variable, ui.variable, "lovioo-paper min-h-screen bg-white font-ui text-ink antialiased lg:grid lg:grid-cols-[minmax(0,1fr)_minmax(0,0.9fr)]")}>
+    <div className={cn("lovioo-paper min-h-screen bg-white font-ui text-ink antialiased lg:grid lg:grid-cols-[minmax(0,1fr)_minmax(0,0.9fr)]")}>
       <div className="mx-auto flex min-h-screen w-full max-w-[26rem] flex-col px-4 pb-8 pt-5 lg:max-w-[28rem] lg:px-6">
         <header className="flex items-center justify-between">
           <Link href="/" aria-label="Lovioo home">
@@ -218,7 +217,7 @@ function AuthForm() {
                 role="tab"
                 aria-selected={mode === m}
                 onClick={() => switchMode(m)}
-                className={cn("-mb-px border-b-2 px-4 py-2.5 text-sm transition", mode === m ? "border-ink font-medium text-ink" : "border-transparent text-ink/45 hover:text-ink/70")}
+                className={cn("-mb-px border-b-2 px-4 py-2.5 text-sm transition", mode === m ? "border-pink font-bold text-ink" : "border-transparent text-ink/45 hover:text-ink/70")}
               >
                 {m === "signup" ? "Create account" : "Sign in"}
               </button>
@@ -313,7 +312,7 @@ function AuthForm() {
 
             <button
               className={cn(
-                "flex h-12 w-full items-center justify-center gap-2 bg-ink text-[15px] font-medium text-white transition hover:opacity-85 active:scale-[0.99]",
+                "flex h-12 w-full items-center justify-center gap-2 rounded-full bg-pink text-[15px] font-bold text-white shadow-pop transition hover:brightness-105 active:scale-[0.99]",
                 missingConsent && "opacity-50",
               )}
               disabled={busy}

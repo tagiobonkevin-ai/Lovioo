@@ -21,10 +21,10 @@ export default function OpengraphImage() {
         }}
       >
         <div style={{ display: "flex", fontSize: 120, fontWeight: 800, letterSpacing: -4 }}>
-          Lovi<span style={{ color: "#FF2D9A" }}>oo</span>
+          Lovi<span style={{ color: "#FF4FB8" }}>oo</span>
         </div>
         <div style={{ display: "flex", fontSize: 44, marginTop: 8, letterSpacing: 6 }}>
-          Swipe. <span style={{ color: "#FF2D9A", margin: "0 14px" }}>Love.</span> Shop.
+          Swipe. <span style={{ color: "#FF4FB8", margin: "0 14px" }}>Love.</span> Shop.
         </div>
         <div style={{ fontSize: 34, marginTop: 48, color: "#0F2742B3", maxWidth: 900 }}>
           Swipe through products you&apos;ll love and compare prices across Shopee, Lazada, TikTok Shop and Amazon.
