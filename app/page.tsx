@@ -10,7 +10,6 @@ import { LifestyleMosaic, LifestyleRibbon } from "@/components/landing/Lifestyle
 import { PhotoCollage } from "@/components/landing/PhotoCollage";
 import { SwipeDemo, type SwipeDemoItem } from "@/components/landing/SwipeDemo";
 import { LegalLinks } from "@/components/legal/LegalLinks";
-import { HalloweenDecor } from "@/components/seasonal/Halloween";
 import { browseCategories, categoryArt } from "@/lib/data/categories";
 import { crushBySlug, crushProducts, crushStories } from "@/lib/data/crush";
 import { loadCatalog, loadCollections, loadDeals, loadTeaser } from "@/lib/data/load-catalog";
@@ -126,7 +125,6 @@ export default async function Landing() {
       <div className="relative isolate overflow-hidden bg-white">
         <HomeHeader />
         <section className={cn(section, "relative pb-10 pt-8 lg:pb-14 lg:pt-14")}>
-          <HalloweenDecor />
           <div className="mx-auto max-w-[760px] text-center">
             <h1 className="sr-only">Find Something You&apos;ll Love</h1>
             <p className="mx-auto mt-0 max-w-[46ch] text-[16px] leading-relaxed text-ink/65">
