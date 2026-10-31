@@ -14,7 +14,7 @@ import { cn } from "@/lib/utils";
 // and on Swipe it floats exactly where the Love and Nope buttons are -- on a 375px phone it covered them
 // completely. Shoppers still meet it on Discover, Search, Brands, Saved, Profile and the product pages, and
 // "Privacy choices" still opens it anywhere, because barOpen is checked before this list.
-const QUIET = ["/auth", "/admin", "/onboarding", "/swipe", "/terms", "/privacy", "/affiliate-disclosure", "/cookies"];
+const QUIET = ["/auth", "/admin", "/partner", "/onboarding", "/swipe", "/terms", "/privacy", "/affiliate-disclosure", "/cookies"];
 
 /** True while the analytics bar is on screen; other bottom prompts wait for it. */
 export function useConsentBarVisible() {

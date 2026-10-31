@@ -1,7 +1,7 @@
 "use client";
 
 import type { Session } from "@supabase/supabase-js";
-import { BadgeCheck, BarChart3, ClipboardCheck, ExternalLink, FolderTree, Layers, LayoutDashboard, LineChart, LogOut, Menu, MessageCircleHeart, Package, ReceiptText, Settings, Store, Tag, Users, X } from "lucide-react";
+import { BadgeCheck, BarChart3, ClipboardCheck, ExternalLink, FolderTree, Handshake, Layers, LayoutDashboard, LineChart, LogOut, Menu, MessageCircleHeart, Package, ReceiptText, Settings, Store, Tag, Users, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { createContext, useContext, useEffect, useState } from "react";
@@ -18,7 +18,8 @@ const NAV: { href: string; label: string; icon: React.ElementType; editor?: bool
   { href: "/admin/products", label: "Products", icon: Package, editor: true },
   { href: "/admin/review", label: "Review queue", icon: ClipboardCheck },
   { href: "/admin/prices", label: "Price list", icon: ReceiptText, editor: true },
-  { href: "/admin/brands", label: "Brands & partners", icon: BadgeCheck },
+  { href: "/admin/brands", label: "Brands", icon: BadgeCheck },
+  { href: "/admin/partners", label: "Brand Partners", icon: Handshake },
   { href: "/admin/collections", label: "Collections", icon: Layers },
   { href: "/admin/retailers", label: "Retailer sources", icon: Store },
   { href: "/admin/deals", label: "Deals & alerts", icon: Tag },

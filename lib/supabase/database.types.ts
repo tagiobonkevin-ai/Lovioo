@@ -45,16 +45,22 @@ export type Database = {
       brands: {
         Row: {
           color: string; cover_url: string; created_at: string; description: string; featured: boolean; id: string; logo_url: string; name: string;
-          published: boolean; retailer_id: string | null; sort: number; store_url: string | null; tagline: string; updated_at: string;
+          published: boolean; retailer_id: string | null; sort: number; store_url: string | null; tagline: string; updated_at: string; is_partner: boolean;
         };
         Insert: {
           color?: string; cover_url?: string; created_at?: string; description?: string; featured?: boolean; id: string; logo_url?: string; name: string;
-          published?: boolean; retailer_id?: string | null; sort?: number; store_url?: string | null; tagline?: string; updated_at?: string;
+          published?: boolean; retailer_id?: string | null; sort?: number; store_url?: string | null; tagline?: string; updated_at?: string; is_partner?: boolean;
         };
         Update: {
           color?: string; cover_url?: string; created_at?: string; description?: string; featured?: boolean; id?: string; logo_url?: string; name?: string;
-          published?: boolean; retailer_id?: string | null; sort?: number; store_url?: string | null; tagline?: string; updated_at?: string;
+          published?: boolean; retailer_id?: string | null; sort?: number; store_url?: string | null; tagline?: string; updated_at?: string; is_partner?: boolean;
         };
+        Relationships: [];
+      };
+      brand_members: {
+        Row: { user_id: string; brand_id: string; created_at: string; created_by: string | null };
+        Insert: { user_id: string; brand_id: string; created_at?: string; created_by?: string | null };
+        Update: { user_id?: string; brand_id?: string; created_at?: string; created_by?: string | null };
         Relationships: [];
       };
       categories: {
@@ -217,6 +223,19 @@ export type Database = {
     Functions: {
       admin_overview: { Args: { days?: number }; Returns: Json };
       admin_insights: { Args: { days?: number }; Returns: Json };
+      is_brand_member: { Args: { b: string }; Returns: boolean };
+      my_partner_brands: {
+        Args: never;
+        Returns: { id: string; name: string; tagline: string; logo_url: string; cover_url: string; color: string; store_url: string | null; is_partner: boolean; published: boolean }[];
+      };
+      record_referral: { Args: { brand: string; path?: string }; Returns: undefined };
+      claim_referral: { Args: { brand: string }; Returns: undefined };
+      partner_stats: { Args: { brand: string; days?: number }; Returns: Json };
+      admin_partner_members: {
+        Args: never;
+        Returns: { user_id: string; email: string; full_name: string; brand_id: string; created_at: string; last_sign_in_at: string | null }[];
+      };
+      admin_link_partner: { Args: { target_email: string; brand: string }; Returns: string };
       purge_old_activity: { Args: { months?: number }; Returns: number };
       approve_product_change: { Args: { request_id: number }; Returns: undefined };
       reject_product_change: { Args: { request_id: number; note?: string }; Returns: undefined };

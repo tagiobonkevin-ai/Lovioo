@@ -341,7 +341,7 @@ export default function Onboarding() {
 
                 {id === "stores" && (
                   <div className="grid grid-cols-2 gap-2.5">
-                    {ALL_RETAILERS.map((r) => {
+                    {ALL_RETAILERS.filter((r) => r !== "official").map((r) => {
                       const on = platforms.includes(r);
                       return (
                         <button

@@ -80,4 +80,4 @@ export function writeDemoAbout(a: AboutYou) {
 }
 
 /** Pages a signed-in user can open before finishing their profile. */
-export const PROFILE_FREE_PATHS = ["/onboarding", "/auth", "/admin", "/terms", "/privacy", "/affiliate-disclosure", "/cookies"];
+export const PROFILE_FREE_PATHS = ["/onboarding", "/auth", "/admin", "/partner", "/terms", "/privacy", "/affiliate-disclosure", "/cookies"];
