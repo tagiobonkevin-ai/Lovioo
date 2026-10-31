@@ -55,7 +55,9 @@ export default function PrivacyPage() {
               <LegalNote>
                 Lovioo stores your account email and name, your birthday (to confirm you&apos;re 18 or over), and, if you add them, your gender, city and
                 province. If you sign up with Google, we also keep your Google name and profile photo. We store your saved products, price alerts, swipes and
-                preferences, your consent choices, and feedback you send. Product views and store clicks are counted only if you allow analytics. Lovioo never asks for card details or store passwords.
+                preferences, your consent choices, and feedback you send. We also count product views, store clicks, searches and questions asked to Lovioo AI, to
+                see what shoppers look for. These are not linked to you unless you allow analytics; if you do, they are linked to your account so Lovioo can
+                improve. Brand partners only ever see totals for their own products, never who you are. Lovioo never asks for card details or store passwords.
               </LegalNote>
             </>
           ),
@@ -145,8 +147,9 @@ export default function PrivacyPage() {
               <p>Avoid entering passwords, payment details or unnecessary sensitive personal information into AI prompts.</p>
               <p>AI-generated recommendations can be inaccurate or outdated and may be affected by product availability and commercial relationships.</p>
               <LegalNote>
-                Lovioo AI currently runs on your device using Lovioo&apos;s own rules and catalogue. Your questions are not sent to Lovioo or to any AI
-                provider, and conversations are not stored.
+                Lovioo AI currently runs on Lovioo&apos;s own rules and catalogue; your questions are not sent to any outside AI provider. Lovioo stores the
+                questions you type, with how many products matched, to improve answers and see what shoppers want. They are not linked to you unless you
+                allow analytics, and are deleted after 12 months. Please don&apos;t type personal details into Lovioo AI.
               </LegalNote>
             </>
           ),
@@ -166,7 +169,8 @@ export default function PrivacyPage() {
                 consent has been obtained. Users should have an accessible way to review or change applicable choices.
               </p>
               <LegalNote>
-                Analytics start only after you choose <b>Allow</b>, and you can change this any time with <b>Privacy choices</b> at the bottom of every page.
+                Lovioo counts product views, store clicks, searches and Lovioo AI questions without linking them to you. Choosing <b>Allow</b> links them
+                to your account and turns on Vercel Web Analytics; you can change this any time with <b>Privacy choices</b> at the bottom of every page.
                 Details are in the <Link href="/cookies">Cookie &amp; Tracking Notice</Link>.
               </LegalNote>
             </>
@@ -245,6 +249,7 @@ export default function PrivacyPage() {
                 Information will be retained only for as long as reasonably necessary for its declared purpose, subject to legal obligations and legitimate
                 claims.
               </p>
+              <LegalNote>Searches and questions asked to Lovioo AI are kept for 12 months, then deleted.</LegalNote>
               <LegalNote kind="review">
                 Before launch, Lovioo must establish retention rules for account data, wishlists, AI conversations, alert records, analytics events, tracking
                 identifiers, security logs and consent records.

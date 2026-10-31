@@ -12,6 +12,8 @@ import { AI_LANGS, AI_STRINGS } from "@/lib/ai-i18n";
 import { PRODUCTS, isPriced, productById } from "@/lib/data/products";
 import { getInsight } from "@/lib/insights";
 import { useLovioo } from "@/lib/store";
+import { getSupabase } from "@/lib/supabase/client";
+import { trackAi } from "@/lib/sync";
 import type { Product } from "@/lib/types";
 import { cn, peso } from "@/lib/utils";
 
@@ -98,6 +100,7 @@ export function AiChat({ compact = false, initialQuery }: { compact?: boolean; i
           : (saved.map(productById).filter(Boolean) as Product[]);
         reply = buyOrWait(ctx, lang);
       } else reply = askLovioo(q, name, lang);
+      trackAi(getSupabase(), q, lang, reply.products.length, "app");
       if (reply.products.length) lastProducts.current = reply.products;
       setMsgs((m) => [...m, { id: Date.now() + 1, role: "ai", ...reply }]);
       setTyping(false);
