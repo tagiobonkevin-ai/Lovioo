@@ -1,10 +1,11 @@
 "use client";
 
-import { Bell, BellRing, Check, GitCompareArrows, Heart, Share2, Star } from "lucide-react";
+import { ArrowLeft, Bell, BellRing, Check, GitCompareArrows, Heart, Share2, ShoppingBag, Star } from "lucide-react";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { DiscountBadge } from "@/components/product/DealScore";
+import { HeartButton } from "@/components/product/HeartButton";
 import { InsightCard } from "@/components/product/InsightCard";
 import { OfferTable } from "@/components/product/OfferTable";
 import { PriceHistoryChart } from "@/components/product/PriceHistoryChart";
@@ -46,6 +47,9 @@ function ProductView({ product }: { product: Product }) {
   const hasAlert = hydrated && !!alert;
   const priced = isPriced(product);
   const tabs = priced ? TABS : TABS.filter((t) => t !== "Price history");
+  const router = useRouter();
+  const [more, setMore] = useState(false);
+  const shop = offerHref(best.retailer, best.url, product.name);
 
   useEffect(() => trackEvent(getSupabase(), product.id, "view"), [product.id]);
 
@@ -70,17 +74,31 @@ function ProductView({ product }: { product: Product }) {
         <span className="text-ink/70">{product.name}</span>
       </nav>
 
-      <div className="grid gap-8 lg:grid-cols-2">
-        <ProductGallery
-          product={product}
-          badge={
-            product.trending ? (
-              <span className="pointer-events-none absolute left-4 top-4 rounded-full bg-white/90 px-3 py-1 text-xs font-semibold text-coral">🔥 Trending</span>
-            ) : null
-          }
-        />
+      <div className="grid gap-6 lg:grid-cols-2 lg:gap-8">
+        {/* The photo on a soft pink glow, with back and save buttons floating over it. */}
+        <div className="relative min-w-0 rounded-[2.25rem] bg-gradient-to-b from-pink-soft via-[#FFF3F8] to-white p-3 sm:p-4">
+          <div className="pointer-events-none absolute inset-x-10 top-10 h-2/3 rounded-full bg-pink/20 blur-3xl" aria-hidden />
+          <ProductGallery
+            product={product}
+            badge={
+              <>
+                <button
+                  onClick={() => (window.history.length > 1 ? router.back() : router.push("/discover"))}
+                  aria-label="Back"
+                  className="absolute left-3 top-3 grid h-11 w-11 place-items-center rounded-full bg-white/85 text-ink shadow-sm backdrop-blur transition hover:bg-white"
+                >
+                  <ArrowLeft className="h-5 w-5" />
+                </button>
+                <HeartButton productId={product.id} size="lg" className="absolute right-3 top-3 !bg-white/85" />
+                {product.trending && (
+                  <span className="pointer-events-none absolute bottom-4 left-4 rounded-full bg-white/90 px-3 py-1 text-xs font-bold text-coral">🔥 Trending</span>
+                )}
+              </>
+            }
+          />
+        </div>
 
-        <div className="min-w-0">
+        <div className="min-w-0 self-start rounded-[2rem] bg-white p-5 shadow-[0_24px_60px_-34px_rgba(17,17,17,0.4)] ring-1 ring-ink/[0.06] sm:p-7">
           {brandOf(product) ? (
             <Link href={`/brand/${brandOf(product)!.id}`} className="text-sm font-semibold text-pink hover:underline">
               {product.brand} · see all {product.brand} products →
@@ -88,7 +106,7 @@ function ProductView({ product }: { product: Product }) {
           ) : (
             <p className="text-sm font-medium text-ink/50">{product.brand}</p>
           )}
-          <h1 className="mt-1 text-[22px] leading-snug [overflow-wrap:anywhere] sm:text-[28px]">{product.name}</h1>
+          <h1 className="mt-1 text-[24px] leading-[1.3] [overflow-wrap:anywhere] sm:text-[30px]">{product.name}</h1>
           {product.reviewCount > 0 && (
             <div className="mt-2 flex items-center gap-2 text-sm">
               <span className="flex">
@@ -102,7 +120,7 @@ function ProductView({ product }: { product: Product }) {
           )}
           <div className="mt-3 flex flex-wrap gap-1.5">
             {product.tags.map((t) => (
-              <span key={t} className="rounded-full bg-lavender px-2.5 py-1 text-[11px] font-medium capitalize text-ink/70">
+              <span key={t} className="rounded-full bg-surface px-2.5 py-1 text-[11px] font-semibold capitalize text-ink/65">
                 {t}
               </span>
             ))}
@@ -160,14 +178,36 @@ function ProductView({ product }: { product: Product }) {
             </button>
           </div>
 
+          {priced && (
+            <a
+              href={shop.href}
+              target="_blank"
+              rel="noopener noreferrer sponsored"
+              onClick={() => trackEvent(getSupabase(), product.id, "click_out", best.retailer)}
+              className="btn-primary mt-4 hidden w-full !py-3 text-[15px] lg:inline-flex"
+            >
+              <ShoppingBag className="h-4 w-4" /> Shop on {retailerById(best.retailer).name}
+            </a>
+          )}
+
           <div className="mt-6">
             <InsightCard product={product} />
           </div>
-          <p className="mt-5 text-sm leading-relaxed text-ink/70">{product.description}</p>
+          {product.description && (
+            <div className="mt-5 rounded-[1.5rem] bg-pink-soft p-4">
+              <h2 className="text-[18px] leading-snug">Description</h2>
+              <p className={cn("mt-1.5 whitespace-pre-line text-sm leading-relaxed text-ink/70", !more && "line-clamp-4")}>{product.description}</p>
+              {product.description.length > 220 && (
+                <button onClick={() => setMore((m) => !m)} className="mt-1 text-sm font-bold text-pink">
+                  {more ? "Show less" : "Read more"}
+                </button>
+              )}
+            </div>
+          )}
         </div>
       </div>
 
-      <section id="offers" className="card scroll-mt-20 p-5 sm:p-6">
+      <section id="offers" className="scroll-mt-20 rounded-[2rem] bg-white p-5 shadow-[0_24px_60px_-38px_rgba(17,17,17,0.35)] ring-1 ring-ink/[0.06] sm:p-6">
         <div className="no-scrollbar flex gap-6 overflow-x-auto border-b border-ink/15">
           {tabs.map((t) => (
             <button key={t} onClick={() => setTab(t)} className={cn("-mb-px shrink-0 border-b-2 pb-3 text-sm font-semibold transition", tab === t ? "border-pink text-pink" : "border-transparent text-ink/50")}>
@@ -227,10 +267,10 @@ function StickyBuyBar({ product, priced, onCompare }: { product: ReturnType<type
   const best = bestOffer(product);
   const link = offerHref(best.retailer, best.url, product.name);
   return (
-    <div className="fixed inset-x-3 bottom-[calc(4.75rem+env(safe-area-inset-bottom))] z-30 flex items-center gap-3 rounded-2xl bg-midnight/95 p-2.5 pl-4 text-white shadow-soft backdrop-blur lg:hidden">
+    <div className="fixed inset-x-3 bottom-[calc(4.75rem+env(safe-area-inset-bottom))] z-30 flex items-center gap-3 rounded-[1.75rem] bg-white/80 p-2 pl-5 text-ink shadow-[0_18px_40px_-16px_rgba(255,79,184,0.45)] ring-1 ring-pink/15 backdrop-blur-xl lg:hidden">
       <span className="min-w-0 flex-1">
-        <span className="block text-[11px] text-white/60">{priced ? `Best price on ${retailerById(best.retailer).name}` : `${product.offers.length} stores`}</span>
-        <span className="block truncate text-base font-extrabold">{priced ? peso(best.price) : "See live prices"}</span>
+        <span className="block text-[11px] font-semibold text-ink/50">{priced ? `Best price · ${retailerById(best.retailer).name}` : `${product.offers.length} stores`}</span>
+        <span className="block truncate text-[20px] font-extrabold leading-tight">{priced ? peso(best.price) : "See live prices"}</span>
       </span>
       {priced ? (
         <a
@@ -238,9 +278,10 @@ function StickyBuyBar({ product, priced, onCompare }: { product: ReturnType<type
           target="_blank"
           rel="noopener noreferrer sponsored"
           onClick={() => trackEvent(getSupabase(), product.id, "click_out", best.retailer)}
-          className="btn-gradient !px-4 !py-2.5"
+          aria-label={`Shop on ${retailerById(best.retailer).name}`}
+          className="inline-flex h-14 items-center gap-2 rounded-[1.25rem] bg-pink px-5 text-[15px] font-bold text-white shadow-pop"
         >
-          Shop now
+          <ShoppingBag className="h-5 w-5" /> Shop
         </a>
       ) : (
         <button
@@ -248,7 +289,7 @@ function StickyBuyBar({ product, priced, onCompare }: { product: ReturnType<type
             onCompare();
             document.getElementById("offers")?.scrollIntoView({ behavior: "smooth", block: "start" });
           }}
-          className="btn-gradient !px-4 !py-2.5"
+          className="inline-flex h-14 items-center gap-2 rounded-[1.25rem] bg-pink px-5 text-[15px] font-bold text-white shadow-pop"
         >
           Where to buy
         </button>

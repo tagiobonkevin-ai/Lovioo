@@ -146,3 +146,40 @@ export const crushBySlug = (slug: string) => CRUSHES.find((c) => c.slug === slug
 
 /** The products in a collection right now, from the loaded catalogue. */
 export const crushProducts = (crush: Crush, ctx?: CrushContext, products: Product[] = PRODUCTS) => crush.pick([...products], ctx);
+
+/** One product as a story slide carries it: just what the slide shows. */
+export interface StoryProduct {
+  id: string;
+  slug: string;
+  name: string;
+  brand: string;
+  image: string;
+  emoji: string;
+  /** Only when the price is verified. */
+  price?: number;
+}
+
+export interface CrushStory {
+  slug: string;
+  title: string;
+  tagline: string;
+  emoji: string;
+  products: StoryProduct[];
+}
+
+const STORY_ORDER = ["trend-crush", "daily-crush", "brand-crush", "budget-crush", "style-crush", "tech-crush", "hidden-crush"];
+
+/** Crush Stories: one story per editorial collection that has products, up to five product slides each. */
+export function crushStories(products: Product[] = PRODUCTS): CrushStory[] {
+  return STORY_ORDER.map((slug) => crushBySlug(slug)!)
+    .map((c) => ({
+      slug: c.slug,
+      title: c.title,
+      tagline: c.tagline,
+      emoji: c.emoji,
+      products: crushProducts(c, undefined, products)
+        .slice(0, 5)
+        .map((p) => ({ id: p.id, slug: p.slug, name: p.name, brand: p.brand, image: p.image, emoji: p.emoji, price: isPriced(p) ? lowestPrice(p) : undefined })),
+    }))
+    .filter((s) => s.products.length > 0);
+}

@@ -5,6 +5,7 @@ import { AppHeader } from "@/components/layout/AppHeader";
 import { MobileTabBar } from "@/components/layout/MobileTabBar";
 import { LegalFooter } from "@/components/legal/LegalLinks";
 import { CompareTray } from "@/components/product/CompareTray";
+import { WelcomeTour } from "@/components/onboarding/WelcomeTour";
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -18,6 +19,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       <AiFab />
       <FeedbackButton />
       <MobileTabBar />
+      <WelcomeTour />
     </div>
   );
 }
