@@ -1,4 +1,5 @@
 import { brandOf } from "@/lib/data/brands";
+import { COLLECTIONS, collectionById, resolveCollections, type Collection, type ResolvedCollection } from "@/lib/data/collections";
 import { PRODUCTS, isPriced, lowestPrice } from "@/lib/data/products";
 import { getInsight } from "@/lib/insights";
 import { scoreProducts } from "@/lib/recommend";
@@ -142,7 +143,34 @@ export const CRUSHES: Crush[] = [
   },
 ];
 
-export const crushBySlug = (slug: string) => CRUSHES.find((c) => c.slug === slug);
+/** A collection from Admin -> Collections as a Crush: its own wording, and its products in the admin's order. */
+export function collectionCrush(c: Collection): Crush {
+  return {
+    slug: c.id,
+    title: c.title,
+    tagline: c.tagline,
+    description: c.description || c.tagline,
+    emoji: c.emoji,
+    series: true,
+    pick: (ps) => {
+      const byId = new Map(ps.map((p) => [p.id, p]));
+      return c.productIds.map((id) => byId.get(id)).filter((p): p is Product => !!p);
+    },
+  };
+}
+
+/** Admin collections first (they can take over a built-in name such as "budget-crush"), then the automatic ones. */
+export const crushBySlug = (slug: string): Crush | undefined => {
+  const col = collectionById(slug);
+  return col ? collectionCrush(col) : CRUSHES.find((c) => c.slug === slug);
+};
+
+/** Every collection shoppers can browse: the admin's, then the automatic series they haven't replaced. */
+export const allCrushes = (): Crush[] => {
+  const curated = COLLECTIONS.map(collectionCrush);
+  const taken = new Set(curated.map((c) => c.slug));
+  return [...curated, ...CRUSHES.filter((c) => c.series && !taken.has(c.slug))];
+};
 
 /** The products in a collection right now, from the loaded catalogue. */
 export const crushProducts = (crush: Crush, ctx?: CrushContext, products: Product[] = PRODUCTS) => crush.pick([...products], ctx);
@@ -169,17 +197,23 @@ export interface CrushStory {
 
 const STORY_ORDER = ["trend-crush", "daily-crush", "brand-crush", "budget-crush", "style-crush", "tech-crush", "hidden-crush"];
 
-/** Crush Stories: one story per editorial collection that has products, up to five product slides each. */
-export function crushStories(products: Product[] = PRODUCTS): CrushStory[] {
-  return STORY_ORDER.map((slug) => crushBySlug(slug)!)
+const storyProduct = (p: Product): StoryProduct => ({ id: p.id, slug: p.slug, name: p.name, brand: p.brand, image: p.image, emoji: p.emoji, price: isPriced(p) ? lowestPrice(p) : undefined });
+
+/**
+ * Crush Stories: one story per collection the admin put "In Crush Stories" (in their order), up to five product
+ * slides each. With none switched on, the automatic collections fill in.
+ */
+export function crushStories(products: Product[] = PRODUCTS, curated: ResolvedCollection[] = resolveCollections()): CrushStory[] {
+  const chosen = curated.filter((c) => c.inStories && c.products.length);
+  if (chosen.length)
+    return chosen.map((c) => ({ slug: c.id, title: c.title, tagline: c.tagline, emoji: c.emoji, products: c.products.slice(0, 5).map(storyProduct) }));
+  return STORY_ORDER.map((slug) => CRUSHES.find((c) => c.slug === slug)!)
     .map((c) => ({
       slug: c.slug,
       title: c.title,
       tagline: c.tagline,
       emoji: c.emoji,
-      products: crushProducts(c, undefined, products)
-        .slice(0, 5)
-        .map((p) => ({ id: p.id, slug: p.slug, name: p.name, brand: p.brand, image: p.image, emoji: p.emoji, price: isPriced(p) ? lowestPrice(p) : undefined })),
+      products: crushProducts(c, undefined, products).slice(0, 5).map(storyProduct),
     }))
     .filter((s) => s.products.length > 0);
 }

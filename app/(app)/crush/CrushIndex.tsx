@@ -3,11 +3,11 @@
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { ProductImage } from "@/components/product/ProductImage";
-import { CRUSHES, crushProducts } from "@/lib/data/crush";
+import { allCrushes, crushProducts } from "@/lib/data/crush";
 
 /** All Brand Crush collections, each previewed with up to three of its real products. */
 export function CrushIndex() {
-  const series = CRUSHES.filter((c) => c.series);
+  const series = allCrushes();
   return (
     <div className="space-y-8">
       <header>

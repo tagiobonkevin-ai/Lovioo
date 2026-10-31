@@ -12,7 +12,7 @@ import { LegalLinks } from "@/components/legal/LegalLinks";
 import { HalloweenDecor, HalloweenNote } from "@/components/seasonal/Halloween";
 import { browseCategories, categoryArt } from "@/lib/data/categories";
 import { crushBySlug, crushProducts, crushStories } from "@/lib/data/crush";
-import { loadCatalog, loadDeals, loadTeaser } from "@/lib/data/load-catalog";
+import { loadCatalog, loadCollections, loadDeals, loadTeaser } from "@/lib/data/load-catalog";
 import { dealsAsProducts } from "@/lib/data/public-deals";
 import { isPriced, lowestPrice } from "@/lib/data/products";
 import { MAIN_RETAILERS, retailerById } from "@/lib/data/retailers";
@@ -102,17 +102,21 @@ const updated = (iso?: string) =>
  * live catalogue; sections without real data stay out of the way rather than show placeholders.
  */
 export default async function Landing() {
-  const [, deals] = await Promise.all([loadCatalog(), loadDeals()]);
+  const [, deals, curated] = await Promise.all([loadCatalog(), loadDeals(), loadCollections()]);
   // Guests see today's public deals (the full catalogue is for members); with no verified prices yet, names and photos.
   const teasers = deals.length ? [] : (await loadTeaser()).slice(0, 12);
   const products = dealsAsProducts(deals);
-  const trending = [...products].slice(0, 8);
+  // Admin -> Collections: the first published "Today's Finds" collection with products leads that section; without
+  // one, today's public deals fill it as before.
+  const todays = curated.find((c) => c.inTodaysFinds && c.products.length);
+  const trending = (todays?.products ?? products).slice(0, 8);
+  const brandRow = curated.filter((c) => c.inBrandCrush);
   const swipeItems: SwipeDemoItem[] = products
     .filter((p) => p.image?.trim())
     .slice(0, 8)
     .map((p) => ({ id: p.id, slug: p.slug, name: p.name, brand: p.brand, image: p.image, emoji: p.emoji, price: isPriced(p) ? lowestPrice(p) : undefined }));
   const compare = comparePick(products);
-  const stories = crushStories(products);
+  const stories = crushStories(products, curated);
   const categories = browseCategories((id) => products.some((p) => p.category === id));
 
   return (
@@ -195,23 +199,31 @@ export default async function Landing() {
           </Link>
         </div>
         <div className="no-scrollbar -mx-4 mt-10 flex snap-x scroll-px-4 gap-4 overflow-x-auto px-4 pb-2 lg:mx-0 lg:grid lg:grid-cols-3 lg:overflow-visible lg:px-0">
-          {CRUSH_ROW.map(({ slug, fallback }) => {
-            const c = crushBySlug(slug)!;
-            const picks = crushProducts(c, undefined, products);
-            const art = picks.find((p) => p.image)?.image || categoryArt(fallback)?.image;
+          {(brandRow.length
+            ? brandRow.map((c) => ({ slug: c.id, title: c.title, tagline: c.tagline, emoji: c.emoji, art: c.cover || c.products.find((p) => p.image)?.image }))
+            : CRUSH_ROW.map(({ slug, fallback }) => {
+                const c = crushBySlug(slug)!;
+                const art = crushProducts(c, undefined, products).find((p) => p.image)?.image || categoryArt(fallback)?.image;
+                return { slug, title: c.title, tagline: c.tagline, emoji: c.emoji, art };
+              })
+          ).map(({ slug, title, tagline, emoji, art }) => {
             return (
               <Link key={slug} href={`/crush/${slug}`} className="group relative block aspect-[4/5] w-[78vw] max-w-[320px] shrink-0 snap-start overflow-hidden rounded-[2rem] bg-pink-soft lg:aspect-[4/3] lg:w-auto lg:max-w-none">
-                {art && (
+                {art ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img src={art} alt="" loading="lazy" className="absolute inset-0 h-full w-full object-cover transition duration-700 group-hover:scale-[1.04]" />
+                ) : (
+                  <span className="absolute inset-0 grid place-items-center text-7xl" aria-hidden>
+                    {emoji}
+                  </span>
                 )}
                 <span className="absolute inset-0 bg-gradient-to-t from-ink/80 via-ink/15 to-transparent" aria-hidden />
                 <span className="absolute inset-x-0 bottom-0 p-6 text-white">
                   <span className="text-[11px] font-bold uppercase tracking-[0.16em] text-white/80">
                     Members&apos; collection
                   </span>
-                  <span className="mt-1 block font-display text-[26px] font-medium leading-tight">{c.title}</span>
-                  <span className="mt-1 block text-[14px] text-white/85">{c.tagline}</span>
+                  <span className="mt-1 block font-display text-[26px] font-medium leading-tight">{title}</span>
+                  <span className="mt-1 block text-[14px] text-white/85">{tagline}</span>
                 </span>
               </Link>
             );
@@ -271,11 +283,11 @@ export default async function Landing() {
           <div className={cn(section, "py-20 lg:py-28")}>
             <div className="grid items-center gap-10 lg:grid-cols-2">
               <div className="min-w-0">
-                <Eyebrow>Prices today</Eyebrow>
-                <Heading accent="Loving It Already.">Today&apos;s Finds.</Heading>
+                <Eyebrow>{todays ? todays.eyebrow || todays.title : "Prices today"}</Eyebrow>
+                <Heading accent={todays ? todays.tagline || undefined : "Loving It Already."}>{todays ? todays.title : "Today's Finds."}</Heading>
                 <p className="mt-4 max-w-[48ch] text-[16px] leading-relaxed text-ink/60">
-                  A taste of today&apos;s finds with verified prices. Join free to see the whole catalogue — trending picks, new arrivals and
-                  hidden gems.
+                  {todays?.description ||
+                    "A taste of today's finds with verified prices. Join free to see the whole catalogue — trending picks, new arrivals and hidden gems."}
                 </p>
                 <div className="mt-6 flex flex-wrap gap-2">
                   {TREND_CHIPS.map((c) => (

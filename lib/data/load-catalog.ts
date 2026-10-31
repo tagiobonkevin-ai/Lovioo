@@ -3,6 +3,7 @@ import { cache } from "react";
 import { createServerClient } from "@/lib/supabase/client";
 import { applyCatalog, demoCatalog, type Catalog } from "./catalog";
 import { fetchCatalog } from "./fetch-catalog";
+import { fetchPublicCollections, type ResolvedCollection } from "./collections";
 import { demoDeals, demoTeaser, fetchDeals, fetchTeaser, type Deal, type Teaser } from "./public-deals";
 
 /**
@@ -32,4 +33,10 @@ export const loadDeals = cache(async (): Promise<Deal[]> => {
 export const loadTeaser = cache(async (): Promise<Teaser[]> => {
   const sb = createServerClient();
   return sb ? fetchTeaser(sb) : demoTeaser(12);
+});
+
+/** The home page's curated collections (Admin -> Collections), with a preview of their products for guests. */
+export const loadCollections = cache(async (): Promise<ResolvedCollection[]> => {
+  const sb = createServerClient();
+  return sb ? fetchPublicCollections(sb) : [];
 });
