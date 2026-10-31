@@ -10,7 +10,7 @@ import { LifestyleMosaic, LifestyleRibbon } from "@/components/landing/Lifestyle
 import { PhotoCollage } from "@/components/landing/PhotoCollage";
 import { SwipeDemo, type SwipeDemoItem } from "@/components/landing/SwipeDemo";
 import { LegalLinks } from "@/components/legal/LegalLinks";
-import { HalloweenDecor, HalloweenNote } from "@/components/seasonal/Halloween";
+import { HalloweenDecor } from "@/components/seasonal/Halloween";
 import { browseCategories, categoryArt } from "@/lib/data/categories";
 import { crushBySlug, crushProducts, crushStories } from "@/lib/data/crush";
 import { loadCatalog, loadCollections, loadDeals, loadTeaser } from "@/lib/data/load-catalog";
@@ -128,12 +128,8 @@ export default async function Landing() {
         <section className={cn(section, "relative pb-10 pt-8 lg:pb-14 lg:pt-14")}>
           <HalloweenDecor />
           <div className="mx-auto max-w-[760px] text-center">
-            <HalloweenNote className="mb-3" />
-            <Eyebrow className="justify-center">Lovioo AI · your shopping discovery assistant</Eyebrow>
-            <h1 className="mt-4 font-display text-[42px] font-medium leading-[1.12] tracking-[-0.012em] sm:text-[56px] lg:text-[64px]">
-              Find Something <span className="block text-pink">You&apos;ll Love.</span>
-            </h1>
-            <p className="mx-auto mt-4 max-w-[46ch] text-[16px] leading-relaxed text-ink/65">
+            <h1 className="sr-only">Find Something You&apos;ll Love</h1>
+            <p className="mx-auto mt-0 max-w-[46ch] text-[16px] leading-relaxed text-ink/65">
               Shop every store in the Philippines through one chat. Tell Lovioo what you want, your budget and what you love — in English, Tagalog
               or Visayan.
             </p>
