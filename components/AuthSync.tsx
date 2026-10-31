@@ -29,7 +29,9 @@ export function AuthSync() {
         stopSync?.();
         activeUserId = null;
         resetConsentSession();
+        // Guests browse too: (re)load the public catalogue, which also drops a signed-out editor's drafts.
         clearMemberCatalog();
+        setTimeout(() => loadMemberCatalog(null), 0);
         useProfileStatus.setState({ needsProfile: false, avatarUrl: null, nameLocked: false, notify: NO_NOTIFY });
         // Also clears a leftover demo-mode login or an expired session; guests (no user) keep their data.
         if (useLovioo.getState().user) useLovioo.getState().signOut();
@@ -42,7 +44,7 @@ export function AuthSync() {
       useLovioo.getState().signIn({ id: u.id, email: u.email ?? "", name: meta.full_name || meta.name || (u.email ?? "").split("@")[0] });
       // Defer Supabase calls out of the auth callback, as supabase-js recommends.
       setTimeout(async () => {
-        // Products first: merging saves and alerts checks them against the (members-only) catalog.
+        // Products first: merging saves and alerts checks them against the catalogue.
         await loadMemberCatalog(u.id);
         if (activeUserId !== u.id) return;
         const res = await pullAndMerge(sb, u.id, onError);

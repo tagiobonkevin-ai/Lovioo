@@ -15,11 +15,11 @@ body {
   overscroll-behavior-y: none;
 }
 
-/* Headings: Manrope bold with tight tracking, per the brand sheet ("Swipe. Love. Shop."). */
+/* Headings: daydream's type — a Plantin-style serif at weight 500 with slightly tight tracking. */
 h1,
 h2,
 h3 {
-  @apply font-display font-bold tracking-[-0.02em];
+  @apply font-display font-medium tracking-[-0.012em];
 }
 
 /* Installed app: keep content clear of the notch / status bar. */

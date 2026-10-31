@@ -12,8 +12,8 @@ import { cn } from "@/lib/utils";
 const NAV = [
   { href: "/discover", label: "Discover" },
   { href: "/swipe", label: "Swipe", badge: "💘" },
+  { href: "/crush", label: "Brand Crush" },
   { href: "/brands", label: "Brands" },
-  { href: "/search", label: "Categories" },
   { href: "/search?sort=discount", label: "Deals" },
   { href: "/ai", label: "Lovioo AI" },
 ];
@@ -89,8 +89,8 @@ export function AppHeader() {
               {user.name[0]?.toUpperCase()}
             </Link>
           ) : (
-            <Link href="/auth" className="btn-primary hidden !py-2 sm:inline-flex">
-              Sign in
+            <Link href="/auth?next=/discover" className="btn-primary !min-h-0 !px-3.5 !py-2 text-xs sm:!px-5 sm:text-sm">
+              Join free
             </Link>
           )}
         </div>

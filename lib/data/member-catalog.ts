@@ -8,7 +8,7 @@ import { BRANDS, PRODUCTS } from "./products";
 
 type Status = "idle" | "loading" | "ready" | "error";
 
-/** Products and prices are members-only: loaded in the browser with the signed-in session. Demo mode has them built in. */
+/** Products and prices load in the browser, for guests and members alike (members get their drafts if they edit). Demo mode has them built in. */
 export const useMemberCatalog = create<{ status: Status; error: string | null }>(() => ({
   status: isSupabaseConfigured ? "idle" : "ready",
   error: null,
@@ -16,19 +16,20 @@ export const useMemberCatalog = create<{ status: Status; error: string | null }>
 
 let loadingFor: string | null = null;
 
-/** Loads products, offers and price stats for the signed-in user (once per sign-in; call again to retry). */
-export async function loadMemberCatalog(userId: string) {
+/** Loads products, offers and price stats for this visitor: `null` for a guest, else the user id (call again to retry). */
+export async function loadMemberCatalog(userId: string | null) {
   const sb = getSupabase();
   if (!sb) return;
-  loadingFor = userId;
+  const key = userId ?? "guest";
+  loadingFor = key;
   useMemberCatalog.setState({ status: "loading", error: null });
   try {
     const catalog = await fetchCatalog(sb, { products: true });
-    if (loadingFor !== userId) return;
+    if (loadingFor !== key) return;
     applyCatalog(catalog);
     useMemberCatalog.setState({ status: "ready" });
   } catch (e) {
-    if (loadingFor !== userId) return;
+    if (loadingFor !== key) return;
     useMemberCatalog.setState({ status: "error", error: e instanceof Error ? e.message : String(e) });
   }
 }

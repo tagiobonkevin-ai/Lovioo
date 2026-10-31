@@ -5,6 +5,8 @@ import { createJSONStorage, persist } from "zustand/middleware";
 import type { AiLang } from "@/lib/ai-i18n";
 import { isPriced, productById } from "@/lib/data/products";
 import { getInsight } from "@/lib/insights";
+import { askToSignUp } from "@/lib/signup-nudge";
+import { isSupabaseConfigured } from "@/lib/supabase/client";
 import type { PriceAlert, Preferences } from "@/lib/types";
 
 export interface User {
@@ -42,7 +44,8 @@ interface LoviooState {
   completeOnboarding: () => void;
   toggleSave: (id: string) => boolean;
   save: (id: string) => void;
-  setAlert: (id: string, targetPrice?: number) => void;
+  /** False when nothing was set: a "See prices" pick, or a guest (who is asked to create an account). */
+  setAlert: (id: string, targetPrice?: number) => boolean;
   toggleAlert: (id: string) => void;
   removeAlert: (id: string) => void;
   recordSwipe: (id: string, action: SwipeAction) => void;
@@ -56,6 +59,9 @@ interface LoviooState {
 }
 
 const todayKey = () => new Date().toISOString().slice(0, 10);
+
+/** A visitor without an account, when accounts exist (demo mode has no sign-in, so nobody counts as a guest). */
+const isGuest = (user: unknown) => isSupabaseConfigured && !user;
 
 export const useLovioo = create<LoviooState>()(
   persist(
@@ -78,21 +84,31 @@ export const useLovioo = create<LoviooState>()(
       setPrefs: (p) => set({ prefs: { ...get().prefs, ...p } }),
       completeOnboarding: () => set({ onboarded: true }),
 
+      // Guests save on this phone (merged into their account when they sign up) and are offered an account once.
       toggleSave: (id) => {
         const has = get().saved.includes(id);
         set({ saved: has ? get().saved.filter((x) => x !== id) : [id, ...get().saved] });
+        if (!has && isGuest(get().user)) askToSignUp("save");
         return !has;
       },
       save: (id) => {
-        if (!get().saved.includes(id)) set({ saved: [id, ...get().saved] });
+        if (get().saved.includes(id)) return;
+        set({ saved: [id, ...get().saved] });
+        if (isGuest(get().user)) askToSignUp("save");
       },
       setAlert: (id, targetPrice) => {
+        // Alerts are watched for an account, so a guest is asked to create one instead.
+        if (isGuest(get().user)) {
+          askToSignUp("alert");
+          return false;
+        }
         const p = productById(id);
         // "See prices" picks have no price to watch.
-        if (!p || !isPriced(p)) return;
+        if (!p || !isPriced(p)) return false;
         const target = targetPrice ?? Math.round(getInsight(p).lowest90);
         const rest = get().alerts.filter((a) => a.productId !== id);
         set({ alerts: [{ productId: id, targetPrice: target, enabled: true, createdAt: Date.now() }, ...rest] });
+        return true;
       },
       toggleAlert: (id) =>
         set({ alerts: get().alerts.map((a) => (a.productId === id ? { ...a, enabled: !a.enabled } : a)) }),

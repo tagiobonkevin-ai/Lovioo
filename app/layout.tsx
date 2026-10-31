@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { manrope } from "@/app/fonts";
+import { manrope, newsreader } from "@/app/fonts";
 import { Providers } from "@/components/Providers";
 import { ConsentedAnalytics } from "@/components/legal/ConsentSheet";
 import { SITE_URL } from "@/lib/site";
@@ -36,7 +36,7 @@ export const revalidate = 60;
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const catalog = await loadCatalog();
   return (
-    <html lang="en" className={manrope.variable}>
+    <html lang="en" className={cn(manrope.variable, newsreader.variable)}>
       <body className="font-sans">
         <Providers catalog={catalog.source === "supabase" ? catalog : null}>{children}</Providers>
         <ConsentedAnalytics />

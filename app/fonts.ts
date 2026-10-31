@@ -13,3 +13,16 @@ export const manrope = localFont({
   style: "normal",
   variable: "--font-manrope",
 });
+
+/**
+ * Newsreader, an old-style serif close to daydream's Plantin, for headlines at daydream's sizes and weight (500).
+ * Manrope stays the face for buttons, labels and body text.
+ */
+export const newsreader = localFont({
+  src: [
+    { path: "./_fonts/newsreader.woff2", weight: "400 500", style: "normal" },
+    { path: "./_fonts/newsreader-italic.woff2", weight: "400 500", style: "italic" },
+  ],
+  variable: "--font-newsreader",
+  adjustFontFallback: "Times New Roman",
+});

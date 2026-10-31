@@ -65,7 +65,7 @@ export default function NewPasswordPage() {
 
         <main className="flex flex-1 flex-col justify-center py-8">
           <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-ink/40">Password help</p>
-          <h1 className="mt-2 font-display text-[34px] font-extrabold leading-[1.15] tracking-[-0.025em] text-ink sm:text-[42px] sm:leading-[1.43]">
+          <h1 className="mt-2 font-display text-[34px] font-medium leading-[1.35] tracking-[-0.012em] text-ink sm:text-[42px] sm:leading-[1.43]">
             Choose a new <em className="text-ink/55">password.</em>
           </h1>
 

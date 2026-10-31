@@ -12,6 +12,7 @@ import { applyCatalog, type Catalog } from "@/lib/data/catalog";
 import { useLovioo } from "@/lib/store";
 import { cn } from "@/lib/utils";
 import { AuthSync } from "./AuthSync";
+import { SignupNudge } from "./auth/SignupNudge";
 import { InstallPrompt } from "./InstallPrompt";
 
 interface Toast {
@@ -53,6 +54,7 @@ export function Providers({ children, catalog }: { children: React.ReactNode; ca
     <>
       {children}
       <AuthSync />
+      <SignupNudge />
       <BottomPrompts />
       <ConsentSheet />
       <ProfileGate />

@@ -22,6 +22,7 @@ const SORTS = [
   { id: "price-desc", label: "Price: high to low", needsPrice: true },
   { id: "rating", label: "Top rated" },
   { id: "trending", label: "Trending" },
+  { id: "new", label: "New arrivals" },
 ];
 const PRICE_BANDS = [
   { label: "Under ₱500", min: 0, max: 500 },
@@ -98,6 +99,7 @@ function SearchInner() {
       "price-desc": (a, b) => Number(isPriced(b)) - Number(isPriced(a)) || lowestPrice(b) - lowestPrice(a),
       rating: (a, b) => b.rating - a.rating,
       trending: (a, b) => Number(!!b.trending) - Number(!!a.trending) || getInsight(b).dealScore - getInsight(a).dealScore,
+      new: (a, b) => Number(!!b.isNew) - Number(!!a.isNew) || getInsight(b).dealScore - getInsight(a).dealScore,
     };
     return list.sort(by[sort] ?? by.relevant);
   }, [q, f, sort]);
@@ -198,7 +200,7 @@ function SearchInner() {
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
               <h1 className="text-[26px] leading-[1.4]">{title}</h1>
-              <p className="text-sm text-ink/50">{results.length} results</p>
+              <p className="text-sm text-ink/50">{results.length} {results.length === 1 ? "result" : "results"}</p>
             </div>
             <div className="flex items-center gap-2">
               <button onClick={() => setDrawer(true)} className="btn-ghost !py-2 lg:hidden">

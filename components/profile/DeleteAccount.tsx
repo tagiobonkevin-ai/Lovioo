@@ -46,7 +46,7 @@ export function DeleteAccount() {
   if (!open)
     return (
       <section className="card p-6">
-        <h2 className="font-bold">Close your account</h2>
+        <h2 className="text-[18px] font-medium">Close your account</h2>
         <p className="mt-1 text-sm text-ink/60">
           Delete your Lovioo account and everything in it, for good. You can also email us and we&apos;ll do it for you.
         </p>
@@ -66,7 +66,7 @@ export function DeleteAccount() {
           <AlertTriangle className="h-5 w-5" />
         </span>
         <div className="min-w-0">
-          <h2 className="font-bold">Delete your account for good?</h2>
+          <h2 className="text-[18px] font-medium">Delete your account for good?</h2>
           <p className="mt-1 text-sm text-ink/60">This can&apos;t be undone. These all go with it:</p>
         </div>
       </div>

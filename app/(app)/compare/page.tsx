@@ -26,7 +26,7 @@ function CompareInner() {
     return (
       <div className="card mx-auto max-w-md p-10 text-center">
         <span className="text-5xl">⚖️</span>
-        <h1 className="mt-3 text-xl font-bold">Nothing to compare yet</h1>
+        <h1 className="mt-3 text-[22px] font-medium">Nothing to compare yet</h1>
         <p className="mt-1 text-sm text-ink/60">Tap “Compare” on up to 3 products and they&apos;ll line up here side by side.</p>
         <Link href="/search" className="btn-primary mt-5">
           Browse products

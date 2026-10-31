@@ -53,7 +53,7 @@ export function PrivacyChoices() {
           <ShieldCheck className="h-5 w-5" />
         </span>
         <div>
-          <h2 className="font-bold">Privacy choices</h2>
+          <h2 className="text-[18px] font-medium">Privacy choices</h2>
           <p className="text-xs text-ink/50">Change these any time. Saved to your account.</p>
         </div>
       </div>

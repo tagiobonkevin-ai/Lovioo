@@ -19,7 +19,7 @@ import { getSupabase, isAuthProviderEnabled, isSupabaseConfigured } from "@/lib/
 import { cn } from "@/lib/utils";
 
 // Same type system as the front page: Newsreader headings, Inter for the small print.
-const h = "font-display font-extrabold tracking-[-0.025em]";
+const h = "font-display font-medium tracking-[-0.012em]";
 const field =
   "h-12 w-full border-b border-ink/15 bg-transparent pl-8 pr-4 text-[15px] text-ink outline-none transition placeholder:text-ink/35 focus:border-ink/50";
 
