@@ -41,7 +41,7 @@ const SCREENS = [
 
 /**
  * Three welcome screens for a first-time visitor: deep pink, one big product photo with floating feature pills, and
- * Skip / back / next. Shown once per device, to guests only (new accounts get the questionnaire instead).
+ * Skip / back / next. Shown once per device, the first time a signed-in shopper opens the app.
  */
 export function WelcomeTour() {
   const hydrated = useHydrated();
@@ -51,7 +51,7 @@ export function WelcomeTour() {
   const [at, setAt] = useState(0);
 
   useEffect(() => {
-    if (!hydrated || user || !ready) return;
+    if (!hydrated || !user || !ready) return;
     try {
       if (!localStorage.getItem(SEEN_KEY)) setOpen(true);
     } catch {

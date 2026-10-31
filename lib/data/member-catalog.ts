@@ -8,7 +8,7 @@ import { BRANDS, PRODUCTS } from "./products";
 
 type Status = "idle" | "loading" | "ready" | "error";
 
-/** Products and prices load in the browser, for guests and members alike (members get their drafts if they edit). Demo mode has them built in. */
+/** Products and prices are members-only: loaded in the browser with the signed-in session. Demo mode has them built in. */
 export const useMemberCatalog = create<{ status: Status; error: string | null }>(() => ({
   status: isSupabaseConfigured ? "idle" : "ready",
   error: null,

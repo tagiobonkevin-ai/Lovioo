@@ -4,6 +4,7 @@ import { AnimatePresence, motion, type PanInfo } from "framer-motion";
 import { Heart, RotateCcw, X } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
+import { saveOrJoin } from "@/lib/signup-nudge";
 import { useLovioo } from "@/lib/store";
 import { peso } from "@/lib/utils";
 
@@ -19,19 +20,20 @@ export interface SwipeDemoItem {
 }
 
 /**
- * A small, playable taste of Swipe on the home page, built from real products: drag or tap ✕ / ♥. A love saves the
- * product like the real deck does (guests save on this phone and are offered an account).
+ * A small, playable taste of Swipe on the home page, built from today's public deals: drag or tap ✕ / ♥. A love
+ * invites a guest to join, where the real deck saves it.
  */
 export function SwipeDemo({ items }: { items: SwipeDemoItem[] }) {
   const [index, setIndex] = useState(0);
   const [exit, setExit] = useState(0);
   const save = useLovioo((s) => s.save);
+  const signedIn = useLovioo((s) => !!s.user);
   const current = items[index];
   const next = items[index + 1];
 
   const decide = (love: boolean) => {
     if (!current) return;
-    if (love) save(current.id);
+    if (love) saveOrJoin(current.id, save, signedIn);
     setExit(love ? 1 : -1);
     setIndex((i) => i + 1);
   };

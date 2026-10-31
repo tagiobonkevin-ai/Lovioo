@@ -2,39 +2,43 @@
 
 import { Heart, RotateCw } from "lucide-react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 import { LogoMark } from "@/components/brand/Logo";
 import { useHydrated } from "@/components/Providers";
 import { loadMemberCatalog, useMemberCatalog } from "@/lib/data/member-catalog";
 import { useLovioo } from "@/lib/store";
 
-/** Pages that hold a person's own data; everything else (Discover, Swipe, Search, products, Brand Crush) is open. */
-const PERSONAL = ["/saved", "/profile"];
-
 /**
- * Loads the catalogue for every visitor and shows a loader until it has arrived. Guests can browse, swipe and save
- * on this phone; only the personal pages ask for an account. The database (RLS) decides what each visitor may read.
+ * The full catalogue is for members: a guest is sent to sign-up and comes back here afterwards; members see a loader
+ * until their catalogue has arrived. The database (RLS) only sends products to signed-in accounts, so this is the
+ * experience, not the lock.
  */
 export function MembersOnly({ children }: { children: React.ReactNode }) {
   const hydrated = useHydrated();
   const user = useLovioo((s) => s.user);
   const { status, error } = useMemberCatalog();
   const pathname = usePathname();
-  const personal = PERSONAL.some((p) => pathname === p || pathname.startsWith(p + "/"));
+  const router = useRouter();
+  const [authHref, setAuthHref] = useState("/auth");
 
-  if (hydrated && !user && personal)
+  useEffect(() => {
+    if (!hydrated || user) return;
+    const href = `/auth?next=${encodeURIComponent(pathname + window.location.search)}`;
+    setAuthHref(href);
+    router.replace(href);
+  }, [hydrated, user, pathname, router]);
+
+  if (hydrated && !user)
     return (
       <Gate>
         <span className="grid h-12 w-12 place-items-center rounded-full bg-pink-soft text-pink">
           <Heart className="h-5 w-5" aria-hidden />
         </span>
-        <h1 className="mt-4 text-[22px] leading-snug">{pathname.startsWith("/saved") ? "Your wishlist lives in your account" : "Your profile needs an account"}</h1>
-        <p className="mt-1 max-w-xs text-sm text-ink/60">Create a free account to save your favourites, get price alerts and pick up where you left off on any device.</p>
-        <Link href={`/auth?next=${encodeURIComponent(pathname)}`} className="btn-primary mt-5">
+        <h1 className="mt-4 text-[22px] leading-snug">Join free to see every product</h1>
+        <p className="mt-1 max-w-xs text-sm text-ink/60">Products, prices, Swipe and your wishlist are for Lovioo members. It takes a minute.</p>
+        <Link href={authHref} className="btn-primary mt-5">
           Create free account
-        </Link>
-        <Link href="/discover" className="mt-3 text-sm font-semibold text-pink">
-          Keep discovering
         </Link>
       </Gate>
     );
@@ -44,7 +48,7 @@ export function MembersOnly({ children }: { children: React.ReactNode }) {
       <Gate>
         <h1 className="text-[18px] leading-[1.5]">Couldn&apos;t load products</h1>
         <p className="mt-1 max-w-xs text-sm text-ink/60">{error}</p>
-        <button onClick={() => loadMemberCatalog(user?.id ?? null)} className="btn-primary mt-5 inline-flex items-center gap-2">
+        <button onClick={() => user?.id && loadMemberCatalog(user.id)} className="btn-primary mt-5 inline-flex items-center gap-2">
           <RotateCw className="h-4 w-4" /> Try again
         </button>
       </Gate>
