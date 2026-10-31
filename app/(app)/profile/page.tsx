@@ -1,6 +1,6 @@
 "use client";
 
-import { BarChart3, Bell, ChevronRight, HelpCircle, LogOut, Shield, ShoppingBag, Sparkles, Store, UserRound } from "lucide-react";
+import { BarChart3, Bell, ChevronRight, Handshake, HelpCircle, LogOut, Shield, ShoppingBag, Sparkles, Store, UserRound } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -24,6 +24,7 @@ export default function ProfilePage() {
   const { user, prefs, saved, alerts, swipes, streak, setPrefs, signOut } = useLovioo();
   const notify = useProfileStatus((s) => s.notify);
   const [isStaff, setIsStaff] = useState(false);
+  const [isPartner, setIsPartner] = useState(false);
   const avatarUrl = useProfileStatus((s) => s.avatarUrl);
   const [photoFailed, setPhotoFailed] = useState(false);
 
@@ -31,6 +32,7 @@ export default function ProfilePage() {
     const sb = getSupabase();
     if (!sb || !user?.id) return;
     sb.rpc("current_app_role").then(({ data }) => setIsStaff(!!data && data !== "customer"));
+    sb.rpc("my_partner_brands").then(({ data }) => setIsPartner(!!data?.length));
   }, [user?.id]);
 
   /** Flip one switch: show it at once, save it, and put it back if the save fails. */
@@ -115,7 +117,7 @@ export default function ProfilePage() {
 
       <Section icon={Store} title="Favourite retailers" sub="We'll highlight offers from these stores">
         <div className="flex flex-wrap gap-2">
-          {ALL_RETAILERS.map((r) => (
+          {ALL_RETAILERS.filter((r) => r !== "official").map((r) => (
             <button key={r} onClick={() => togglePlatform(r)} className={cn("chip", prefs.platforms.includes(r) && "chip-active")}>
               <RetailerBadge id={r} size="xs" /> {retailerById(r).name}
             </button>
@@ -152,6 +154,7 @@ export default function ProfilePage() {
       <div className="card divide-y divide-ink/10/70">
         {[
           ...(isStaff ? [{ icon: BarChart3, label: "Open Lovioo Business", href: "/admin" }] : []),
+          ...(isPartner ? [{ icon: Handshake, label: "Open Brand Partner portal", href: "/partner" }] : []),
           { icon: Sparkles, label: "Redo onboarding", href: "/onboarding" },
           { icon: Shield, label: "Privacy Policy", href: "/privacy" },
           { icon: HelpCircle, label: "Terms & Conditions", href: "/terms" },

@@ -42,6 +42,11 @@ export default function ReviewQueue() {
   );
   const team = useAdminQuery((sb) => sb.rpc("list_team"));
   const who = (id: string | null) => team.data?.find((u) => u.id === id)?.email ?? "an editor";
+  // Brand Partner submissions are labelled so they get a closer look (claims, prices and links).
+  const partners = useAdminQuery((sb) => sb.from("brand_members").select("user_id, brand_id"));
+  const partnerOf = (id: string | null) => partners.data?.find((m) => m.user_id === id)?.brand_id;
+  const PartnerTag = ({ id }: { id: string | null }) =>
+    partnerOf(id) ? <span className="ml-1 rounded-full bg-pink/10 px-2 py-0.5 text-[10px] font-bold text-pink">Brand Partner</span> : null;
 
   const [notes, setNotes] = useState<Record<number, string>>({});
   const [sendingBack, setSendingBack] = useState<number | null>(null);
@@ -108,7 +113,7 @@ export default function ReviewQueue() {
                         <p className="truncate font-bold">{p.name}</p>
                         <p className="text-xs text-ink/50">
                           {p.brand} · {p.offers.length} store
-                          {p.offers.length === 1 ? "" : "s"} · submitted by {who(p.review_requested_by)}
+                          {p.offers.length === 1 ? "" : "s"} · submitted by {who(p.review_requested_by)} <PartnerTag id={p.review_requested_by} />
                           {p.review_requested_at ? ` · ${shortDate(p.review_requested_at)}` : ""}
                         </p>
                         {p.offers.length === 0 && <p className="mt-1 text-xs font-medium text-coral">Needs at least one store before it can go live.</p>}
@@ -141,7 +146,7 @@ export default function ReviewQueue() {
                           <div className="min-w-0 flex-1">
                             <p className="truncate font-bold">{p?.name ?? r.product_id}</p>
                             <p className="text-xs text-ink/50">
-                              {r.requested_by_email ?? "An editor"} · {shortDate(r.created_at)} · {changeLabels(c, storeName).join(", ")}
+                              {r.requested_by_email ?? "An editor"} <PartnerTag id={r.requested_by} /> · {shortDate(r.created_at)} · {changeLabels(c, storeName).join(", ")}
                             </p>
                             {r.note && <p className="mt-2 rounded-xl bg-lavender px-3 py-2 text-xs text-ink/80">“{r.note}”</p>}
                           </div>

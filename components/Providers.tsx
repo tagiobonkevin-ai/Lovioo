@@ -14,6 +14,7 @@ import { cn } from "@/lib/utils";
 import { AuthSync } from "./AuthSync";
 import { SignupNudge } from "./auth/SignupNudge";
 import { InstallPrompt } from "./InstallPrompt";
+import { ReferralCapture } from "./ReferralCapture";
 
 interface Toast {
   id: number;
@@ -54,6 +55,7 @@ export function Providers({ children, catalog }: { children: React.ReactNode; ca
     <>
       {children}
       <AuthSync />
+      <ReferralCapture />
       <SignupNudge />
       <BottomPrompts />
       <ConsentSheet />
