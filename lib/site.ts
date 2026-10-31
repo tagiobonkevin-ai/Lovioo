@@ -1,5 +1,5 @@
-/** Public site settings in one place. Change these when the custom domain and support inbox are ready. */
-export const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL || "https://lovioo-kevin-2313.vercel.app").replace(/\/$/, "");
+/** Public site settings in one place. The support inbox can be changed with NEXT_PUBLIC_CONTACT_EMAIL. */
+export const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL || "https://lovioo.shop").replace(/\/$/, "");
 export const CONTACT_EMAIL = process.env.NEXT_PUBLIC_CONTACT_EMAIL || "kevin@cleons.net";
 export const LEGAL_UPDATED = "October 25, 2026";
 
