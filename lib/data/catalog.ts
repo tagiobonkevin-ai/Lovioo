@@ -2,6 +2,7 @@ import type { Database } from "@/lib/supabase/database.types";
 import type { Offer, Product } from "@/lib/types";
 import { BRAND_LIST, type Brand } from "./brands";
 import { CATEGORIES, type Category } from "./categories";
+import { COLLECTIONS, type Collection } from "./collections";
 import { BRANDS, PRODUCTS } from "./products";
 import { ALL_RETAILERS, RETAILERS, type Retailer } from "./retailers";
 
@@ -11,6 +12,7 @@ export interface Catalog {
   categories: Category[];
   retailers: Retailer[];
   brands: Brand[];
+  collections: Collection[];
 }
 
 type Tables = Database["public"]["Tables"];
@@ -35,6 +37,7 @@ export function applyCatalog(c: Catalog) {
   ALL_RETAILERS.splice(0, ALL_RETAILERS.length, ...c.retailers.filter((r) => r.active !== false).map((r) => r.id));
   PRODUCTS.splice(0, PRODUCTS.length, ...c.products);
   BRAND_LIST.splice(0, BRAND_LIST.length, ...c.brands);
+  COLLECTIONS.splice(0, COLLECTIONS.length, ...c.collections);
   BRANDS.splice(0, BRANDS.length, ...Array.from(new Set(c.products.map((p) => p.brand))).sort());
   listeners.forEach((fn) => fn());
 }
@@ -45,6 +48,7 @@ export const demoCatalog = (): Catalog => ({
   categories: CATEGORIES,
   retailers: Object.values(RETAILERS),
   brands: BRAND_LIST,
+  collections: COLLECTIONS,
 });
 
 export function mapBrand(b: Tables["brands"]["Row"]): Brand {
@@ -119,6 +123,7 @@ export function buildCatalog(
     categories: categories.map((c) => ({ id: c.id, name: c.name, emoji: c.emoji, tint: c.tint })),
     retailers: mappedRetailers,
     brands: brands.filter((b) => b.published).map(mapBrand),
+    collections: [],
     // A product with no offers from an active store can't be shown or priced.
     products: products.map((p) => mapProduct(p, statsById.get(p.id), active)).filter((p) => p.offers.length > 0),
   };

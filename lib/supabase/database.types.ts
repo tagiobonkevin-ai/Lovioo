@@ -15,6 +15,33 @@ export type Database = {
         Update: { added_at?: string; email?: string };
         Relationships: [];
       };
+      collections: {
+        Row: {
+          cover_url: string; created_at: string; description: string; emoji: string; eyebrow: string; id: string; in_brand_crush: boolean;
+          in_stories: boolean; in_todays_finds: boolean; published: boolean; sort: number; tagline: string; title: string; updated_at: string;
+          updated_by: string | null;
+        };
+        Insert: {
+          cover_url?: string; created_at?: string; description?: string; emoji?: string; eyebrow?: string; id: string; in_brand_crush?: boolean;
+          in_stories?: boolean; in_todays_finds?: boolean; published?: boolean; sort?: number; tagline?: string; title: string; updated_at?: string;
+          updated_by?: string | null;
+        };
+        Update: {
+          cover_url?: string; created_at?: string; description?: string; emoji?: string; eyebrow?: string; id?: string; in_brand_crush?: boolean;
+          in_stories?: boolean; in_todays_finds?: boolean; published?: boolean; sort?: number; tagline?: string; title?: string; updated_at?: string;
+          updated_by?: string | null;
+        };
+        Relationships: [];
+      };
+      collection_items: {
+        Row: { collection_id: string; product_id: string; sort: number };
+        Insert: { collection_id: string; product_id: string; sort?: number };
+        Update: { collection_id?: string; product_id?: string; sort?: number };
+        Relationships: [
+          { foreignKeyName: "collection_items_collection_id_fkey"; columns: ["collection_id"]; isOneToOne: false; referencedRelation: "collections"; referencedColumns: ["id"] },
+          { foreignKeyName: "collection_items_product_id_fkey"; columns: ["product_id"]; isOneToOne: false; referencedRelation: "products"; referencedColumns: ["id"] },
+        ];
+      };
       brands: {
         Row: {
           color: string; cover_url: string; created_at: string; description: string; featured: boolean; id: string; logo_url: string; name: string;
@@ -187,6 +214,13 @@ export type Database = {
       delete_shopper: { Args: { target: string; confirm_email: string }; Returns: undefined };
       delete_my_account: { Args: { confirm_email: string }; Returns: undefined };
       product_teaser: { Args: never; Returns: { name: string; brand: string; image: string; emoji: string; category_id: string }[] };
+      public_collections: {
+        Args: never;
+        Returns: {
+          cover_url: string; description: string; emoji: string; eyebrow: string; id: string; in_brand_crush: boolean; in_stories: boolean;
+          in_todays_finds: boolean; items: Json; sort: number; tagline: string; title: string;
+        }[];
+      };
       public_deals: {
         Args: { want?: number };
         Returns: {

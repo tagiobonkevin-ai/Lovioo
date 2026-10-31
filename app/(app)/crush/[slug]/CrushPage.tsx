@@ -5,12 +5,29 @@ import Link from "next/link";
 import { useMemo } from "react";
 import { ProductCard } from "@/components/product/ProductCard";
 import { toast, useHydrated } from "@/components/Providers";
-import { CRUSHES, crushBySlug, crushProducts } from "@/lib/data/crush";
+import { allCrushes, crushBySlug, crushProducts } from "@/lib/data/crush";
 import { useLovioo } from "@/lib/store";
 
 /** One Brand Crush collection: its products from the live catalogue, a share button and the other collections. */
 export function CrushPage({ slug }: { slug: string }) {
-  const crush = crushBySlug(slug)!;
+  const crush = crushBySlug(slug);
+  if (!crush)
+    return (
+      <div className="mx-auto max-w-md py-16 text-center">
+        <p className="text-5xl" aria-hidden>
+          💔
+        </p>
+        <h1 className="mt-4 text-[22px] leading-snug">We couldn&apos;t find that collection</h1>
+        <p className="mt-1 text-sm text-ink/60">It may have been renamed or taken down. Here are the others.</p>
+        <Link href="/crush" className="btn-primary mt-5">
+          See all collections
+        </Link>
+      </div>
+    );
+  return <CrushView crush={crush} slug={slug} />;
+}
+
+function CrushView({ crush, slug }: { crush: NonNullable<ReturnType<typeof crushBySlug>>; slug: string }) {
   const hydrated = useHydrated();
   const prefs = useLovioo((s) => s.prefs);
   const swipes = useLovioo((s) => s.swipes);
@@ -23,7 +40,7 @@ export function CrushPage({ slug }: { slug: string }) {
       }),
     [crush, prefs, swipes],
   );
-  const others = CRUSHES.filter((c) => c.series && c.slug !== slug);
+  const others = allCrushes().filter((c) => c.slug !== slug);
 
   const share = async () => {
     const url = window.location.href;
