@@ -7,6 +7,7 @@ import { TeaserCard } from "@/components/landing/TeaserCard";
 import { DealSummary, GuestChat } from "@/components/landing/GuestChat";
 import { LegalLinks } from "@/components/legal/LegalLinks";
 import { HalloweenDecor, HalloweenNote } from "@/components/seasonal/Halloween";
+import { brandById } from "@/lib/data/brands";
 import { CATEGORIES } from "@/lib/data/categories";
 import { loadCatalog, loadDeals, loadTeaser } from "@/lib/data/load-catalog";
 import { brandDeals } from "@/lib/data/public-deals";
@@ -31,7 +32,10 @@ const Heading = ({ children, className }: { children: React.ReactNode; className
  */
 export default async function Landing() {
   const [, deals] = await Promise.all([loadCatalog(), loadDeals()]);
-  const brands = brandDeals(deals, 8);
+  const brandsOnSale = brandDeals(deals, 8);
+  // Featured brands get picture cards; the rest stay in the "Best of sale" list, so no brand is listed twice.
+  const featuredBrands = brandsOnSale.filter((b) => brandById(b.id)?.featured);
+  const brands = brandsOnSale.filter((b) => !brandById(b.id)?.featured);
   const grid = deals.slice(0, 12);
   // Until a product has a verified price, we show it without one rather than quote a number we can't stand
   // behind. Entering real prices in Admin -> Price list brings the deal sections back on their own.
@@ -71,6 +75,43 @@ export default async function Landing() {
           <DealSummary deals={deals} teasers={teasers} />
         </div>
       </section>
+
+      {/* Featured brands: chosen in Admin -> Brands, shown with one of their product photos */}
+      {!!featuredBrands.length && (
+        <section className="mx-auto max-w-[1248px] px-4 pb-16 lg:px-6 lg:pb-24">
+          <Eyebrow>Featured brands</Eyebrow>
+          <Heading>Brands we love right now</Heading>
+          <div className="mt-6 grid grid-cols-2 gap-x-4 gap-y-10 sm:grid-cols-3 lg:grid-cols-4">
+            {featuredBrands.map((b) => {
+              const art = brandById(b.id)?.cover || b.image;
+              return (
+                <Link key={b.name} href={`/auth?next=${encodeURIComponent(`/brand/${b.id}`)}`} className="group block">
+                  <span className="relative block aspect-[3/4] overflow-hidden bg-ink/5">
+                    {art ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={art} alt="" loading="lazy" className="h-full w-full object-cover transition duration-700 group-hover:scale-[1.03]" />
+                    ) : (
+                      <span className="grid h-full w-full place-items-center font-display text-5xl text-ink/30" aria-hidden>
+                        {b.name.charAt(0)}
+                      </span>
+                    )}
+                    <span className="absolute left-0 top-0 bg-ink px-2 py-1 text-[11px] font-medium uppercase tracking-[0.08em] text-white">Up to {b.off}% off</span>
+                  </span>
+                  <span className="mt-3 flex items-center justify-between gap-2 border-b border-ink/10 pb-3 transition group-hover:border-ink/40">
+                    <span className="min-w-0">
+                      <span className="block truncate font-display text-[18px] font-medium leading-[1.4] tracking-[-0.009em]">{b.name}</span>
+                      <span className="block text-[13px] text-ink/50">
+                        {b.count} {b.count === 1 ? "pick" : "picks"} on sale
+                      </span>
+                    </span>
+                    <ArrowRight className="h-4 w-4 shrink-0 text-ink/25 transition group-hover:translate-x-0.5 group-hover:text-ink" />
+                  </span>
+                </Link>
+              );
+            })}
+          </div>
+        </section>
+      )}
 
       {/* Brand discounts */}
       {!!brands.length && (

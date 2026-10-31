@@ -7,7 +7,7 @@ import { brandCrush, brandProducts, type Brand } from "@/lib/data/brands";
 import { cn } from "@/lib/utils";
 import { BrandAvatar } from "./BrandAvatar";
 
-/** "Brand Crush" carousel: featured partner stores (or top brands until partners are featured). */
+/** "Brand Crush" carousel: featured brands (or the top brands until some are featured). */
 export function BrandCrush({ className }: { className?: string }) {
   const { featured, brands } = brandCrush(12);
   if (!brands.length) return null;
@@ -16,7 +16,7 @@ export function BrandCrush({ className }: { className?: string }) {
       <div className="flex items-end justify-between gap-3">
         <div className="min-w-0">
           <h2 className="text-[20px] leading-[1.5]">Brand Crush 💘</h2>
-          <p className="text-xs text-ink/60">{featured ? "Featured partner stores — tap one to shop its picks" : "Top brands on Lovioo — tap one to see all its products"}</p>
+          <p className="text-xs text-ink/60">{featured ? "Featured brands — tap one to shop its picks" : "Top brands on Lovioo — tap one to see all its products"}</p>
         </div>
         <Link href="/brands" className="shrink-0 whitespace-nowrap text-sm font-semibold text-pink">
           All brands
@@ -52,7 +52,7 @@ export function BrandCard({ brand, className }: { brand: Brand; className?: stri
       <span className="absolute inset-0 bg-gradient-to-t from-midnight/80 via-midnight/10 to-transparent" />
       {brand.featured && (
         <span className="absolute left-3 top-3 inline-flex items-center gap-1 rounded-full bg-white/90 px-2 py-0.5 text-[10px] font-bold text-pink">
-          <BadgeCheck className="h-3 w-3" /> Partner
+          <BadgeCheck className="h-3 w-3" /> Featured
         </span>
       )}
       <span className="relative flex items-center gap-2">
