@@ -27,22 +27,22 @@ export interface CategoryArt {
   tagline: string;
 }
 
-// Free-licence Unsplash photos (no attribution required), cropped portrait by Unsplash's image CDN.
-const unsplash = (id: string) => `https://images.unsplash.com/photo-${id}?auto=format&fit=crop&w=640&h=800&q=75`;
+/** Lovioo's own lifestyle photos, served from /public/images/home. */
+const home = (name: string) => `/images/home/${name}.webp`;
 
 /**
  * Photo cards for the category rows, in the brand's light pink. Keyed by category id, so the categories in Supabase
  * need no extra columns; a category without a photo keeps its emoji.
  */
 const CATEGORY_ART: Record<string, CategoryArt> = {
-  electronics: { image: unsplash("1505740420928-5e560c06d30e"), label: "Gadget crush", tagline: "Smart finds for smarter living." },
-  fashion: { image: unsplash("1542291026-7eec264c27ff"), label: "Style crush", tagline: "Your style. Your discovery." },
-  beauty: { image: unsplash("1556228578-8c89e6adf883"), label: "Beauty crush", tagline: "Find your next beauty favourite." },
-  home: { image: unsplash("1555041469-a586c61ea9bc"), label: "Home crush", tagline: "Make every corner more you." },
-  gaming: { image: unsplash("1606813907291-d86efa9b94db"), label: "Game on", tagline: "Level up your discoveries." },
-  sports: { image: unsplash("1626224583764-f87db24ac4ea"), label: "Active", tagline: "Find your motivation." },
-  "baby-kids": { image: unsplash("1587654780291-39c9404d746b"), label: "Little ones", tagline: "Little finds for little moments." },
-  essentials: { image: unsplash("1602143407151-7111542de6e8"), label: "Daily crush", tagline: "The everyday things worth finding." },
+  electronics: { image: home("phone-watch"), label: "Gadget crush", tagline: "Smart finds for smarter living." },
+  fashion: { image: home("bag-sneakers"), label: "Style crush", tagline: "Your style. Your discovery." },
+  beauty: { image: home("beauty-products"), label: "Beauty crush", tagline: "Find your next beauty favourite." },
+  home: { image: home("living-room"), label: "Home crush", tagline: "Make every corner more you." },
+  gaming: { image: home("gaming-tech"), label: "Game on", tagline: "Level up your discoveries." },
+  sports: { image: home("sports"), label: "Active", tagline: "Find your motivation." },
+  "baby-kids": { image: home("family-tablet"), label: "Little ones", tagline: "Little finds for little moments." },
+  essentials: { image: home("kitchen"), label: "Daily crush", tagline: "The everyday things worth finding." },
 };
 
 /** The categories shoppers browse: the brand's eight, plus any other category once it has live products. */
