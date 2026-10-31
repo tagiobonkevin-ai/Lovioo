@@ -36,6 +36,14 @@ const CATEGORY_WORDS: Record<CategoryId, string[]> = {
     "family", "baby", "diaper", "pet", "dog", "cat", "kid",
     "pamilya", "sanggol", "lampin", "anak", "alaga", "binuhi", "aso", "pusa", "iro", "iring", "lolo", "lola",
   ],
+  appliances: [
+    "appliance", "aircon", "electric fan", "refrigerator", "fridge", "washing machine", "rice cooker", "air fryer", "microwave", "oven", "blender", "flat iron",
+    "bentilador", "ref", "kaldero", "plantsa",
+  ],
+  groceries: ["grocery", "groceries", "snack", "food", "drink", "noodle", "rice", "milk", "chocolate", "pagkain", "pagkaon", "meryenda", "bigas", "gatas"],
+  health: ["health", "wellness", "vitamin", "supplement", "medicine", "first aid", "thermometer", "face mask", "gamot", "tambal", "bitamina", "kalusugan", "panglawas"],
+  automotive: ["car", "motor", "motorcycle", "helmet", "automotive", "dashcam", "dash cam", "tire", "kotse", "sasakyan", "awto", "gulong"],
+  books: ["book", "notebook", "stationery", "planner", "pen", "school supplies", "journal", "libro", "kuwaderno", "lapis", "papel"],
 };
 
 /** Tagalog/Visayan item words mapped to the English words product names and tags use. */
@@ -63,6 +71,14 @@ const ITEM_WORDS = new Map<string, string[]>(Object.entries({
   pusa: ["cat", "pet"],
   iring: ["cat", "pet"],
   buhok: ["hair"],
+  gamot: ["medicine", "vitamin", "supplement"],
+  tambal: ["medicine", "vitamin", "supplement"],
+  bitamina: ["vitamin"],
+  plantsa: ["iron"],
+  kotse: ["car"],
+  gulong: ["tire"],
+  libro: ["book"],
+  kuwaderno: ["notebook"],
   tagihawat: ["pimple", "acne"],
 }));
 

@@ -6,7 +6,13 @@ insert into public.categories (id, name, emoji, tint, sort) values
   ('beauty', 'Beauty & Skincare', '💄', '#FFE9F5', 2),
   ('home', 'Home & Living', '🛋️', '#FFF0DE', 3),
   ('sports', 'Sports & Outdoors', '🏸', '#E3F7EC', 4),
-  ('toys', 'Toys & Hobbies', '🧸', '#F1E8FF', 5)
+  ('toys', 'Toys & Hobbies', '🧸', '#F1E8FF', 5),
+  ('family', 'Family & Pets', '🐾', '#E6F4FF', 6),
+  ('appliances', 'Home Appliances', '🔌', '#EAEEF5', 7),
+  ('groceries', 'Groceries', '🛒', '#FFF6D6', 8),
+  ('health', 'Health & Wellness', '💊', '#E2F6F3', 9),
+  ('automotive', 'Motors & Automotive', '🏍️', '#E6ECEF', 10),
+  ('books', 'Books & Stationery', '📚', '#F3F7DD', 11)
 on conflict (id) do update set name = excluded.name, emoji = excluded.emoji, tint = excluded.tint, sort = excluded.sort;
 
 insert into public.retailers (id, name, short, color, text_color, homepage, sort) values

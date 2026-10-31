@@ -126,6 +126,11 @@ export const AI_STRINGS: Record<AiLang, AiStrings> = {
       sports: "pang-sports",
       toys: "laruan",
       family: "para sa pamilya at alaga",
+      appliances: "appliances sa bahay",
+      groceries: "grocery",
+      health: "pangkalusugan",
+      automotive: "pang-motor at kotse",
+      books: "libro at school supplies",
     },
   },
   ceb: {
@@ -171,6 +176,11 @@ export const AI_STRINGS: Record<AiLang, AiStrings> = {
       sports: "pang-sports",
       toys: "dulaan",
       family: "para sa pamilya ug binuhi",
+      appliances: "appliances sa balay",
+      groceries: "grocery",
+      health: "pang-lawas",
+      automotive: "pang-motor ug sakyanan",
+      books: "libro ug school supplies",
     },
   },
 };
