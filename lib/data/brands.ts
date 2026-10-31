@@ -20,7 +20,7 @@ export interface Brand {
 export const brandSlug = (name: string) =>
   name.toLowerCase().replace(/['"’]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
 
-const PALETTE = ["#FF2D9A", "#A855F7", "#FF6B4A", "#3B82F6", "#10B981", "#FFB84D", "#0F2742"];
+const PALETTE = ["#FF4FB8", "#A855F7", "#FF8A5B", "#3B82F6", "#10B981", "#FFB84D", "#0F2742"];
 // Demo mode only: a few brands shown as featured so Brand Crush has something to show.
 const DEMO_FEATURED = ["nike", "laneige", "sony", "pop-mart", "uniqlo", "cosrx", "apple", "adidas"];
 

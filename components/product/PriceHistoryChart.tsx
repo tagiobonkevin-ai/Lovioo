@@ -60,15 +60,15 @@ export function PriceHistoryChart({ product }: { product: Product }) {
             <AreaChart data={data} margin={{ left: 0, right: 8, top: 8, bottom: 0 }}>
               <defs>
                 <linearGradient id="ph" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#FF2D9A" stopOpacity={0.3} />
-                  <stop offset="100%" stopColor="#FF2D9A" stopOpacity={0} />
+                  <stop offset="0%" stopColor="#FF4FB8" stopOpacity={0.3} />
+                  <stop offset="100%" stopColor="#FF4FB8" stopOpacity={0} />
                 </linearGradient>
               </defs>
               <CartesianGrid stroke="#F1E6EC" vertical={false} />
               <XAxis dataKey="label" tick={{ fontSize: 11, fill: "#0F274280" }} tickLine={false} axisLine={false} minTickGap={40} />
               <YAxis tickFormatter={fmtAxis} tick={{ fontSize: 11, fill: "#0F274280" }} tickLine={false} axisLine={false} width={52} domain={["dataMin - 200", "dataMax + 200"]} />
               <Tooltip formatter={(v: number) => [peso(v), "Lowest price"]} contentStyle={{ borderRadius: 16, border: "1px solid #E5E7EB", fontSize: 12 }} />
-              <Area type="monotone" dataKey="price" stroke="#FF2D9A" strokeWidth={2.5} fill="url(#ph)" />
+              <Area type="monotone" dataKey="price" stroke="#FF4FB8" strokeWidth={2.5} fill="url(#ph)" />
             </AreaChart>
           ) : (
             <LineChart data={storeData} margin={{ left: 0, right: 8, top: 8, bottom: 0 }}>

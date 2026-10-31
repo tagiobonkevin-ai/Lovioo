@@ -4,7 +4,6 @@ import { AnimatePresence, motion } from "framer-motion";
 import { ArrowLeft, ArrowRight, Check } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
-import { serif } from "@/app/fonts";
 import { useHydrated } from "@/components/Providers";
 import { Logo } from "@/components/brand/Logo";
 import { LegalLinks } from "@/components/legal/LegalLinks";
@@ -38,7 +37,7 @@ const COPY: Record<StepId, { emoji: string; title: React.ReactNode; hint: string
 };
 
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-const h = "font-[family-name:var(--font-serif)] font-normal tracking-[-0.01em]";
+const h = "font-display font-extrabold tracking-[-0.02em]";
 const pill = "h-14 w-full rounded-2xl bg-white px-4 text-base text-ink outline-none ring-1 ring-midnight/10 transition focus:ring-2 focus:ring-pink/50";
 
 /** One question per screen: name and birthday are required for accounts; everything else can be skipped. */
@@ -180,7 +179,7 @@ export default function Onboarding() {
   const optionalOnly = aboutPending === false;
 
   return (
-    <div className={cn(serif.variable, "flex min-h-[100dvh] flex-col bg-[#FBF7F2] text-ink")}>
+    <div className="flex min-h-[100dvh] flex-col bg-white text-ink">
       <header className="mx-auto flex w-full max-w-xl items-center gap-3 px-5 pt-5">
         {step > 0 ? (
           <button onClick={() => go(-1)} className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-white ring-1 ring-midnight/10" aria-label="Back">

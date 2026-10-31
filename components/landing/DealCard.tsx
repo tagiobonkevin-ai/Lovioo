@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { categoryById } from "@/lib/data/categories";
 import type { Deal } from "@/lib/data/public-deals";
 import { retailerById } from "@/lib/data/retailers";
 import { cn, peso } from "@/lib/utils";
@@ -9,10 +8,9 @@ import { cn, peso } from "@/lib/utils";
  * create an account, which is where the rest of the catalogue lives.
  */
 export function DealCard({ deal, className }: { deal: Deal; className?: string }) {
-  const tint = categoryById(deal.category as never).tint;
   return (
     <Link href={`/auth?next=${encodeURIComponent(`/product/${deal.slug}`)}`} className={cn("group block", className)}>
-      <div className="relative aspect-[3/4] overflow-hidden" style={{ background: `linear-gradient(160deg, #fff 0%, ${tint} 100%)` }}>
+      <div className="relative aspect-[3/4] overflow-hidden rounded-3xl" style={{ background: "linear-gradient(160deg, #fff 0%, #FFE8F1 100%)" }}>
         {deal.image ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img src={deal.image} alt="" loading="lazy" className="h-full w-full object-cover transition duration-700 group-hover:scale-[1.03]" />
@@ -22,16 +20,16 @@ export function DealCard({ deal, className }: { deal: Deal; className?: string }
           </span>
         )}
         {deal.off > 0 && (
-          <span className="absolute left-0 top-0 bg-ink px-2 py-1 text-[11px] font-medium uppercase tracking-[0.08em] text-white">{deal.off}% off</span>
+          <span className="absolute left-2 top-2 rounded-full bg-pink px-2.5 py-1 text-[11px] font-bold text-white">-{deal.off}%</span>
         )}
       </div>
-      <p className="mt-3 text-[13px] leading-[1.54] text-ink/50">{deal.brand}</p>
-      <p className="text-[13px] leading-[1.54] text-ink">{deal.name}</p>
-      <p className="text-[13px] leading-[1.54] text-ink">
-        <span className="font-medium">{peso(deal.price)}</span>
-        {deal.off > 0 && <span className="ml-1.5 text-ink/40 line-through">{peso(deal.originalPrice)}</span>}
-        <span className="ml-1.5 text-ink/45">on {retailerById(deal.retailer as never).name}</span>
+      <p className="mt-3 text-[11px] font-bold uppercase tracking-[0.08em] text-ink/45">{deal.brand}</p>
+      <p className="mt-0.5 line-clamp-2 text-[14px] font-semibold leading-snug text-ink">{deal.name}</p>
+      <p className="mt-1 flex flex-wrap items-baseline gap-x-1.5 text-[13px]">
+        <span className="text-[17px] font-extrabold text-pink">{peso(deal.price)}</span>
+        {deal.off > 0 && <span className="text-ink/40 line-through">{peso(deal.originalPrice)}</span>}
       </p>
+      <p className="mt-1 inline-flex rounded-full bg-surface px-2.5 py-0.5 text-[11px] font-semibold text-ink/60">{retailerById(deal.retailer as never).name}</p>
     </Link>
   );
 }

@@ -15,11 +15,11 @@ body {
   overscroll-behavior-y: none;
 }
 
-/* Headings are set in the serif, at daydream's sizes and tracking. */
+/* Headings: Manrope bold with tight tracking, per the brand sheet ("Swipe. Love. Shop."). */
 h1,
 h2,
 h3 {
-  @apply font-display font-medium tracking-[-0.012em];
+  @apply font-display font-bold tracking-[-0.02em];
 }
 
 /* Installed app: keep content clear of the notch / status bar. */
@@ -33,9 +33,9 @@ h3 {
   .btn {
     @apply inline-flex min-h-[40px] items-center justify-center gap-2 rounded-full px-5 py-2.5 text-sm font-medium transition active:scale-[0.97] disabled:opacity-50;
   }
-  /* Black is the workhorse; the brand pink is kept for the playful moments (saves, alerts, the AI). */
+  /* Brand pill: the pink button from the brand sheet ("Try Lovioo Now"). */
   .btn-primary {
-    @apply btn bg-ink text-white hover:opacity-85;
+    @apply btn bg-pink font-semibold text-white shadow-pop hover:brightness-105;
   }
   .btn-gradient {
     @apply btn bg-brand text-white hover:brightness-105;
@@ -50,7 +50,7 @@ h3 {
     @apply inline-flex min-h-[36px] items-center gap-1.5 rounded-full border border-ink/15 bg-white px-4 text-[13px] text-ink/70 transition hover:border-ink/40 hover:text-ink;
   }
   .chip-active {
-    @apply border-pink bg-pink/[0.07] font-medium text-pink;
+    @apply border-pink bg-pink font-semibold text-white hover:border-pink hover:text-white;
   }
   .card {
     @apply rounded-2xl border border-ink/10 bg-white;
@@ -71,7 +71,7 @@ h3 {
 }
 
 input[type="range"] {
-  accent-color: #ff2d9a;
+  accent-color: #ff4fb8;
 }
 
 /* iPhones zoom the whole page in when a text box under 16px gets focus, and it stays zoomed, cutting off the

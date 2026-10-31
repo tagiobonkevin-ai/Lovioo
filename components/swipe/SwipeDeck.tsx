@@ -299,8 +299,8 @@ function GoalRing({ pct }: { pct: number }) {
     <svg width={60} height={60} className="-rotate-90 shrink-0">
       <defs>
         <linearGradient id="goal" x1="0" x2="1">
-          <stop offset="0%" stopColor="#FF2D9A" />
-          <stop offset="100%" stopColor="#FFB84D" />
+          <stop offset="0%" stopColor="#FF4FB8" />
+          <stop offset="100%" stopColor="#FF8A5B" />
         </linearGradient>
       </defs>
       <circle cx={30} cy={30} r={r} stroke="#F6E3EC" strokeWidth={7} fill="none" />

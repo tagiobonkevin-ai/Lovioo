@@ -51,7 +51,7 @@ export function GuestChat({ deals, teasers }: { deals: Deal[]; teasers: Teaser[]
             role="tab"
             aria-selected={lang === l.id}
             onClick={() => setLang(l.id)}
-            className={cn("px-4 py-2 text-sm transition", lang === l.id ? "font-medium text-ink" : "text-ink/45 hover:text-ink/70")}
+            className={cn("rounded-full px-4 py-1.5 text-sm font-semibold transition", lang === l.id ? "bg-pink text-white" : "text-ink/50 hover:text-ink")}
           >
             {l.label}
           </button>
@@ -63,7 +63,7 @@ export function GuestChat({ deals, teasers }: { deals: Deal[]; teasers: Teaser[]
           e.preventDefault();
           ask(q);
         }}
-        className="mt-3 flex items-end gap-3 border-b border-ink/15 pb-3 focus-within:border-ink/40"
+        className="mt-4 flex items-center gap-2 rounded-full bg-surface py-1.5 pl-5 pr-1.5 ring-1 ring-transparent transition focus-within:bg-white focus-within:ring-pink/40"
       >
         <label className="sr-only" htmlFor="lovioo-ai">
           {strings.placeholder}
@@ -73,16 +73,16 @@ export function GuestChat({ deals, teasers }: { deals: Deal[]; teasers: Teaser[]
           value={q}
           onChange={(e) => setQ(e.target.value)}
           placeholder={strings.placeholder}
-          className="h-10 min-w-0 flex-1 bg-transparent font-display text-[18px] leading-none text-ink outline-none placeholder:text-ink/35"
+          className="h-10 min-w-0 flex-1 bg-transparent text-[16px] font-medium leading-none text-ink outline-none placeholder:text-ink/40"
         />
-        <button type="submit" aria-label="Ask Lovioo AI" className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-ink text-white transition hover:opacity-80">
+        <button type="submit" aria-label="Ask Lovioo AI" className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-pink text-white shadow-pop transition hover:brightness-105">
           <ArrowUp className="h-4 w-4" />
         </button>
       </form>
 
       <div className="mt-4 flex flex-wrap gap-2">
         {strings.starters.slice(0, 4).map((s) => (
-          <button key={s} onClick={() => ask(s)} className="h-9 rounded-full border border-ink/15 px-4 text-[13px] text-ink/70 transition hover:border-ink/40 hover:text-ink">
+          <button key={s} onClick={() => ask(s)} className="h-9 rounded-full bg-pink-soft px-4 text-[13px] font-semibold text-ink/75 transition hover:bg-pink hover:text-white">
             {s}
           </button>
         ))}
@@ -90,7 +90,7 @@ export function GuestChat({ deals, teasers }: { deals: Deal[]; teasers: Teaser[]
 
       {asked && (
         <div ref={answerRef} className="mt-8 border-t border-ink/10 pt-6">
-          <p className="font-display text-[22px] leading-[1.45] tracking-[-0.012em] text-ink">{asked.q}</p>
+          <p className="text-[20px] font-extrabold leading-snug tracking-[-0.02em] text-ink">{asked.q}</p>
           <p className="mt-2 text-[15px] leading-relaxed text-ink/70">{asked.text}</p>
           {!!asked.picks.length && (
             <>
@@ -101,7 +101,7 @@ export function GuestChat({ deals, teasers }: { deals: Deal[]; teasers: Teaser[]
               </div>
               <p className="mt-6 text-[13px] text-ink/55">
                 That&apos;s {asked.picks.length} of {deals.length} deals on the front page.{" "}
-                <Link href="/auth?next=/ai" className="font-medium text-ink underline underline-offset-4">
+                <Link href="/auth?next=/ai" className="font-bold text-pink underline underline-offset-4">
                   Create a free account
                 </Link>{" "}
                 to search the whole catalogue, compare every store and get price-drop alerts.
@@ -117,7 +117,7 @@ export function GuestChat({ deals, teasers }: { deals: Deal[]; teasers: Teaser[]
               </div>
               <p className="mt-6 text-[13px] text-ink/55">
                 Prices on these are for members.{" "}
-                <Link href="/auth?next=/ai" className="font-medium text-ink underline underline-offset-4">
+                <Link href="/auth?next=/ai" className="font-bold text-pink underline underline-offset-4">
                   Create a free account
                 </Link>{" "}
                 to see every price, compare the stores and get price-drop alerts.
@@ -126,7 +126,7 @@ export function GuestChat({ deals, teasers }: { deals: Deal[]; teasers: Teaser[]
           )}
           {!asked.picks.length && !asked.teases.length && (
             <p className="mt-4 text-[13px] text-ink/55">
-              <Link href="/auth?next=/ai" className="font-medium text-ink underline underline-offset-4">
+              <Link href="/auth?next=/ai" className="font-bold text-pink underline underline-offset-4">
                 Create a free account
               </Link>{" "}
               and Lovioo AI will search the whole catalogue, with every store&apos;s price.

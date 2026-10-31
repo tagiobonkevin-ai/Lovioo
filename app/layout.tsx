@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { display, poppins, ui } from "@/app/fonts";
+import { manrope } from "@/app/fonts";
 import { Providers } from "@/components/Providers";
 import { ConsentedAnalytics } from "@/components/legal/ConsentSheet";
 import { SITE_URL } from "@/lib/site";
@@ -25,7 +25,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#FF2D9A",
+  themeColor: "#FF4FB8",
   // Lets the app draw under the notch and home bar when installed; layouts pad with safe-area insets.
   viewportFit: "cover",
 };
@@ -36,7 +36,7 @@ export const revalidate = 60;
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const catalog = await loadCatalog();
   return (
-    <html lang="en" className={cn(poppins.variable, display.variable, ui.variable)}>
+    <html lang="en" className={manrope.variable}>
       <body className="font-sans">
         <Providers catalog={catalog.source === "supabase" ? catalog : null}>{children}</Providers>
         <ConsentedAnalytics />
