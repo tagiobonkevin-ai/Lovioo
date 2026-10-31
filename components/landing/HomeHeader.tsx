@@ -8,7 +8,7 @@ import { Logo } from "@/components/brand/Logo";
 const LINKS = [
   { href: "/discover", label: "Discover", note: "Explore products" },
   { href: "/crush", label: "Brand Crush", note: "Curated discoveries" },
-  { href: "/store", label: "Lovioo Store", note: "From our Brand Partners" },
+  { href: "/store", label: "Lovioo Store", note: "Coming soon", soon: true },
   { href: "/ai", label: "Ask Lovioo AI", note: "Smart shopping" },
   { href: "/saved", label: "My Wishlist", note: "Saved favourites" },
 ];
@@ -25,6 +25,7 @@ export function HomeHeader() {
         {LINKS.map((l) => (
           <Link key={l.href} href={l.href} className="rounded-full px-3.5 py-2 text-sm font-semibold text-ink/70 transition hover:bg-white hover:text-ink">
             {l.label}
+            {"soon" in l && <span className="ml-1.5 rounded-full bg-pink-soft px-1.5 py-0.5 text-[10px] font-bold text-pink">Soon</span>}
           </Link>
         ))}
       </nav>
