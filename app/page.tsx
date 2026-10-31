@@ -6,6 +6,7 @@ import { CrushStories } from "@/components/crush/CrushStories";
 import { DealSummary, GuestChat } from "@/components/landing/GuestChat";
 import { HomeHeader } from "@/components/landing/HomeHeader";
 import { HomeProductCard } from "@/components/landing/HomeProductCard";
+import { LifestyleMosaic, LifestyleRibbon } from "@/components/landing/LifestyleRibbon";
 import { PhotoCollage } from "@/components/landing/PhotoCollage";
 import { SwipeDemo, type SwipeDemoItem } from "@/components/landing/SwipeDemo";
 import { LegalLinks } from "@/components/legal/LegalLinks";
@@ -122,11 +123,9 @@ export default async function Landing() {
   return (
     <div className="min-h-screen overflow-x-hidden bg-white font-ui text-ink antialiased">
       {/* 01 — Hero: Lovioo AI front and centre, the way daydream opens with its chat */}
-      <div className="relative isolate overflow-hidden bg-gradient-to-b from-white via-[#FFF3F8] to-pink-soft">
-        <div className="pointer-events-none absolute -right-24 -top-24 -z-10 h-96 w-96 rounded-full bg-pink/25 blur-3xl" aria-hidden />
-        <div className="pointer-events-none absolute -bottom-40 -left-24 -z-10 h-96 w-96 rounded-full bg-coral/20 blur-3xl" aria-hidden />
+      <div className="relative isolate overflow-hidden bg-white">
         <HomeHeader />
-        <section className={cn(section, "relative pb-16 pt-8 lg:pb-24 lg:pt-14")}>
+        <section className={cn(section, "relative pb-10 pt-8 lg:pb-14 lg:pt-14")}>
           <HalloweenDecor />
           <div className="mx-auto max-w-[760px] text-center">
             <HalloweenNote className="mb-3" />
@@ -148,7 +147,7 @@ export default async function Landing() {
           <ul className="mx-auto mt-12 grid max-w-[880px] grid-cols-2 gap-x-4 gap-y-5 sm:grid-cols-4">
             {HERO_FEATURES.map((f) => (
               <li key={f.title} className="flex min-w-0 items-start gap-2.5">
-                <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-white text-pink shadow-sm" aria-hidden>
+                <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-pink-soft text-pink" aria-hidden>
                   <f.icon className="h-[18px] w-[18px]" />
                 </span>
                 <span className="min-w-0">
@@ -159,6 +158,7 @@ export default async function Landing() {
             ))}
           </ul>
         </section>
+        <LifestyleRibbon className="pb-14 lg:pb-20" />
       </div>
 
       {/* Stores Lovioo links to (names only; no logos or partnership claims) */}
@@ -279,7 +279,7 @@ export default async function Landing() {
 
       {/* 05 — Trending Crush */}
       {!!trending.length && (
-        <section className="bg-surface">
+        <section className="border-y border-ink/5 bg-white">
           <div className={cn(section, "py-20 lg:py-28")}>
             <div className="grid items-center gap-10 lg:grid-cols-2">
               <div className="min-w-0">
@@ -338,7 +338,7 @@ export default async function Landing() {
           </Link>
         </div>
         {swipeItems.length > 0 && (
-          <div className="rounded-[2.5rem] bg-gradient-to-br from-pink-soft to-[#FFF1EA] px-6 py-10">
+          <div className="rounded-[2.5rem] bg-white px-6 py-10 shadow-[0_24px_60px_-34px_rgba(255,79,184,0.55)] ring-1 ring-ink/[0.06]">
             <p className="mb-6 text-center text-[13px] font-bold text-ink/55">Try it — drag the card, or tap ✕ / ♥</p>
             <SwipeDemo items={swipeItems} />
           </div>
@@ -346,7 +346,7 @@ export default async function Landing() {
       </section>
 
       {/* 07 — Price discovery */}
-      <section className="bg-pink-soft">
+      <section className="border-y border-ink/5 bg-white">
         <div className={cn(section, "grid items-center gap-12 py-20 lg:grid-cols-2 lg:py-28")}>
           <div>
             <Eyebrow>Explore your options</Eyebrow>
@@ -361,7 +361,7 @@ export default async function Landing() {
             <p className="mt-4 text-[12px] text-ink/50">Product availability, pricing and offers are subject to retailer updates.</p>
           </div>
           {compare ? (
-            <div className="rounded-[2rem] bg-white p-5 shadow-[0_24px_60px_-30px_rgba(255,79,184,0.5)] sm:p-6">
+            <div className="rounded-[2rem] bg-white p-5 shadow-[0_24px_60px_-30px_rgba(255,79,184,0.5)] ring-1 ring-ink/[0.06] sm:p-6">
               <div className="flex items-center gap-4">
                 <div className="h-20 w-20 shrink-0 overflow-hidden rounded-2xl" style={{ background: "radial-gradient(circle at 30% 20%, #fff 0%, #FFE8F1 75%)" }}>
                   {compare.image ? (
@@ -399,7 +399,7 @@ export default async function Landing() {
           ) : (
             <ul className="flex flex-wrap gap-2">
               {["shopee", "lazada", "tiktok"].map((r) => (
-                <li key={r} className="rounded-full bg-white px-5 py-3 text-[15px] font-bold">
+                <li key={r} className="rounded-full bg-white px-5 py-3 text-[15px] font-bold ring-1 ring-ink/10">
                   {retailerById(r as never).name}
                 </li>
               ))}
@@ -424,18 +424,18 @@ export default async function Landing() {
       </section>
 
       {/* 09 — Brand statement */}
-      <section className="relative isolate overflow-hidden bg-ink px-4 py-24 text-center text-white lg:py-32">
-        <div className="pointer-events-none absolute left-1/2 top-1/2 -z-10 h-[420px] w-[420px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-pink/30 blur-3xl" aria-hidden />
+      <section className="bg-white px-4 py-20 text-center lg:py-28">
         <p className="mx-auto max-w-[20ch] font-display text-[34px] font-medium leading-[1.2] tracking-[-0.012em] sm:text-[48px]">
           The Best Finds Aren&apos;t Always the Ones You Search For.
         </p>
         <p className="mx-auto mt-4 max-w-[22ch] font-display text-[26px] font-medium italic leading-tight text-pink sm:text-[36px]">
           Sometimes, They&apos;re the Ones You Discover.
         </p>
-        <p className="mx-auto mt-6 max-w-[48ch] text-[16px] leading-relaxed text-white/65">
+        <p className="mx-auto mt-6 max-w-[48ch] text-[16px] leading-relaxed text-ink/60">
           That&apos;s the Lovioo experience. A little inspiration, a little curiosity and a whole lot of things to love.
         </p>
-        <p className="mt-8 text-[13px] font-bold uppercase tracking-[0.2em] text-white/50">Discover your next something.</p>
+        <LifestyleMosaic className="mx-auto mt-10 max-w-[880px]" />
+        <p className="mt-8 text-[13px] font-bold uppercase tracking-[0.2em] text-pink">Discover your next something.</p>
       </section>
 
       {/* 10 — Final call */}
