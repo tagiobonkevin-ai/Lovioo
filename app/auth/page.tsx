@@ -9,7 +9,6 @@ import { DealCard } from "@/components/landing/DealCard";
 import { TeaserCard } from "@/components/landing/TeaserCard";
 import { ConsentChecks, NO_CHOICES, requiredMissing, type ConsentChoices } from "@/components/legal/ConsentChecks";
 import { LegalLinks } from "@/components/legal/LegalLinks";
-import { HalloweenNoteLive } from "@/components/seasonal/HalloweenLive";
 import { useConsent } from "@/lib/consent";
 import { demoDeals, demoTeaser, fetchDeals, fetchTeaser, type Deal, type Teaser } from "@/lib/data/public-deals";
 import { CONSENT_VERSION } from "@/lib/site";
@@ -180,7 +179,6 @@ function AuthForm() {
         </header>
 
         <main className="flex flex-1 flex-col justify-center py-8">
-          <HalloweenNoteLive className="mb-2" />
           <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-ink/40">
             {resetting ? "Password help" : signup ? "Free · takes a minute" : "Good to see you"}
           </p>
