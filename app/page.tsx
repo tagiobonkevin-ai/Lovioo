@@ -408,7 +408,7 @@ export default async function Landing() {
                 </div>
                 <div className="min-w-0">
                   <p className="text-[11px] font-bold uppercase tracking-[0.1em] text-ink/45">{compare.brand}</p>
-                  <p className="line-clamp-2 text-[15px] font-bold leading-snug">{compare.name}</p>
+                  <p className="line-clamp-2 text-[13px] font-semibold leading-snug">{compare.name}</p>
                 </div>
               </div>
               <ul className="mt-5 divide-y divide-ink/5">

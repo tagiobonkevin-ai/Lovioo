@@ -36,7 +36,7 @@ export function HomeProductCard({ product, className }: { product: Product; clas
       </div>
       <div className="mt-2 flex flex-1 flex-col rounded-[1.4rem] bg-pink-soft p-3.5">
         <p className="truncate text-[10px] font-bold uppercase tracking-[0.08em] text-pink">{product.brand}</p>
-        <Link href={`/product/${product.slug}`} className="mt-0.5 line-clamp-2 text-[14px] font-semibold leading-snug hover:text-pink">
+        <Link href={`/product/${product.slug}`} className="mt-0.5 line-clamp-2 text-[13px] font-semibold leading-snug hover:text-pink">
           {product.name}
         </Link>
         <div className="mt-auto flex items-end justify-between gap-2 pt-3">

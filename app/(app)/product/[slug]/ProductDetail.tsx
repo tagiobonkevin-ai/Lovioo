@@ -106,7 +106,7 @@ function ProductView({ product }: { product: Product }) {
           ) : (
             <p className="text-sm font-medium text-ink/50">{product.brand}</p>
           )}
-          <h1 className="mt-1 text-[24px] leading-[1.3] [overflow-wrap:anywhere] sm:text-[30px]">{product.name}</h1>
+          <h1 className="mt-1 font-sans text-[17px] font-semibold leading-snug tracking-normal [overflow-wrap:anywhere] sm:text-[20px]">{product.name}</h1>
           {product.reviewCount > 0 && (
             <div className="mt-2 flex items-center gap-2 text-sm">
               <span className="flex">

@@ -93,7 +93,7 @@ function CompareInner() {
                   </button>
                   {i === bestIdx && <span className="mb-2 inline-block rounded-full bg-brand px-2.5 py-0.5 text-[10px] font-bold text-white">LOVIOO PICK</span>}
                   <ProductImage product={p} className="aspect-square w-28 rounded-2xl" emojiSize="text-5xl" />
-                  <Link href={`/product/${p.slug}`} className="mt-2 line-clamp-2 block text-sm font-bold hover:text-pink">
+                  <Link href={`/product/${p.slug}`} className="mt-2 line-clamp-2 block text-[13px] font-semibold leading-snug hover:text-pink">
                     {p.name}
                   </Link>
                 </th>

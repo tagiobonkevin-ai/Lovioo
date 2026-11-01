@@ -132,7 +132,7 @@ function PriceList({ products }: { products: Product[] }) {
                 <span className="flex min-w-0 items-center gap-3">
                   <ProductImage product={p} className="h-12 w-12 shrink-0 rounded-xl" emojiSize="text-2xl" />
                   <span className="min-w-0">
-                    <span className="line-clamp-2 text-sm font-semibold leading-snug">{p.name}</span>
+                    <span className="line-clamp-2 text-[13px] font-semibold leading-snug">{p.name}</span>
                     <span className="text-xs text-ink/50">{p.subcategory}</span>
                   </span>
                 </span>

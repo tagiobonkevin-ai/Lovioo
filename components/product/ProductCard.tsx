@@ -59,7 +59,7 @@ export function ProductCard({ product, showCompare = true, className }: { produc
         ) : (
           <span className="truncate text-[10px] font-bold uppercase tracking-[0.08em] text-ink/45">{product.brand}</span>
         )}
-        <Link href={`/product/${product.slug}`} className="mt-0.5 line-clamp-2 text-[14px] font-semibold leading-snug hover:text-pink">
+        <Link href={`/product/${product.slug}`} className="mt-0.5 line-clamp-2 text-[13px] font-semibold leading-snug hover:text-pink">
           {product.name}
         </Link>
         {product.reviewCount > 0 && (

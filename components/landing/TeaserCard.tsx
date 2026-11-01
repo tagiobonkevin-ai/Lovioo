@@ -21,7 +21,7 @@ export function TeaserCard({ teaser, className }: { teaser: Teaser; className?: 
         )}
       </div>
       <p className="mt-3 text-[11px] font-bold uppercase tracking-[0.08em] text-ink/45">{teaser.brand}</p>
-      <p className="mt-0.5 line-clamp-2 text-[14px] font-semibold leading-snug text-ink">{teaser.name}</p>
+      <p className="mt-0.5 line-clamp-2 text-[13px] font-semibold leading-snug text-ink">{teaser.name}</p>
       <p className="mt-1 inline-flex items-center gap-1 text-[13px] font-semibold leading-[1.54] text-pink">
         <Lock className="h-3 w-3" aria-hidden /> Join free to see the price
       </p>
