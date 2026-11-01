@@ -13,13 +13,15 @@ import { CATEGORIES, VIBES } from "@/lib/data/categories";
 import { RETAILERS, retailerById } from "@/lib/data/retailers";
 import { brandTextError, linkError, storeLinkWarning } from "@/lib/links";
 import { MAX_EXTRA_PHOTOS, PhotoSlides } from "@/components/admin/PhotoSlides";
+import { ProductChecklist } from "@/components/admin/ProductChecklist";
+import { ColorsEditor, PromotionsEditor, colorsJson, extrasProblem, parseColorRows, parsePromoRows, promotionsJson, type ColorRow, type PromoRow } from "@/components/admin/ProductExtras";
 import { CONTENT_KEYS, asChangeSet, changeLabels, shortDate, type ChangeSet } from "@/lib/review";
 import type { Database, Json } from "@/lib/supabase/database.types";
 import { cn, peso } from "@/lib/utils";
 
 type ProductRow = Database["public"]["Tables"]["products"]["Row"];
 type OfferRow = Database["public"]["Tables"]["offers"]["Row"];
-type OfferDraft = Pick<OfferRow, "retailer_id" | "price" | "original_price" | "shipping" | "in_stock" | "url">;
+type OfferDraft = Pick<OfferRow, "retailer_id" | "price" | "original_price" | "price_max" | "shipping" | "in_stock" | "url">;
 type RequestRow = Database["public"]["Tables"]["product_change_requests"]["Row"];
 
 interface Draft {
@@ -42,6 +44,9 @@ interface Draft {
   published: boolean;
   price_tracked: boolean;
   brand_id: string | null;
+  colors: ColorRow[];
+  promotions: PromoRow[];
+  rating_source: string | null;
 }
 
 const EMPTY: Draft = {
@@ -64,10 +69,25 @@ const EMPTY: Draft = {
   published: false,
   price_tracked: true,
   brand_id: null,
+  colors: [],
+  promotions: [],
+  rating_source: null,
 };
 
 const slugify = (s: string) => s.toLowerCase().replace(/['"]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
-const toDraft = (p: ProductRow): Draft => ({ ...p, images: p.images ?? [], rating: Number(p.rating), tags: p.tags.join(", "), highlights: p.highlights.join("\n") });
+const toDraft = (p: ProductRow): Draft => ({
+  ...p,
+  images: p.images ?? [],
+  rating: Number(p.rating),
+  tags: p.tags.join(", "),
+  highlights: p.highlights.join("\n"),
+  colors: parseColorRows(p.colors),
+  promotions: parsePromoRows(p.promotions),
+  rating_source: p.rating_source ?? null,
+});
+/** Compare JSON columns by content, not key order (Postgres reorders jsonb keys). */
+const comparable = (k: string, v: unknown) =>
+  JSON.stringify(k === "colors" ? colorsJson(parseColorRows(v as Json)) : k === "promotions" ? promotionsJson(parsePromoRows(v as Json)) : v);
 const list = (s: string, sep: RegExp) => s.split(sep).map((x) => x.trim()).filter(Boolean);
 const storeName = (id: string) => retailerById(id).name;
 
@@ -93,7 +113,7 @@ export default function ProductEditor({ params }: { params: { id: string } }) {
     if (!data) return;
     const { offers: rows, ...product } = data;
     setDraft(toDraft(product));
-    setOffers(rows.map(({ retailer_id, price, original_price, shipping, in_stock, url }) => ({ retailer_id, price, original_price, shipping, in_stock, url })));
+    setOffers(rows.map(({ retailer_id, price, original_price, price_max, shipping, in_stock, url }) => ({ retailer_id, price, original_price, price_max, shipping, in_stock, url })));
   }, [data]);
 
   const brands = useAdminQuery((sb) => sb.from("brands").select("id, name").order("name"));
@@ -126,6 +146,10 @@ export default function ProductEditor({ params }: { params: { id: string } }) {
     if (!/^[a-z0-9]+(-[a-z0-9]+)*$/.test(draft.slug)) return fail("The URL slug can only use lowercase letters, numbers and single dashes.");
     const badLink = imageProblem ?? photosProblem ?? offers.map(offerProblem).find(Boolean);
     if (badLink) return fail(badLink);
+    const extras = extrasProblem(draft.colors, draft.promotions);
+    if (extras) return fail(extras);
+    const badRange = offers.find((o) => o.price_max && o.price_max < o.price);
+    if (badRange) return fail(`${storeName(badRange.retailer_id)}: "Up to ₱" must be at least the price.`);
     if (draft.price_tracked && offers.some((o) => o.price <= 0))
       return fail('Every store offer needs a price above ₱0 — or turn off "Track prices" to list it as a "See prices" pick.');
     if (draft.published && offers.length === 0) return fail("Add at least one store offer before publishing.");
@@ -150,6 +174,9 @@ export default function ProductEditor({ params }: { params: { id: string } }) {
       trending: draft.trending,
       published: draft.published,
       price_tracked: draft.price_tracked,
+      colors: colorsJson(draft.colors),
+      promotions: promotionsJson(draft.promotions),
+      rating_source: draft.rating_source || null,
       // Only once the brands migration is in (the brand list loads); older databases have no brand_id column.
       ...(brands.data ? { brand_id: draft.brand_id ?? null } : {}),
     };
@@ -157,7 +184,9 @@ export default function ProductEditor({ params }: { params: { id: string } }) {
     const original = (o: OfferDraft) => Math.max(o.original_price, o.price);
     // "See prices" picks store no price, so nothing lands in the price history.
     const priced = (o: OfferDraft) =>
-      draft.price_tracked ? { ...o, url: o.url.trim(), original_price: original(o) } : { ...o, url: o.url.trim(), price: 0, original_price: 0, shipping: 0 };
+      draft.price_tracked
+        ? { ...o, url: o.url.trim(), original_price: original(o), price_max: o.price_max && o.price_max > o.price ? o.price_max : null }
+        : { ...o, url: o.url.trim(), price: 0, original_price: 0, price_max: null, shipping: 0 };
 
     setSaving(true);
     try {
@@ -201,7 +230,7 @@ export default function ProductEditor({ params }: { params: { id: string } }) {
     for (const k of CONTENT_KEYS) {
       if (!(k in row)) continue;
       const before = k === "rating" ? Number(live.rating) : live[k];
-      if (JSON.stringify(row[k]) !== JSON.stringify(before)) product[k] = row[k] as Json;
+      if (comparable(k, row[k]) !== comparable(k, before)) product[k] = row[k] as Json;
     }
     const links: ChangeSet["offers"] = {};
     for (const o of offers) {
@@ -386,7 +415,25 @@ export default function ProductEditor({ params }: { params: { id: string } }) {
               <Field label="Review count">
                 <input type="number" min={0} className={adminInput} value={draft.review_count} onChange={(e) => set("review_count", Number(e.target.value))} />
               </Field>
+              <Field label="Rating from" hint="Shown as “4.8 · 1.2K ratings on Lazada”. Copy it from the store page.">
+                <select className={adminInput} value={draft.rating_source ?? ""} onChange={(e) => set("rating_source", e.target.value || null)}>
+                  <option value="">Not set</option>
+                  {Object.values(RETAILERS).map((r) => (
+                    <option key={r.id} value={r.id}>
+                      {r.name}
+                    </option>
+                  ))}
+                </select>
+              </Field>
             </div>
+          </Panel>
+
+          <Panel title="Colors / shades" action={<span className="text-xs text-ink/50">Shown as swatches on the product page</span>}>
+            <ColorsEditor rows={draft.colors} onChange={(rows) => set("colors", rows)} />
+          </Panel>
+
+          <Panel title="Promotions" action={<span className="text-xs text-ink/50">e.g. Buy 2 Gift 1, free shipping</span>}>
+            <PromotionsEditor rows={draft.promotions} onChange={(rows) => set("promotions", rows)} />
           </Panel>
 
           <Panel
@@ -399,7 +446,7 @@ export default function ProductEditor({ params }: { params: { id: string } }) {
                   value=""
                   onChange={(e) =>
                     e.target.value &&
-                    setOffers((o) => [...o, { retailer_id: e.target.value, price: 0, original_price: 0, shipping: 0, in_stock: true, url: "" }])
+                    setOffers((o) => [...o, { retailer_id: e.target.value, price: 0, original_price: 0, price_max: null, shipping: 0, in_stock: true, url: "" }])
                   }
                   aria-label="Add a store"
                 >
@@ -425,26 +472,11 @@ export default function ProductEditor({ params }: { params: { id: string } }) {
                   return (
                     <div
                       key={o.retailer_id}
-                      className={cn("grid gap-3 rounded-2xl border border-ink/15 p-3 sm:items-end", draft.price_tracked ? "sm:grid-cols-[150px_1fr_1fr_1fr_auto]" : "sm:grid-cols-[1fr_auto]")}
+                      className="grid gap-3 rounded-2xl border border-ink/15 p-3"
                     >
-                      <div className="flex items-center gap-2 pb-2">
+                      <div className="flex items-center gap-3">
                         <RetailerBadge id={o.retailer_id} withName size="sm" />
-                      </div>
-                      {draft.price_tracked && (
-                        <>
-                          <Field label="Price ₱">
-                            <input type="number" min={0} className={adminInput} value={o.price} onChange={(e) => update({ price: Number(e.target.value) })} />
-                          </Field>
-                          <Field label="Was ₱">
-                            <input type="number" min={0} className={adminInput} value={o.original_price} onChange={(e) => update({ original_price: Number(e.target.value) })} />
-                          </Field>
-                          <Field label="Shipping ₱">
-                            <input type="number" min={0} className={adminInput} value={o.shipping} onChange={(e) => update({ shipping: Number(e.target.value) })} />
-                          </Field>
-                        </>
-                      )}
-                      <div className="flex items-center gap-3 pb-1.5">
-                        <span className="flex items-center gap-2 text-xs text-ink/60">
+                        <span className="ml-auto flex items-center gap-2 text-xs text-ink/60">
                           <Toggle on={o.in_stock} onChange={() => update({ in_stock: !o.in_stock })} label="In stock" /> In stock
                         </span>
                         {!liveLocked && (
@@ -453,10 +485,32 @@ export default function ProductEditor({ params }: { params: { id: string } }) {
                           </button>
                         )}
                       </div>
+                      {draft.price_tracked && (
+                        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+                          <Field label="Price ₱">
+                            <input type="number" min={0} className={adminInput} value={o.price} onChange={(e) => update({ price: Number(e.target.value) })} />
+                          </Field>
+                          <Field label="Up to ₱ (range)">
+                            <input
+                              type="number"
+                              min={0}
+                              className={adminInput}
+                              value={o.price_max ?? ""}
+                              onChange={(e) => update({ price_max: e.target.value ? Number(e.target.value) : null })}
+                              placeholder="Optional"
+                            />
+                          </Field>
+                          <Field label="Was ₱">
+                            <input type="number" min={0} className={adminInput} value={o.original_price} onChange={(e) => update({ original_price: Number(e.target.value) })} />
+                          </Field>
+                          <Field label="Shipping ₱">
+                            <input type="number" min={0} className={adminInput} value={o.shipping} onChange={(e) => update({ shipping: Number(e.target.value) })} />
+                          </Field>
+                        </div>
+                      )}
                       <Field
                         label="Product link at store"
                         hint="Paste the product's affiliate link here to earn on this exact product. Left empty, the store's affiliate link is used."
-                        className={draft.price_tracked ? "sm:col-span-5" : "sm:col-span-2"}
                       >
                         <input
                           className={cn(adminInput, offerProblem(o) && "!border-coral")}
@@ -482,6 +536,20 @@ export default function ProductEditor({ params }: { params: { id: string } }) {
         </div>
 
         <div className="space-y-6">
+          <ProductChecklist
+            items={[
+              { label: "Photo", done: !!draft.image.trim() && !imageProblem },
+              { label: "Brand", done: !!draft.brand.trim() },
+              { label: "Category and type", done: !!draft.category_id && !!draft.subcategory.trim() },
+              { label: "Description", done: draft.description.trim().length >= 40 },
+              { label: "Price at a store", done: !draft.price_tracked || offers.some((o) => o.price > 0) },
+              { label: "Product link at the store", done: offers.some((o) => o.url.trim()) },
+              { label: "Colors / shades", done: draft.colors.some((c) => c.name.trim()), optional: true },
+              { label: "Promotions", done: draft.promotions.some((p) => p.text.trim()), optional: true },
+              { label: "Store rating with its source", done: draft.review_count > 0 && !!draft.rating_source, optional: true },
+            ]}
+          />
+
           <Panel title="Visibility">
             <div className="space-y-3 text-sm">
               {!canPublish && (

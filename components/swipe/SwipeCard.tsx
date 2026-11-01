@@ -9,7 +9,7 @@ import { DealScoreRing, DiscountBadge, scoreColor } from "@/components/product/D
 import { ProductImage } from "@/components/product/ProductImage";
 import { RetailerBadge, RetailerStack } from "@/components/product/RetailerBadge";
 import { brandOf } from "@/lib/data/brands";
-import { discountPct } from "@/lib/data/products";
+import { discountPct, hasRange, offerPriceLabel } from "@/lib/data/products";
 import { offerHref, retailerById } from "@/lib/data/retailers";
 import { getInsight } from "@/lib/insights";
 import type { SwipeAction } from "@/lib/store";
@@ -126,8 +126,8 @@ export const SwipeCard = forwardRef<SwipeCardHandle, Props>(function SwipeCard({
               </h3>
               {insight.priced ? (
                 <div className="mt-1.5 flex items-center gap-2">
-                  <span className="text-lg font-extrabold">{peso(insight.bestOffer.price)}</span>
-                  {pct > 0 && <span className="text-sm text-white/60 line-through">{peso(insight.bestOffer.originalPrice)}</span>}
+                  <span className="text-lg font-extrabold">{offerPriceLabel(insight.bestOffer, "–")}</span>
+                  {pct > 0 && !hasRange(insight.bestOffer) && <span className="text-sm text-white/60 line-through">{peso(insight.bestOffer.originalPrice)}</span>}
                   <DiscountBadge pct={pct} />
                 </div>
               ) : (
@@ -213,7 +213,7 @@ export const SwipeCard = forwardRef<SwipeCardHandle, Props>(function SwipeCard({
                     <li key={o.retailer} className={cn("flex items-center justify-between rounded-2xl border px-3 py-2.5", i === 0 ? "border-emerald-300 bg-emerald-50/60" : "border-line")}>
                       <RetailerBadge id={o.retailer} withName size="sm" />
                       <span className="text-right">
-                        <span className="block text-sm font-bold">{peso(o.price)}</span>
+                        <span className="block text-sm font-bold">{offerPriceLabel(o, "–")}</span>
                         <span className="flex items-center justify-end gap-1 text-[10px] text-midnight/50">
                           <Truck className="h-3 w-3" /> {o.shipping ? peso(o.shipping) : "Free"} {!o.inStock && "· Sold out"}
                         </span>

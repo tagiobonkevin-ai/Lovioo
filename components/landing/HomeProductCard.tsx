@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { HeartButton } from "@/components/product/HeartButton";
-import { bestOffer, discountPct, isPriced, lowestPrice } from "@/lib/data/products";
+import { bestOffer, discountPct, hasRange, isPriced, lowestPrice, offerPriceLabel } from "@/lib/data/products";
 import { retailerById } from "@/lib/data/retailers";
 import type { Product } from "@/lib/types";
 import { cn, peso } from "@/lib/utils";
@@ -44,8 +44,8 @@ export function HomeProductCard({ product, className }: { product: Product; clas
             {priced ? (
               <>
                 <p className="flex flex-wrap items-baseline gap-x-1.5">
-                  <span className="text-[17px] font-extrabold">{peso(lowestPrice(product))}</span>
-                  {best && best.originalPrice > best.price && <span className="text-[11px] text-ink/40 line-through">{peso(best.originalPrice)}</span>}
+                  <span className={cn("font-extrabold", best && hasRange(best) ? "text-[15px]" : "text-[17px]")}>{best ? offerPriceLabel(best, "–") : peso(lowestPrice(product))}</span>
+                  {best && best.originalPrice > best.price && !hasRange(best) && <span className="text-[11px] text-ink/40 line-through">{peso(best.originalPrice)}</span>}
                 </p>
                 {best && <p className="text-[11px] text-ink/50">on {retailerById(best.retailer).name}</p>}
               </>

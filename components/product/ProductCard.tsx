@@ -4,7 +4,7 @@ import { GitCompareArrows, Star } from "lucide-react";
 import Link from "next/link";
 import { useHydrated } from "@/components/Providers";
 import { brandOf } from "@/lib/data/brands";
-import { bestOffer, discountPct, isPriced } from "@/lib/data/products";
+import { bestOffer, discountPct, hasRange, isPriced, offerPriceLabel } from "@/lib/data/products";
 import { useLovioo } from "@/lib/store";
 import type { Product } from "@/lib/types";
 import { cn, compact, peso } from "@/lib/utils";
@@ -72,8 +72,8 @@ export function ProductCard({ product, showCompare = true, className }: { produc
           <div className="min-w-0">
             {isPriced(product) ? (
               <p className="flex flex-wrap items-baseline gap-x-1.5">
-                <span className="text-[17px] font-extrabold">{peso(best.price)}</span>
-                {best.originalPrice > best.price && <span className="text-[11px] text-ink/40 line-through">{peso(best.originalPrice)}</span>}
+                <span className={cn("font-extrabold", hasRange(best) ? "text-[15px]" : "text-[17px]")}>{offerPriceLabel(best, "–")}</span>
+                {best.originalPrice > best.price && !hasRange(best) && <span className="text-[11px] text-ink/40 line-through">{peso(best.originalPrice)}</span>}
               </p>
             ) : (
               <Link href={`/product/${product.slug}`} className="text-[13px] font-bold text-pink">

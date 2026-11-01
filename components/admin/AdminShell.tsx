@@ -1,7 +1,7 @@
 "use client";
 
 import type { Session } from "@supabase/supabase-js";
-import { BadgeCheck, BarChart3, ClipboardCheck, ExternalLink, FolderTree, Handshake, Layers, LayoutDashboard, LineChart, LogOut, Menu, MessageCircleHeart, Package, ReceiptText, Settings, Store, Tag, Users, X } from "lucide-react";
+import { BadgeCheck, BarChart3, ClipboardCheck, ExternalLink, FolderTree, Handshake, Layers, LayoutDashboard, LineChart, MessageSquareQuote, LogOut, Menu, MessageCircleHeart, Package, ReceiptText, Settings, Store, Tag, Users, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { createContext, useContext, useEffect, useState } from "react";
@@ -17,6 +17,7 @@ const NAV: { href: string; label: string; icon: React.ElementType; editor?: bool
   { href: "/admin/insights", label: "Shopper Insights", icon: LineChart },
   { href: "/admin/products", label: "Products", icon: Package, editor: true },
   { href: "/admin/review", label: "Review queue", icon: ClipboardCheck },
+  { href: "/admin/reviews", label: "Shopper reviews", icon: MessageSquareQuote },
   { href: "/admin/prices", label: "Price list", icon: ReceiptText, editor: true },
   { href: "/admin/brands", label: "Brands", icon: BadgeCheck },
   { href: "/admin/partners", label: "Brand Partners", icon: Handshake },
@@ -106,7 +107,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
   const nav = (
     <nav className="space-y-1">
       {NAV.filter((n) => allowed(n.href)).map(({ href, label, icon: Icon }) => {
-        const active = href === "/admin" ? pathname === href : pathname.startsWith(href);
+        const active = pathname === href || (href !== "/admin" && pathname.startsWith(href + "/"));
         const badge = href === "/admin/review" ? waiting : 0;
         return (
           <Link
