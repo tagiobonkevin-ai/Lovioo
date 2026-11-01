@@ -115,7 +115,7 @@ function Card({ item, className = "" }: { item: SwipeDemoItem; className?: strin
       </div>
       <Link href={`/product/${item.slug}`} className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-ink/80 via-ink/30 to-transparent p-4 pt-12 text-white">
         <span className="block truncate text-[10px] font-bold uppercase tracking-[0.1em] text-white/75">{item.brand}</span>
-        <span className="mt-0.5 line-clamp-2 text-[14px] font-bold leading-snug">{item.name}</span>
+        <span className="mt-0.5 line-clamp-2 text-[13px] font-semibold leading-snug">{item.name}</span>
         {item.price !== undefined && <span className="mt-1 block text-[17px] font-extrabold">{peso(item.price)}</span>}
       </Link>
     </div>

@@ -24,7 +24,7 @@ export function DealCard({ deal, className }: { deal: Deal; className?: string }
         )}
       </div>
       <p className="mt-3 text-[11px] font-bold uppercase tracking-[0.08em] text-ink/45">{deal.brand}</p>
-      <p className="mt-0.5 line-clamp-2 text-[14px] font-semibold leading-snug text-ink">{deal.name}</p>
+      <p className="mt-0.5 line-clamp-2 text-[13px] font-semibold leading-snug text-ink">{deal.name}</p>
       <p className="mt-1 flex flex-wrap items-baseline gap-x-1.5 text-[13px]">
         <span className="text-[17px] font-extrabold text-pink">{peso(deal.price)}</span>
         {deal.off > 0 && <span className="text-ink/40 line-through">{peso(deal.originalPrice)}</span>}

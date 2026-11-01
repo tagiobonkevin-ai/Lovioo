@@ -172,7 +172,7 @@ function DealCarousel({ products }: { products: typeof PRODUCTS }) {
         >
           <div>
             <span className="chip border-none bg-white/80 text-pink">Top deal just for you</span>
-            <h2 className="mt-3 line-clamp-2 text-[17px] leading-snug [overflow-wrap:anywhere] sm:line-clamp-3 sm:text-3xl sm:leading-[1.45]">{p.name}</h2>
+            <h2 className="mt-3 line-clamp-2 font-sans text-[15px] font-semibold leading-snug tracking-normal [overflow-wrap:anywhere] sm:line-clamp-3 sm:text-[20px]">{p.name}</h2>
             <p className="mt-2 text-sm text-ink/70">
               {peso(ins.bestOffer.price)} on {retailerById(ins.bestOffer.retailer).name} · {ins.headline}
             </p>

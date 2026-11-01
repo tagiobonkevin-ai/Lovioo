@@ -122,7 +122,7 @@ export default function SavedPage() {
                   <ProductImage product={p} className="h-16 w-16 rounded-2xl" emojiSize="text-3xl" />
                 </Link>
                 <div className="min-w-0 flex-1">
-                  <Link href={`/product/${p.slug}`} className="line-clamp-1 font-semibold hover:text-pink">
+                  <Link href={`/product/${p.slug}`} className="line-clamp-1 text-[14px] font-semibold hover:text-pink">
                     {p.name}
                   </Link>
                   <p className="flex items-center gap-1.5 text-sm text-ink/60">
