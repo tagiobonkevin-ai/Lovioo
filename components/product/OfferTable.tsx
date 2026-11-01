@@ -2,7 +2,7 @@
 
 import { ExternalLink, Truck } from "lucide-react";
 import { AffiliateNote } from "@/components/legal/AffiliateNote";
-import { isPriced } from "@/lib/data/products";
+import { hasRange, isPriced, offerPriceLabel } from "@/lib/data/products";
 import { offerHref, retailerById, storeSearchHref } from "@/lib/data/retailers";
 import type { Product } from "@/lib/types";
 import { getSupabase } from "@/lib/supabase/client";
@@ -42,8 +42,8 @@ export function OfferTable({ product }: { product: Product }) {
                 </span>
                 <span className="min-w-[7rem]">
                   <span className="flex items-baseline gap-2">
-                    <span className="text-[18px] leading-[1.5]">{peso(o.price)}</span>
-                    {off > 0 && <span className="text-xs text-ink/40 line-through">{peso(o.originalPrice)}</span>}
+                    <span className="text-[18px] leading-[1.5]">{offerPriceLabel(o)}</span>
+                    {off > 0 && !hasRange(o) && <span className="text-xs text-ink/40 line-through">{peso(o.originalPrice)}</span>}
                     {off > 0 && <span className="rounded-full bg-emerald-50 px-1.5 py-0.5 text-[10px] font-bold text-emerald-600">-{off}%</span>}
                   </span>
                   <span className="flex items-center gap-1 text-xs text-ink/60">

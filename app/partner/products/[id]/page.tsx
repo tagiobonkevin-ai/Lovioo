@@ -6,6 +6,8 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "@/components/Providers";
 import { MAX_EXTRA_PHOTOS, PhotoSlides } from "@/components/admin/PhotoSlides";
+import { ProductChecklist } from "@/components/admin/ProductChecklist";
+import { ColorsEditor, PromotionsEditor, colorsJson, extrasProblem, parseColorRows, parsePromoRows, promotionsJson, type ColorRow, type PromoRow } from "@/components/admin/ProductExtras";
 import { adminDb, useAdminQuery } from "@/components/admin/useAdmin";
 import { ErrorNote, Field, PageHeader, Panel, Skeleton, adminInput } from "@/components/admin/ui";
 import { usePartner } from "@/components/partner/PartnerShell";
@@ -22,6 +24,7 @@ type OfferRow = Database["public"]["Tables"]["offers"]["Row"];
 interface Offer {
   retailer_id: string;
   price: number;
+  price_max: number | null;
   original_price: number;
   in_stock: boolean;
   url: string;
@@ -35,14 +38,19 @@ interface Draft {
   description: string;
   highlights: string;
   tags: string;
+  colors: ColorRow[];
+  promotions: PromoRow[];
 }
 
-const EMPTY: Draft = { name: "", category_id: "", subcategory: "", image: "", images: [], description: "", highlights: "", tags: "" };
+const EMPTY: Draft = { name: "", category_id: "", subcategory: "", image: "", images: [], description: "", highlights: "", tags: "", colors: [], promotions: [] };
 const slugify = (s: string) => s.toLowerCase().replace(/['"]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "").slice(0, 70);
 const list = (s: string, sep: RegExp) => s.split(sep).map((x) => x.trim()).filter(Boolean);
 const storeName = (id: string) => retailerById(id).name;
 /** Fields a partner edits; on a live product changes to these go to Lovioo's review queue. */
-const CONTENT = ["name", "category_id", "subcategory", "image", "images", "description", "highlights", "tags"] as const;
+const CONTENT = ["name", "category_id", "subcategory", "image", "images", "description", "highlights", "tags", "colors", "promotions"] as const;
+/** Compare JSON columns by content, not key order (Postgres reorders jsonb keys). */
+const comparable = (k: string, v: unknown) =>
+  JSON.stringify(k === "colors" ? colorsJson(parseColorRows(v as Json)) : k === "promotions" ? promotionsJson(parsePromoRows(v as Json)) : v);
 
 /**
  * Brand Partner product editor. The brand is fixed to the partner's own; ratings, "trending" and publishing are
@@ -81,8 +89,10 @@ export default function PartnerProductEditor({ params }: { params: { id: string 
       description: data.description,
       highlights: data.highlights.join("\n"),
       tags: data.tags.join(", "),
+      colors: parseColorRows(data.colors),
+      promotions: parsePromoRows(data.promotions),
     });
-    setOffers(data.offers.map((o) => ({ retailer_id: o.retailer_id, price: o.price, original_price: o.original_price, in_stock: o.in_stock, url: o.url })));
+    setOffers(data.offers.map((o) => ({ retailer_id: o.retailer_id, price: o.price, price_max: o.price_max, original_price: o.original_price, in_stock: o.in_stock, url: o.url })));
   }, [data]);
 
   const live = !!data?.published;
@@ -103,6 +113,8 @@ export default function PartnerProductEditor({ params }: { params: { id: string 
     description: draft.description.trim().slice(0, 4000),
     highlights: list(draft.highlights, /\n/).slice(0, 8),
     tags: list(draft.tags, /,/).slice(0, 12),
+    colors: colorsJson(draft.colors),
+    promotions: promotionsJson(draft.promotions),
   });
 
   const check = () => {
@@ -117,7 +129,10 @@ export default function PartnerProductEditor({ params }: { params: { id: string 
       const e = linkError(`${storeName(o.retailer_id)} link`, o.url);
       if (e) return fail(e);
       if (!(o.price > 0)) return fail(`Enter the ${storeName(o.retailer_id)} price.`);
+      if (o.price_max && o.price_max < o.price) return fail(`${storeName(o.retailer_id)}: "Up to ₱" must be at least the price.`);
     }
+    const extras = extrasProblem(draft.colors, draft.promotions);
+    if (extras) return fail(extras);
     return true;
   };
 
@@ -125,6 +140,7 @@ export default function PartnerProductEditor({ params }: { params: { id: string 
     product_id: productId,
     retailer_id: o.retailer_id,
     price: Math.round(o.price),
+    price_max: o.price_max && o.price_max > o.price ? Math.round(o.price_max) : null,
     original_price: Math.max(Math.round(o.original_price || 0), Math.round(o.price)),
     shipping: 0,
     in_stock: o.in_stock,
@@ -190,7 +206,7 @@ export default function PartnerProductEditor({ params }: { params: { id: string 
     const product: { [k: string]: Json } = {};
     for (const k of CONTENT) {
       const before = data[k as keyof ProductRow];
-      if (JSON.stringify(next[k]) !== JSON.stringify(before)) product[k] = next[k] as Json;
+      if (comparable(k, next[k]) !== comparable(k, before)) product[k] = next[k] as Json;
     }
     const links: ChangeSet["offers"] = {};
     for (const o of offers) {
@@ -285,6 +301,14 @@ export default function PartnerProductEditor({ params }: { params: { id: string 
             </div>
           </Panel>
 
+          <Panel title="Colors / shades">
+            <ColorsEditor rows={draft.colors} onChange={(rows) => set("colors", rows)} />
+          </Panel>
+
+          <Panel title="Promotions">
+            <PromotionsEditor rows={draft.promotions} onChange={(rows) => set("promotions", rows)} />
+          </Panel>
+
           <Panel title="Where to buy">
             <p className="-mt-1 mb-3 text-xs text-ink/55">The exact product page on each store. Use “Official store” for your own website. Prices should match the store today.</p>
             <ul className="space-y-3">
@@ -301,9 +325,19 @@ export default function PartnerProductEditor({ params }: { params: { id: string 
                         <Trash2 className="h-4 w-4" />
                       </button>
                     </div>
-                    <div className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-[1fr_1fr_auto]">
+                    <div className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-[1fr_1fr_1fr_auto]">
                       <Field label="Price ₱">
                         <input type="number" min={0} inputMode="decimal" className={adminInput} value={o.price || ""} onChange={(e) => setOffer(i, { price: Number(e.target.value) })} />
+                      </Field>
+                      <Field label="Up to ₱ (if shades differ)">
+                        <input
+                          type="number"
+                          min={0}
+                          inputMode="decimal"
+                          className={adminInput}
+                          value={o.price_max ?? ""}
+                          onChange={(e) => setOffer(i, { price_max: e.target.value ? Number(e.target.value) : null })}
+                        />
                       </Field>
                       <Field label="Was ₱ (optional)">
                         <input type="number" min={0} inputMode="decimal" className={adminInput} value={o.original_price || ""} onChange={(e) => setOffer(i, { original_price: Number(e.target.value) })} />
@@ -329,7 +363,7 @@ export default function PartnerProductEditor({ params }: { params: { id: string 
                 {stores.map((r) => (
                   <button
                     key={r.id}
-                    onClick={() => setOffers((os) => [...os, { retailer_id: r.id, price: 0, original_price: 0, in_stock: true, url: "" }])}
+                    onClick={() => setOffers((os) => [...os, { retailer_id: r.id, price: 0, price_max: null, original_price: 0, in_stock: true, url: "" }])}
                     className="chip !py-1.5 text-xs"
                   >
                     <Plus className="h-3.5 w-3.5" /> {r.name}
@@ -341,6 +375,18 @@ export default function PartnerProductEditor({ params }: { params: { id: string 
         </div>
 
         <div className="space-y-5">
+          <ProductChecklist
+            items={[
+              { label: "Photo", done: !!draft.image.trim() && !linkError("Cover photo", draft.image) },
+              { label: "Category and type", done: !!draft.category_id && !!draft.subcategory.trim() },
+              { label: "Description", done: draft.description.trim().length >= 40 },
+              { label: "Price at a store", done: offers.some((o) => o.price > 0) },
+              { label: "Product link at the store", done: offers.some((o) => o.url.trim()) },
+              { label: "Colors / shades", done: draft.colors.some((c) => c.name.trim()), optional: true },
+              { label: "Promotions", done: draft.promotions.some((p) => p.text.trim()), optional: true },
+            ]}
+          />
+
           <Panel title="Photos">
             <Field label="Cover photo link" hint="https:// link to a clear product photo (square works best)">
               <input className={adminInput} value={draft.image} onChange={(e) => set("image", e.target.value)} placeholder="https://…" />

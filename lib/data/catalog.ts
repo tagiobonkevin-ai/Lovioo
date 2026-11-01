@@ -1,5 +1,5 @@
 import type { Database } from "@/lib/supabase/database.types";
-import type { Offer, Product } from "@/lib/types";
+import type { Offer, Product, ProductColor, ProductPromotion } from "@/lib/types";
 import { BRAND_LIST, type Brand } from "./brands";
 import { CATEGORIES, type Category } from "./categories";
 import { COLLECTIONS, type Collection } from "./collections";
@@ -73,10 +73,38 @@ export function mapRetailer(r: Tables["retailers"]["Row"]): Retailer {
 }
 
 export function mapOffer(o: Tables["offers"]["Row"]): Offer {
-  return { retailer: o.retailer_id, price: o.price, originalPrice: o.original_price, shipping: o.shipping, inStock: o.in_stock, url: o.url, updatedAt: o.updated_at };
+  return {
+    retailer: o.retailer_id,
+    price: o.price,
+    originalPrice: o.original_price,
+    shipping: o.shipping,
+    inStock: o.in_stock,
+    url: o.url,
+    priceMax: o.price_max != null && o.price_max > o.price ? o.price_max : undefined,
+    updatedAt: o.updated_at,
+  };
 }
 
 /** Maps a product row (with offers) to the app's Product. Offers from inactive stores are dropped. */
+/** Colors and promotions come from JSON columns; keep only well-formed entries. */
+function parseColors(v: unknown): ProductColor[] {
+  if (!Array.isArray(v)) return [];
+  return v.flatMap((c) =>
+    c && typeof c === "object" && typeof (c as ProductColor).name === "string" && (c as ProductColor).name.trim()
+      ? [{ name: (c as ProductColor).name, hex: (c as ProductColor).hex || undefined, image: (c as ProductColor).image || undefined }]
+      : [],
+  );
+}
+function parsePromotions(v: unknown): ProductPromotion[] {
+  if (!Array.isArray(v)) return [];
+  return v.flatMap((p) => {
+    const o = p as { text?: unknown; retailer_id?: unknown; ends_on?: unknown };
+    return o && typeof o.text === "string" && o.text.trim()
+      ? [{ text: o.text, retailer: typeof o.retailer_id === "string" && o.retailer_id ? o.retailer_id : undefined, endsOn: typeof o.ends_on === "string" && o.ends_on ? o.ends_on : undefined }]
+      : [];
+  });
+}
+
 export function mapProduct(row: ProductRow, stats: StatsRow | undefined, activeRetailers: Set<string>): Product {
   const offers = row.offers.filter((o) => activeRetailers.has(o.retailer_id)).map(mapOffer);
   const lowestNow = offers.length ? Math.min(...offers.map((o) => o.price)) : 0;
@@ -95,6 +123,9 @@ export function mapProduct(row: ProductRow, stats: StatsRow | undefined, activeR
     vibes: row.vibes as Product["vibes"],
     rating: Number(row.rating),
     reviewCount: row.review_count,
+    ratingSource: row.rating_source ?? undefined,
+    colors: parseColors(row.colors),
+    promotions: parsePromotions(row.promotions),
     description: row.description,
     highlights: row.highlights,
     isNew: row.is_new,

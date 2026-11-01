@@ -76,9 +76,9 @@ export type Database = {
         Relationships: [];
       };
       offers: {
-        Row: { in_stock: boolean; original_price: number; price: number; product_id: string; retailer_id: string; shipping: number; updated_at: string; url: string };
-        Insert: { in_stock?: boolean; original_price: number; price: number; product_id: string; retailer_id: string; shipping?: number; updated_at?: string; url?: string };
-        Update: { in_stock?: boolean; original_price?: number; price?: number; product_id?: string; retailer_id?: string; shipping?: number; updated_at?: string; url?: string };
+        Row: { in_stock: boolean; original_price: number; price: number; price_max: number | null; product_id: string; retailer_id: string; shipping: number; updated_at: string; url: string };
+        Insert: { in_stock?: boolean; original_price: number; price: number; price_max?: number | null; product_id: string; retailer_id: string; shipping?: number; updated_at?: string; url?: string };
+        Update: { in_stock?: boolean; original_price?: number; price?: number; price_max?: number | null; product_id?: string; retailer_id?: string; shipping?: number; updated_at?: string; url?: string };
         Relationships: [
           { foreignKeyName: "offers_product_id_fkey"; columns: ["product_id"]; isOneToOne: false; referencedRelation: "products"; referencedColumns: ["id"] },
           { foreignKeyName: "offers_retailer_id_fkey"; columns: ["retailer_id"]; isOneToOne: false; referencedRelation: "retailers"; referencedColumns: ["id"] },
@@ -108,6 +108,12 @@ export type Database = {
           { foreignKeyName: "product_events_retailer_id_fkey"; columns: ["retailer_id"]; isOneToOne: false; referencedRelation: "retailers"; referencedColumns: ["id"] },
         ];
       };
+      product_reviews: {
+        Row: { id: number; product_id: string; user_id: string; rating: number; body: string; reviewer_name: string; hidden: boolean; created_at: string; updated_at: string };
+        Insert: { id?: never; product_id: string; user_id?: string; rating: number; body?: string; reviewer_name?: string; hidden?: boolean; created_at?: string; updated_at?: string };
+        Update: { id?: never; product_id?: string; user_id?: string; rating?: number; body?: string; reviewer_name?: string; hidden?: boolean; created_at?: string; updated_at?: string };
+        Relationships: [];
+      };
       search_events: {
         Row: { created_at: string; id: number; query: string; results: number; user_id: string | null };
         Insert: { created_at?: string; id?: never; query: string; results?: number; user_id?: string | null };
@@ -125,16 +131,19 @@ export type Database = {
           brand: string; brand_id: string | null; category_id: string; created_at: string; description: string; emoji: string; highlights: string[]; id: string; image: string; images: string[];
           is_new: boolean; name: string; price_tracked: boolean; published: boolean; rating: number; review_requested_at: string | null; review_requested_by: string | null; review_count: number; slug: string; sort: number; subcategory: string;
           tags: string[]; trending: boolean; updated_at: string; vibes: string[];
+          colors: Json; promotions: Json; rating_source: string | null;
         };
         Insert: {
           brand: string; brand_id?: string | null; category_id: string; created_at?: string; description?: string; emoji?: string; highlights?: string[]; id?: string; image?: string; images?: string[];
           is_new?: boolean; name: string; price_tracked?: boolean; published?: boolean; review_requested_at?: string | null; review_requested_by?: string | null; rating?: number; review_count?: number; slug: string; sort?: number; subcategory?: string;
           tags?: string[]; trending?: boolean; updated_at?: string; vibes?: string[];
+          colors?: Json; promotions?: Json; rating_source?: string | null;
         };
         Update: {
           brand?: string; brand_id?: string | null; category_id?: string; created_at?: string; description?: string; emoji?: string; highlights?: string[]; id?: string; image?: string; images?: string[];
           is_new?: boolean; name?: string; price_tracked?: boolean; published?: boolean; review_requested_at?: string | null; review_requested_by?: string | null; rating?: number; review_count?: number; slug?: string; sort?: number; subcategory?: string;
           tags?: string[]; trending?: boolean; updated_at?: string; vibes?: string[];
+          colors?: Json; promotions?: Json; rating_source?: string | null;
         };
         Relationships: [{ foreignKeyName: "products_category_id_fkey"; columns: ["category_id"]; isOneToOne: false; referencedRelation: "categories"; referencedColumns: ["id"] }];
       };

@@ -57,7 +57,9 @@ export default function PrivacyPage() {
                 province. If you sign up with Google, we also keep your Google name and profile photo. We store your saved products, price alerts, swipes and
                 preferences, your consent choices, and feedback you send. We also count product views, store clicks, searches and questions asked to Lovioo AI, to
                 see what shoppers look for. These are not linked to you unless you allow analytics; if you do, they are linked to your account so Lovioo can
-                improve. Brand partners only ever see totals for their own products, never who you are. Lovioo never asks for card details or store passwords.
+                improve. Brand partners only ever see totals for their own products, never who you are. Reviews you write on a product
+                are shown to other members with your first name and last initial; you can edit or delete them any time. Lovioo never asks for card
+                details or store passwords.
               </LegalNote>
             </>
           ),

@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowLeft, Bell, BellRing, Check, GitCompareArrows, Heart, Share2, ShoppingBag, Star } from "lucide-react";
+import { ArrowLeft, Bell, BellRing, Check, Gift, GitCompareArrows, Heart, Palette, Share2, ShoppingBag, Star } from "lucide-react";
 import Link from "next/link";
 import { notFound, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -12,15 +12,16 @@ import { PriceHistoryChart } from "@/components/product/PriceHistoryChart";
 import { ProductCard } from "@/components/product/ProductCard";
 import { ProductGallery } from "@/components/product/ProductGallery";
 import { ProductImage } from "@/components/product/ProductImage";
+import { ProductReviews, Stars, useProductReviews } from "@/components/product/ProductReviews";
 import { toast, useHydrated } from "@/components/Providers";
 import { brandOf } from "@/lib/data/brands";
 import { categoryById } from "@/lib/data/categories";
-import { bestOffer, discountPct, isPriced, productBySlug } from "@/lib/data/products";
+import { bestOffer, discountPct, hasRange, isPriced, offerPriceLabel, productBySlug } from "@/lib/data/products";
 import { offerHref, retailerById } from "@/lib/data/retailers";
 import { getInsight } from "@/lib/insights";
 import { similarProducts } from "@/lib/recommend";
 import { useLovioo } from "@/lib/store";
-import type { Product } from "@/lib/types";
+import type { Product, ProductColor } from "@/lib/types";
 import { getSupabase } from "@/lib/supabase/client";
 import { trackEvent } from "@/lib/sync";
 import { cn, compact, peso } from "@/lib/utils";
@@ -50,6 +51,10 @@ function ProductView({ product }: { product: Product }) {
   const router = useRouter();
   const [more, setMore] = useState(false);
   const shop = offerHref(best.retailer, best.url, product.name);
+  const reviews = useProductReviews(product.id);
+  const promotions = activePromotions(product);
+  const colors = product.colors ?? [];
+  const [color, setColor] = useState<ProductColor | null>(null);
 
   useEffect(() => trackEvent(getSupabase(), product.id, "view"), [product.id]);
 
@@ -107,15 +112,30 @@ function ProductView({ product }: { product: Product }) {
             <p className="text-sm font-medium text-ink/50">{product.brand}</p>
           )}
           <h1 className="mt-1 font-sans text-[17px] font-semibold leading-snug tracking-normal [overflow-wrap:anywhere] sm:text-[20px]">{product.name}</h1>
-          {product.reviewCount > 0 && (
-            <div className="mt-2 flex items-center gap-2 text-sm">
-              <span className="flex">
-                {Array.from({ length: 5 }).map((_, i) => (
-                  <Star key={i} className={cn("h-4 w-4", i < Math.round(product.rating) ? "fill-sunset text-sunset" : "text-line")} />
-                ))}
-              </span>
-              <span className="font-semibold">{product.rating}</span>
-              <span className="text-ink/50">({compact(product.reviewCount)} reviews)</span>
+          <Link
+            href={`/search?category=${cat.id}`}
+            className="mt-2 inline-flex max-w-full items-center gap-1 truncate rounded-full bg-surface px-2.5 py-1 text-[11px] font-semibold text-ink/65 hover:text-pink"
+          >
+            <span aria-hidden>{cat.emoji}</span> {cat.name}
+            {product.subcategory && <span className="text-ink/40">› {product.subcategory}</span>}
+          </Link>
+          {(product.reviewCount > 0 || reviews.count > 0) && (
+            <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm">
+              {product.reviewCount > 0 && (
+                <span className="flex items-center gap-1.5">
+                  <Stars value={product.rating} />
+                  <span className="font-semibold">{product.rating}</span>
+                  <span className="text-ink/50">
+                    {compact(product.reviewCount)} ratings{product.ratingSource ? ` on ${retailerById(product.ratingSource).name}` : ""}
+                  </span>
+                </span>
+              )}
+              {reviews.count > 0 && (
+                <a href="#reviews" className="flex items-center gap-1 text-ink/60 hover:text-pink">
+                  <Star className="h-3.5 w-3.5 fill-pink text-pink" aria-hidden />
+                  <span className="font-semibold text-ink">{reviews.average.toFixed(1)}</span> · {reviews.count} Lovioo {reviews.count === 1 ? "review" : "reviews"}
+                </a>
+              )}
             </div>
           )}
           <div className="mt-3 flex flex-wrap gap-1.5">
@@ -129,12 +149,12 @@ function ProductView({ product }: { product: Product }) {
           {priced ? (
             <>
               <div className="mt-6 flex items-end gap-3">
-                <span className="text-3xl font-extrabold sm:text-4xl">{peso(best.price)}</span>
-                {best.originalPrice > best.price && <span className="pb-1 text-ink/40 line-through">{peso(best.originalPrice)}</span>}
-                <DiscountBadge pct={pct} className="mb-1.5" />
+                <span className={cn("font-extrabold", hasRange(best) ? "text-[26px] sm:text-3xl" : "text-3xl sm:text-4xl")}>{offerPriceLabel(best)}</span>
+                {best.originalPrice > best.price && !hasRange(best) && <span className="pb-1 text-ink/40 line-through">{peso(best.originalPrice)}</span>}
+                {!hasRange(best) && <DiscountBadge pct={pct} className="mb-1.5" />}
               </div>
               <p className="mt-1 text-sm text-ink/60">
-                Lowest price on <b>{retailerById(best.retailer).name}</b> · {product.offers.length === 1 ? "the only store we track for it right now" : `compared across ${product.offers.length} stores`}
+                {hasRange(best) ? "Price depends on the shade or size you pick" : "Lowest price"} on <b>{retailerById(best.retailer).name}</b> · {product.offers.length === 1 ? "the only store we track for it right now" : `compared across ${product.offers.length} stores`}
               </p>
             </>
           ) : (
@@ -190,6 +210,63 @@ function ProductView({ product }: { product: Product }) {
             </a>
           )}
 
+          {promotions.length > 0 && (
+            <div className="mt-6">
+              <h2 className="flex items-center gap-1.5 font-sans text-[13px] font-bold uppercase tracking-[0.12em] text-pink">
+                <Gift className="h-4 w-4" aria-hidden /> Promotions
+              </h2>
+              <ul className="mt-2 flex flex-wrap gap-2">
+                {promotions.map((p, i) => (
+                  <li key={i} className="rounded-2xl bg-pink-soft px-3 py-2 text-[13px] font-semibold text-ink">
+                    🎁 {p.text}
+                    {(p.retailer || p.endsOn) && (
+                      <span className="font-normal text-ink/55">
+                        {p.retailer ? ` · ${retailerById(p.retailer).name}` : ""}
+                        {p.endsOn ? ` · until ${new Date(p.endsOn + "T00:00:00").toLocaleDateString("en-PH", { month: "short", day: "numeric" })}` : ""}
+                      </span>
+                    )}
+                  </li>
+                ))}
+              </ul>
+              <p className="mt-1.5 text-[11px] text-ink/45">Promotions are set by each store and may change. Check the store before you buy.</p>
+            </div>
+          )}
+
+          {colors.length > 0 && (
+            <div className="mt-6">
+              <h2 className="flex items-center gap-1.5 font-sans text-[13px] font-bold uppercase tracking-[0.12em] text-pink">
+                <Palette className="h-4 w-4" aria-hidden /> Colors · {colors.length} {colors.length === 1 ? "option" : "options"}
+              </h2>
+              <div className="mt-2 flex flex-wrap gap-2" role="radiogroup" aria-label="Colors">
+                {colors.map((c) => (
+                  <button
+                    key={c.name}
+                    role="radio"
+                    aria-checked={color?.name === c.name}
+                    onClick={() => setColor(color?.name === c.name ? null : c)}
+                    className={cn(
+                      "flex items-center gap-2 rounded-full py-1.5 pl-1.5 pr-3 text-[13px] font-semibold ring-1 transition",
+                      color?.name === c.name ? "bg-pink-soft text-pink ring-pink" : "bg-white text-ink/75 ring-ink/10 hover:ring-pink",
+                    )}
+                  >
+                    {c.image ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={c.image} alt="" className="h-6 w-6 rounded-full object-cover" />
+                    ) : (
+                      <span className="h-6 w-6 rounded-full ring-1 ring-ink/10" style={{ background: c.hex || "#F3E8EE" }} aria-hidden />
+                    )}
+                    {c.name}
+                  </button>
+                ))}
+              </div>
+              {color?.image && (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={color.image} alt={`${product.name}, ${color.name}`} className="mt-3 aspect-square w-40 rounded-2xl bg-pink-soft object-cover" />
+              )}
+              <p className="mt-1.5 text-[11px] text-ink/45">Pick your shade on the store when you buy.</p>
+            </div>
+          )}
+
           <div className="mt-6">
             <InsightCard product={product} />
           </div>
@@ -241,6 +318,8 @@ function ProductView({ product }: { product: Product }) {
         </div>
       </section>
 
+      <ProductReviews productId={product.id} state={reviews} />
+
       <StickyBuyBar product={product} priced={priced} onCompare={() => setTab("Compare offers")} />
 
       <section>
@@ -253,6 +332,12 @@ function ProductView({ product }: { product: Product }) {
       </section>
     </div>
   );
+}
+
+/** Store promotions that haven't ended yet (end dates are read as Philippine dates). */
+function activePromotions(product: Product) {
+  const today = new Date().toLocaleDateString("en-CA", { timeZone: "Asia/Manila" });
+  return (product.promotions ?? []).filter((p) => !p.endsOn || p.endsOn >= today);
 }
 
 function lastChecked(offers: { updatedAt?: string }[]) {
@@ -270,7 +355,7 @@ function StickyBuyBar({ product, priced, onCompare }: { product: ReturnType<type
     <div className="fixed inset-x-3 bottom-[calc(4.75rem+env(safe-area-inset-bottom))] z-30 flex items-center gap-3 rounded-[1.75rem] bg-white/80 p-2 pl-5 text-ink shadow-[0_18px_40px_-16px_rgba(255,79,184,0.45)] ring-1 ring-pink/15 backdrop-blur-xl lg:hidden">
       <span className="min-w-0 flex-1">
         <span className="block text-[11px] font-semibold text-ink/50">{priced ? `Best price · ${retailerById(best.retailer).name}` : `${product.offers.length} stores`}</span>
-        <span className="block truncate text-[20px] font-extrabold leading-tight">{priced ? peso(best.price) : "See live prices"}</span>
+        <span className="block truncate text-[20px] font-extrabold leading-tight">{priced ? offerPriceLabel(best, "–") : "See live prices"}</span>
       </span>
       {priced ? (
         <a

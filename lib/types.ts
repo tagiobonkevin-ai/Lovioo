@@ -12,8 +12,24 @@ export interface Offer {
   shipping: number;
   inStock: boolean;
   url: string;
+  /** Top of a price range at this store (shades or sizes priced differently); price is the lowest. */
+  priceMax?: number;
   /** When this offer was last updated (Supabase mode). */
   updatedAt?: string;
+}
+
+/** A shade or color option, e.g. { name: "Nude Shock", hex: "#C98B7B" }. */
+export interface ProductColor {
+  name: string;
+  hex?: string;
+  image?: string;
+}
+
+/** A store promotion, e.g. { text: "Buy 2 Gift 1", retailer: "lazada", endsOn: "2026-11-30" }. */
+export interface ProductPromotion {
+  text: string;
+  retailer?: RetailerId;
+  endsOn?: string;
 }
 
 export interface Product {
@@ -33,6 +49,12 @@ export interface Product {
   vibes: Vibe[];
   rating: number;
   reviewCount: number;
+  /** The store the rating and review count were copied from (shown as "on Lazada"). */
+  ratingSource?: RetailerId;
+  /** Shades / color options. */
+  colors?: ProductColor[];
+  /** Store promotions such as "Buy 2 Gift 1". */
+  promotions?: ProductPromotion[];
   description: string;
   highlights: string[];
   isNew?: boolean;

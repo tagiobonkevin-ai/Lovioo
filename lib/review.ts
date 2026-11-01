@@ -19,6 +19,9 @@ export const CONTENT_FIELDS = {
   trending: "Trending",
   rating: "Rating",
   review_count: "Review count",
+  colors: "Colors",
+  promotions: "Promotions",
+  rating_source: "Rating source",
 } as const;
 
 export type ContentField = keyof typeof CONTENT_FIELDS;

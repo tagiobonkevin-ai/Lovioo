@@ -1,5 +1,5 @@
 import type { CategoryId, Offer, Product, RetailerId, Vibe } from "@/lib/types";
-import { hashString, roundPrice, seeded } from "@/lib/utils";
+import { hashString, peso, roundPrice, seeded } from "@/lib/utils";
 
 /**
  * Mock catalog. Prices are illustrative and generated deterministically per
@@ -159,6 +159,20 @@ export const isPriced = (p: Product) => p.priceTracked !== false;
 
 /** Infinity for unpriced picks, so budget and price filters skip them and ascending sorts put them last. */
 export const lowestPrice = (p: Product) => (isPriced(p) ? Math.min(...p.offers.map((o) => o.price)) : Infinity);
+
+/** The top of the price range across stores (an offer's priceMax, else its price). Equal to lowestPrice when there's no range. */
+export const highestPrice = (p: Product) => (isPriced(p) ? Math.max(...p.offers.map((o) => Math.max(o.price, o.priceMax ?? 0))) : Infinity);
+
+/** One store's price: "₱130", or "₱130 – ₱190" when its shades/sizes are priced differently. */
+export const offerPriceLabel = (o: Offer, sep = " – ") => (o.priceMax && o.priceMax > o.price ? `${peso(o.price)}${sep}${peso(o.priceMax)}` : peso(o.price));
+export const hasRange = (o: Offer) => !!o.priceMax && o.priceMax > o.price;
+
+/** "₱130" or, when shades/sizes are priced differently, "₱130 – ₱190". */
+export const priceLabel = (p: Product, sep = " – ") => {
+  const lo = lowestPrice(p);
+  const hi = highestPrice(p);
+  return hi > lo ? `${peso(lo)}${sep}${peso(hi)}` : peso(lo);
+};
 
 export const discountPct = (p: Product) => {
   if (!isPriced(p)) return 0;
